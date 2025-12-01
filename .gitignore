@@ -1,0 +1,49 @@
+## --- Build & Object Files (Quan trọng nhất) ---
+# Các thư mục chứa code đã biên dịch, không nên đưa lên git vì làm nặng repo
+[Bb]in/
+[Oo]bj/
+
+## --- Visual Studio & IDE Specifics ---
+# File cấu hình riêng của từng máy developer
+.vs/
+.vscode/
+.idea/
+*.user
+*.userosscache
+*.sln.docstates
+*.suo
+
+## --- Dependencies & Nuget ---
+# Các gói thư viện sẽ được restore tự động, không cần commit
+*.nupkg
+*.snupkg
+packages/
+!packages/build/
+project.lock.json
+project.fragment.lock.json
+artifacts/
+
+## --- ASP.NET Core & Environment ---
+# File chứa biến môi trường nhạy cảm (Connection strings, API Keys)
+# appsettings.json: NÊN commit (để làm mẫu cấu trúc)
+# appsettings.Development.json: THƯỜNG ignore (để mỗi dev có config local riêng)
+appsettings.Development.json
+appsettings.Local.json
+secrets.json
+
+# File biến môi trường (nếu dùng thư viện DotEnv)
+.env
+
+## --- Logs & Diagnostics ---
+*.log
+*.dump
+
+## --- Operating System Files ---
+.DS_Store
+Thumbs.db
+
+## --- Test Results ---
+TestResults/
+*.trx
+coverage.json
+*.cobertura.xml
