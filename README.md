@@ -4,9 +4,9 @@
 
 ```txt
 src/
- ├── Presentation/       # Xử lý request, response
- ├── BLL/                # Xử lý logic, gọi DB
- ├── DAL/                # Định nghĩa data model
+ ├── Controller/       # Xử lý request, response
+ ├── BLL/                # Định nghĩa data model
+ ├── DAL/                # Xử lý logic, gọi DB
  ├── Applications/       # Helpers
  │     └── utils/
  │     └── mappers/
