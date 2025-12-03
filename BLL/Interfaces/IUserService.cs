@@ -7,6 +7,7 @@ namespace BLL.Interfaces
     {
         Task<UserResponseDto?> GetProfileAsync(string userId);
         Task<UserResponseDto?> UpdateProfileAsync(string userId, UpdateUserProfileDto dto);
+        Task<bool> ChangePasswordAsync(string userId, ChangePasswordDto dto);
     }
 }
 

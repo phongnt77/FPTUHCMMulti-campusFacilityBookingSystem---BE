@@ -66,6 +66,49 @@ namespace Controller.Controllers
 
             return Ok(ApiResponse<UserResponseDto>.Ok(result));
         }
+
+        [HttpPut("change-password")]
+        public async Task<IActionResult> ChangePassword([FromBody] ChangePasswordDto dto)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ApiResponse.Fail(400, "Invalid request data"));
+            }
+
+            var userId = User.FindFirstValue(JwtRegisteredClaimNames.Sub) ??
+                         User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            if (string.IsNullOrEmpty(userId))
+            {
+                return Unauthorized(ApiResponse.Fail(401, "User id is missing in token."));
+            }
+
+            try
+            {
+                var result = await _userService.ChangePasswordAsync(userId, dto);
+                if (result)
+                {
+                    return Ok(ApiResponse.Ok());
+                }
+                return BadRequest(ApiResponse.Fail(400, "Failed to change password."));
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(ApiResponse.Fail(400, ex.Message));
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(ApiResponse.Fail(400, ex.Message));
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                return Unauthorized(ApiResponse.Fail(401, ex.Message));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ApiResponse.Fail(500, ex.Message));
+            }
+        }
     }
 }
 
