@@ -1,6 +1,7 @@
 using Applications.DTOs.Request;
 using Applications.DTOs.Response;
 using BLL.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Controller.Controllers
@@ -37,6 +38,14 @@ namespace Controller.Controllers
             {
                 return StatusCode(500, ApiResponse.Fail(500, ex.Message));
             }
+        }
+
+        [HttpPost("logout")]
+        [Authorize]
+        public IActionResult Logout()
+        {
+            // gọi POST /api/auth/logout nếu 200 OK -> FE xóa token khỏi storage -> trả về trang login
+            return Ok(ApiResponse.Ok());
         }
 
         [HttpPost("login/google")]
