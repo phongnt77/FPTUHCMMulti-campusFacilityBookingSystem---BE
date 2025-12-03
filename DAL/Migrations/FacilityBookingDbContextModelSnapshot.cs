@@ -304,6 +304,19 @@ namespace DAL.Migrations
                     b.HasIndex("Status");
 
                     b.ToTable("campus", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            CampusId = "C0001",
+                            Address = "Lô E2a-7, Đường D1, Khu Công nghệ cao, P.Long Thạnh Mỹ, Tp. Thủ Đức, TP.HCM",
+                            CreatedAt = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Email = "daihocfpt@fpt.edu.vn",
+                            Name = "FPTU HCM Campus",
+                            PhoneNumber = "028 7300 5588",
+                            Status = "Active",
+                            UpdatedAt = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc)
+                        });
                 });
 
             modelBuilder.Entity("DAL.Models.Facility", b =>
@@ -397,6 +410,88 @@ namespace DAL.Migrations
                         .IsUnique();
 
                     b.ToTable("facility", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            FacilityId = "F00001",
+                            Amenities = "{\"projector\": true, \"whiteboard\": true, \"airConditioner\": true, \"speakers\": true}",
+                            CampusId = "C0001",
+                            Capacity = 40,
+                            CreatedAt = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Description = "Standard classroom on first floor",
+                            FloorNumber = "1",
+                            MaxConcurrentBookings = 1,
+                            Name = "Room 101",
+                            RoomNumber = "101",
+                            Status = "Available",
+                            TypeId = "FT0001",
+                            UpdatedAt = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc)
+                        },
+                        new
+                        {
+                            FacilityId = "F00002",
+                            Amenities = "{\"projector\": true, \"whiteboard\": true, \"videoConference\": true}",
+                            CampusId = "C0001",
+                            Capacity = 15,
+                            CreatedAt = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Description = "Small meeting room for group discussions",
+                            FloorNumber = "2",
+                            MaxConcurrentBookings = 1,
+                            Name = "Meeting Room A",
+                            RoomNumber = "A201",
+                            Status = "Available",
+                            TypeId = "FT0002",
+                            UpdatedAt = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc)
+                        },
+                        new
+                        {
+                            FacilityId = "F00003",
+                            Amenities = "{\"computers\": 30, \"projector\": true, \"airConditioner\": true, \"printers\": 2}",
+                            CampusId = "C0001",
+                            Capacity = 30,
+                            CreatedAt = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Description = "Computer laboratory with 30 workstations",
+                            FloorNumber = "3",
+                            MaxConcurrentBookings = 1,
+                            Name = "Computer Lab 1",
+                            RoomNumber = "LAB1",
+                            Status = "Available",
+                            TypeId = "FT0003",
+                            UpdatedAt = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc)
+                        },
+                        new
+                        {
+                            FacilityId = "F00004",
+                            Amenities = "{\"scoreBoard\": true, \"lighting\": true, \"changeRoom\": true}",
+                            CampusId = "C0001",
+                            Capacity = 20,
+                            CreatedAt = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Description = "Outdoor basketball court",
+                            FloorNumber = "Ground",
+                            MaxConcurrentBookings = 1,
+                            Name = "Basketball Court",
+                            RoomNumber = "COURT-BB1",
+                            Status = "Available",
+                            TypeId = "FT0004",
+                            UpdatedAt = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc)
+                        },
+                        new
+                        {
+                            FacilityId = "F00005",
+                            Amenities = "{\"projector\": true, \"soundSystem\": true, \"stage\": true, \"airConditioner\": true, \"recording\": true}",
+                            CampusId = "C0001",
+                            Capacity = 200,
+                            CreatedAt = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Description = "Large auditorium for events and ceremonies",
+                            FloorNumber = "1",
+                            MaxConcurrentBookings = 1,
+                            Name = "Main Auditorium",
+                            RoomNumber = "AUD-MAIN",
+                            Status = "Available",
+                            TypeId = "FT0005",
+                            UpdatedAt = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc)
+                        });
                 });
 
             modelBuilder.Entity("DAL.Models.FacilityImage", b =>
@@ -566,6 +661,68 @@ namespace DAL.Migrations
                         .IsUnique();
 
                     b.ToTable("facility_type", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            TypeId = "FT0001",
+                            CreatedAt = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            DefaultAmenities = "{\"projector\": true, \"whiteboard\": true, \"airConditioner\": true}",
+                            DefaultCapacity = 40,
+                            Description = "Standard classroom for lectures and seminars",
+                            IconUrl = "/icons/classroom.svg",
+                            Name = "Classroom",
+                            TypicalDurationHours = 2,
+                            UpdatedAt = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc)
+                        },
+                        new
+                        {
+                            TypeId = "FT0002",
+                            CreatedAt = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            DefaultAmenities = "{\"projector\": true, \"whiteboard\": true, \"videoConference\": true}",
+                            DefaultCapacity = 15,
+                            Description = "Meeting room for group discussions",
+                            IconUrl = "/icons/meeting-room.svg",
+                            Name = "Meeting Room",
+                            TypicalDurationHours = 1,
+                            UpdatedAt = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc)
+                        },
+                        new
+                        {
+                            TypeId = "FT0003",
+                            CreatedAt = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            DefaultAmenities = "{\"computers\": true, \"projector\": true, \"airConditioner\": true, \"printers\": true}",
+                            DefaultCapacity = 30,
+                            Description = "Computer laboratory with workstations",
+                            IconUrl = "/icons/computer-lab.svg",
+                            Name = "Computer Lab",
+                            TypicalDurationHours = 3,
+                            UpdatedAt = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc)
+                        },
+                        new
+                        {
+                            TypeId = "FT0004",
+                            CreatedAt = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            DefaultAmenities = "{\"scoreBoard\": true, \"lighting\": true, \"changeRoom\": true}",
+                            DefaultCapacity = 20,
+                            Description = "Sports court for basketball, volleyball, etc.",
+                            IconUrl = "/icons/sports-court.svg",
+                            Name = "Sports Court",
+                            TypicalDurationHours = 2,
+                            UpdatedAt = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc)
+                        },
+                        new
+                        {
+                            TypeId = "FT0005",
+                            CreatedAt = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            DefaultAmenities = "{\"projector\": true, \"soundSystem\": true, \"stage\": true, \"airConditioner\": true}",
+                            DefaultCapacity = 200,
+                            Description = "Large auditorium for events and presentations",
+                            IconUrl = "/icons/auditorium.svg",
+                            Name = "Auditorium",
+                            TypicalDurationHours = 3,
+                            UpdatedAt = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc)
+                        });
                 });
 
             modelBuilder.Entity("DAL.Models.Notification", b =>
@@ -754,6 +911,62 @@ namespace DAL.Migrations
                     b.ToTable("report", (string)null);
                 });
 
+            modelBuilder.Entity("DAL.Models.Role", b =>
+                {
+                    b.Property<string>("RoleId")
+                        .HasMaxLength(6)
+                        .HasColumnType("nvarchar(6)")
+                        .HasColumnName("role_id");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+                        .HasColumnName("created_at")
+                        .HasDefaultValueSql("GETUTCDATE()");
+
+                    b.Property<string>("RoleName")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)")
+                        .HasColumnName("role_name");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+                        .HasColumnName("updated_at")
+                        .HasDefaultValueSql("GETUTCDATE()");
+
+                    b.HasKey("RoleId");
+
+                    b.HasIndex("RoleName")
+                        .IsUnique();
+
+                    b.ToTable("role", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            RoleId = "RL0001",
+                            CreatedAt = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            RoleName = "Student",
+                            UpdatedAt = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc)
+                        },
+                        new
+                        {
+                            RoleId = "RL0002",
+                            CreatedAt = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            RoleName = "Lecturer",
+                            UpdatedAt = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc)
+                        },
+                        new
+                        {
+                            RoleId = "RL0003",
+                            CreatedAt = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            RoleName = "Facility_Admin",
+                            UpdatedAt = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc)
+                        });
+                });
+
             modelBuilder.Entity("DAL.Models.User", b =>
                 {
                     b.Property<string>("UserId")
@@ -779,10 +992,18 @@ namespace DAL.Migrations
                         .HasDefaultValueSql("GETUTCDATE()");
 
                     b.Property<string>("Email")
-                        .IsRequired()
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)")
                         .HasColumnName("email");
+
+                    b.Property<string>("EmailVerificationToken")
+                        .HasMaxLength(255)
+                        .HasColumnType("nvarchar(255)")
+                        .HasColumnName("email_verification_token");
+
+                    b.Property<DateTime?>("EmailVerificationTokenExpiry")
+                        .HasColumnType("datetime2")
+                        .HasColumnName("email_verification_token_expiry");
 
                     b.Property<string>("FullName")
                         .IsRequired()
@@ -811,10 +1032,11 @@ namespace DAL.Migrations
                         .HasColumnType("nvarchar(20)")
                         .HasColumnName("phone_number");
 
-                    b.Property<string>("Role")
+                    b.Property<string>("RoleId")
                         .IsRequired()
-                        .HasColumnType("nvarchar(450)")
-                        .HasColumnName("role");
+                        .HasMaxLength(6)
+                        .HasColumnType("nvarchar(6)")
+                        .HasColumnName("role_id");
 
                     b.Property<string>("Status")
                         .IsRequired()
@@ -830,7 +1052,6 @@ namespace DAL.Migrations
                         .HasDefaultValueSql("GETUTCDATE()");
 
                     b.Property<string>("UserName")
-                        .IsRequired()
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)")
                         .HasColumnName("user_name");
@@ -840,16 +1061,59 @@ namespace DAL.Migrations
                     b.HasIndex("CampusId");
 
                     b.HasIndex("Email")
-                        .IsUnique();
+                        .IsUnique()
+                        .HasFilter("[email] IS NOT NULL");
 
-                    b.HasIndex("Role");
+                    b.HasIndex("RoleId");
 
                     b.HasIndex("Status");
 
                     b.HasIndex("UserName")
-                        .IsUnique();
+                        .IsUnique()
+                        .HasFilter("[user_name] IS NOT NULL");
 
                     b.ToTable("user", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            UserId = "U00001",
+                            CampusId = "C0001",
+                            CreatedAt = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Email = "admin@fpt.edu.vn",
+                            FullName = "System Administrator",
+                            IsVerify = "Verified",
+                            Password = "$2a$11$/fnbmTnQfv85okwq6gjUru/WmqJoKxgB/Tf2EpgIhA7scqefvwCnq",
+                            RoleId = "RL0003",
+                            Status = "Active",
+                            UpdatedAt = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc)
+                        },
+                        new
+                        {
+                            UserId = "U00002",
+                            CampusId = "C0001",
+                            CreatedAt = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Email = "lecturer@fpt.edu.vn",
+                            FullName = "John Lecturer",
+                            IsVerify = "Verified",
+                            Password = "$2a$11$6RVY2PaGRUSjAUra2qYdx.SO80hLw9dK6BmCZ4zND3Av.Beql/BKq",
+                            RoleId = "RL0002",
+                            Status = "Active",
+                            UpdatedAt = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc)
+                        },
+                        new
+                        {
+                            UserId = "U00003",
+                            CampusId = "C0001",
+                            CreatedAt = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Email = "student@fpt.edu.vn",
+                            FullName = "Jane Student",
+                            IsVerify = "Verified",
+                            Password = "$2a$11$wkaz/wwKFwuMtoO4BtOlFOAfnu.MvX0LrATgzg0.No4JLE76vUAOi",
+                            RoleId = "RL0001",
+                            Status = "Active",
+                            UpdatedAt = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc)
+                        });
                 });
 
             modelBuilder.Entity("DAL.Models.Booking", b =>
@@ -1026,7 +1290,15 @@ namespace DAL.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
+                    b.HasOne("DAL.Models.Role", "Role")
+                        .WithMany("Users")
+                        .HasForeignKey("RoleId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
                     b.Navigation("Campus");
+
+                    b.Navigation("Role");
                 });
 
             modelBuilder.Entity("DAL.Models.Booking", b =>
@@ -1059,6 +1331,11 @@ namespace DAL.Migrations
             modelBuilder.Entity("DAL.Models.FacilityType", b =>
                 {
                     b.Navigation("Facilities");
+                });
+
+            modelBuilder.Entity("DAL.Models.Role", b =>
+                {
+                    b.Navigation("Users");
                 });
 
             modelBuilder.Entity("DAL.Models.User", b =>

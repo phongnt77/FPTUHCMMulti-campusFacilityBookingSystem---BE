@@ -5,21 +5,24 @@ namespace DAL.Models
     public class User
     {
         public string UserId { get; set; } = string.Empty;
-        public string Email { get; set; } = string.Empty;
+        public string? Email { get; set; }
         public string FullName { get; set; } = string.Empty;
         public string? PhoneNumber { get; set; }
-        public string UserName { get; set; } = string.Empty;
+        public string? UserName { get; set; }
         public string? Password { get; set; }
-        public UserRole Role { get; set; }
+        public string RoleId { get; set; } = string.Empty;
         public string CampusId { get; set; } = string.Empty;
         public UserStatus Status { get; set; } = UserStatus.Active;
         public VerificationStatus IsVerify { get; set; } = VerificationStatus.Unverified;
         public string? AvatarUrl { get; set; }
         public DateTime? LastLogin { get; set; }
+        public string? EmailVerificationToken { get; set; }
+        public DateTime? EmailVerificationTokenExpiry { get; set; }
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
         public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
 
         // Navigation properties
+        public Role Role { get; set; } = null!;
         public Campus Campus { get; set; } = null!;
         public ICollection<Campus> ManagedCampuses { get; set; } = new List<Campus>();
         public ICollection<Booking> Bookings { get; set; } = new List<Booking>();

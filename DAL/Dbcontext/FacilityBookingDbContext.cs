@@ -12,6 +12,7 @@ namespace DAL.Dbcontext
         }
 
         // DbSets
+        public DbSet<Role> Roles { get; set; }
         public DbSet<Campus> Campuses { get; set; }
         public DbSet<FacilityType> FacilityTypes { get; set; }
         public DbSet<User> Users { get; set; }
@@ -27,6 +28,55 @@ namespace DAL.Dbcontext
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
+
+            // Role configuration
+            modelBuilder.Entity<Role>(entity =>
+            {
+                entity.ToTable("role");
+                entity.HasKey(e => e.RoleId);
+                entity.Property(e => e.RoleId)
+                    .HasColumnName("role_id")
+                    .HasMaxLength(6)
+                    .IsRequired();
+                entity.Property(e => e.RoleName)
+                    .HasColumnName("role_name")
+                    .HasMaxLength(100)
+                    .IsRequired();
+                entity.Property(e => e.CreatedAt)
+                    .HasColumnName("created_at")
+                    .HasDefaultValueSql("GETUTCDATE()");
+                entity.Property(e => e.UpdatedAt)
+                    .HasColumnName("updated_at")
+                    .HasDefaultValueSql("GETUTCDATE()");
+
+                // Unique constraint
+                entity.HasIndex(e => e.RoleName).IsUnique();
+
+                // Seed data for 3 roles
+                entity.HasData(
+                    new Role 
+                    { 
+                        RoleId = "RL0001", 
+                        RoleName = "Student", 
+                        CreatedAt = new DateTime(2024, 1, 1, 0, 0, 0, DateTimeKind.Utc), 
+                        UpdatedAt = new DateTime(2024, 1, 1, 0, 0, 0, DateTimeKind.Utc) 
+                    },
+                    new Role 
+                    { 
+                        RoleId = "RL0002", 
+                        RoleName = "Lecturer", 
+                        CreatedAt = new DateTime(2024, 1, 1, 0, 0, 0, DateTimeKind.Utc), 
+                        UpdatedAt = new DateTime(2024, 1, 1, 0, 0, 0, DateTimeKind.Utc) 
+                    },
+                    new Role 
+                    { 
+                        RoleId = "RL0003", 
+                        RoleName = "Facility_Admin", 
+                        CreatedAt = new DateTime(2024, 1, 1, 0, 0, 0, DateTimeKind.Utc), 
+                        UpdatedAt = new DateTime(2024, 1, 1, 0, 0, 0, DateTimeKind.Utc) 
+                    }
+                );
+            });
 
             // Campus configuration
             modelBuilder.Entity<Campus>(entity =>
@@ -68,6 +118,21 @@ namespace DAL.Dbcontext
                 entity.HasIndex(e => e.Name).IsUnique();
                 // Indexes
                 entity.HasIndex(e => e.Status);
+
+                // Seed data
+                entity.HasData(
+                    new Campus 
+                    { 
+                        CampusId = "C0001", 
+                        Name = "FPTU HCM Campus", 
+                        Address = "Lô E2a-7, Đường D1, Khu Công nghệ cao, P.Long Thạnh Mỹ, Tp. Thủ Đức, TP.HCM",
+                        PhoneNumber = "028 7300 5588",
+                        Email = "daihocfpt@fpt.edu.vn",
+                        Status = CampusStatus.Active,
+                        CreatedAt = new DateTime(2024, 1, 1, 0, 0, 0, DateTimeKind.Utc),
+                        UpdatedAt = new DateTime(2024, 1, 1, 0, 0, 0, DateTimeKind.Utc)
+                    }
+                );
 
                 // Relationship: Campus -> FacilityManager (User)
                 entity.HasOne(e => e.FacilityManager)
@@ -111,6 +176,70 @@ namespace DAL.Dbcontext
 
                 // Unique constraint
                 entity.HasIndex(e => e.Name).IsUnique();
+
+                // Seed data for common facility types
+                entity.HasData(
+                    new FacilityType
+                    {
+                        TypeId = "FT0001",
+                        Name = "Classroom",
+                        Description = "Standard classroom for lectures and seminars",
+                        DefaultAmenities = "{\"projector\": true, \"whiteboard\": true, \"airConditioner\": true}",
+                        DefaultCapacity = 40,
+                        TypicalDurationHours = 2,
+                        IconUrl = "/icons/classroom.svg",
+                        CreatedAt = new DateTime(2024, 1, 1, 0, 0, 0, DateTimeKind.Utc),
+                        UpdatedAt = new DateTime(2024, 1, 1, 0, 0, 0, DateTimeKind.Utc)
+                    },
+                    new FacilityType
+                    {
+                        TypeId = "FT0002",
+                        Name = "Meeting Room",
+                        Description = "Meeting room for group discussions",
+                        DefaultAmenities = "{\"projector\": true, \"whiteboard\": true, \"videoConference\": true}",
+                        DefaultCapacity = 15,
+                        TypicalDurationHours = 1,
+                        IconUrl = "/icons/meeting-room.svg",
+                        CreatedAt = new DateTime(2024, 1, 1, 0, 0, 0, DateTimeKind.Utc),
+                        UpdatedAt = new DateTime(2024, 1, 1, 0, 0, 0, DateTimeKind.Utc)
+                    },
+                    new FacilityType
+                    {
+                        TypeId = "FT0003",
+                        Name = "Computer Lab",
+                        Description = "Computer laboratory with workstations",
+                        DefaultAmenities = "{\"computers\": true, \"projector\": true, \"airConditioner\": true, \"printers\": true}",
+                        DefaultCapacity = 30,
+                        TypicalDurationHours = 3,
+                        IconUrl = "/icons/computer-lab.svg",
+                        CreatedAt = new DateTime(2024, 1, 1, 0, 0, 0, DateTimeKind.Utc),
+                        UpdatedAt = new DateTime(2024, 1, 1, 0, 0, 0, DateTimeKind.Utc)
+                    },
+                    new FacilityType
+                    {
+                        TypeId = "FT0004",
+                        Name = "Sports Court",
+                        Description = "Sports court for basketball, volleyball, etc.",
+                        DefaultAmenities = "{\"scoreBoard\": true, \"lighting\": true, \"changeRoom\": true}",
+                        DefaultCapacity = 20,
+                        TypicalDurationHours = 2,
+                        IconUrl = "/icons/sports-court.svg",
+                        CreatedAt = new DateTime(2024, 1, 1, 0, 0, 0, DateTimeKind.Utc),
+                        UpdatedAt = new DateTime(2024, 1, 1, 0, 0, 0, DateTimeKind.Utc)
+                    },
+                    new FacilityType
+                    {
+                        TypeId = "FT0005",
+                        Name = "Auditorium",
+                        Description = "Large auditorium for events and presentations",
+                        DefaultAmenities = "{\"projector\": true, \"soundSystem\": true, \"stage\": true, \"airConditioner\": true}",
+                        DefaultCapacity = 200,
+                        TypicalDurationHours = 3,
+                        IconUrl = "/icons/auditorium.svg",
+                        CreatedAt = new DateTime(2024, 1, 1, 0, 0, 0, DateTimeKind.Utc),
+                        UpdatedAt = new DateTime(2024, 1, 1, 0, 0, 0, DateTimeKind.Utc)
+                    }
+                );
             });
 
             // User configuration
@@ -124,8 +253,7 @@ namespace DAL.Dbcontext
                     .IsRequired();
                 entity.Property(e => e.Email)
                     .HasColumnName("email")
-                    .HasMaxLength(100)
-                    .IsRequired();
+                    .HasMaxLength(100);
                 entity.Property(e => e.FullName)
                     .HasColumnName("full_name")
                     .HasMaxLength(100)
@@ -135,14 +263,13 @@ namespace DAL.Dbcontext
                     .HasMaxLength(20);
                 entity.Property(e => e.UserName)
                     .HasColumnName("user_name")
-                    .HasMaxLength(100)
-                    .IsRequired();
+                    .HasMaxLength(100);
                 entity.Property(e => e.Password)
                     .HasColumnName("password")
                     .HasMaxLength(255);
-                entity.Property(e => e.Role)
-                    .HasColumnName("role")
-                    .HasConversion<string>()
+                entity.Property(e => e.RoleId)
+                    .HasColumnName("role_id")
+                    .HasMaxLength(6)
                     .IsRequired();
                 entity.Property(e => e.CampusId)
                     .HasColumnName("campus_id")
@@ -161,6 +288,11 @@ namespace DAL.Dbcontext
                     .HasMaxLength(255);
                 entity.Property(e => e.LastLogin)
                     .HasColumnName("last_login");
+                entity.Property(e => e.EmailVerificationToken)
+                    .HasColumnName("email_verification_token")
+                    .HasMaxLength(255);
+                entity.Property(e => e.EmailVerificationTokenExpiry)
+                    .HasColumnName("email_verification_token_expiry");
                 entity.Property(e => e.CreatedAt)
                     .HasColumnName("created_at")
                     .HasDefaultValueSql("GETUTCDATE()");
@@ -168,15 +300,73 @@ namespace DAL.Dbcontext
                     .HasColumnName("updated_at")
                     .HasDefaultValueSql("GETUTCDATE()");
 
-                // Unique constraints
-                entity.HasIndex(e => e.Email).IsUnique();
-                entity.HasIndex(e => e.UserName).IsUnique();
+                // Unique constraints (only if not null)
+                entity.HasIndex(e => e.Email)
+                    .IsUnique()
+                    .HasFilter("[email] IS NOT NULL");
+                entity.HasIndex(e => e.UserName)
+                    .IsUnique()
+                    .HasFilter("[user_name] IS NOT NULL");
                 // Indexes
-                entity.HasIndex(e => e.Role);
+                entity.HasIndex(e => e.RoleId);
                 entity.HasIndex(e => e.CampusId);
                 entity.HasIndex(e => e.Status);
 
-                // Relationship: User -> Campus
+                // Seed data for sample users
+                entity.HasData(
+                    // Admin user
+                    new User
+                    {
+                        UserId = "U00001",
+                        Email = "admin@fpt.edu.vn",
+                        FullName = "System Administrator",
+                        UserName = null,
+                        Password = BCrypt.Net.BCrypt.HashPassword("Admin@123"),
+                        RoleId = "RL0003", // Facility_Admin
+                        CampusId = "C0001",
+                        Status = UserStatus.Active,
+                        IsVerify = VerificationStatus.Verified,
+                        CreatedAt = new DateTime(2024, 1, 1, 0, 0, 0, DateTimeKind.Utc),
+                        UpdatedAt = new DateTime(2024, 1, 1, 0, 0, 0, DateTimeKind.Utc)
+                    },
+                    // Lecturer user
+                    new User
+                    {
+                        UserId = "U00002",
+                        Email = "lecturer@fpt.edu.vn",
+                        FullName = "John Lecturer",
+                        UserName = null,
+                        Password = BCrypt.Net.BCrypt.HashPassword("Lecturer@123"),
+                        RoleId = "RL0002", // Lecturer
+                        CampusId = "C0001",
+                        Status = UserStatus.Active,
+                        IsVerify = VerificationStatus.Verified,
+                        CreatedAt = new DateTime(2024, 1, 1, 0, 0, 0, DateTimeKind.Utc),
+                        UpdatedAt = new DateTime(2024, 1, 1, 0, 0, 0, DateTimeKind.Utc)
+                    },
+                    // Student user
+                    new User
+                    {
+                        UserId = "U00003",
+                        Email = "student@fpt.edu.vn",
+                        FullName = "Jane Student",
+                        UserName = null,
+                        Password = BCrypt.Net.BCrypt.HashPassword("Student@123"),
+                        RoleId = "RL0001", // Student
+                        CampusId = "C0001",
+                        Status = UserStatus.Active,
+                        IsVerify = VerificationStatus.Verified,
+                        CreatedAt = new DateTime(2024, 1, 1, 0, 0, 0, DateTimeKind.Utc),
+                        UpdatedAt = new DateTime(2024, 1, 1, 0, 0, 0, DateTimeKind.Utc)
+                    }
+                );
+
+                // Relationships
+                entity.HasOne(e => e.Role)
+                    .WithMany(r => r.Users)
+                    .HasForeignKey(e => e.RoleId)
+                    .OnDelete(DeleteBehavior.Restrict);
+
                 entity.HasOne(e => e.Campus)
                     .WithMany(c => c.Users)
                     .HasForeignKey(e => e.CampusId)
@@ -259,6 +449,90 @@ namespace DAL.Dbcontext
                     .WithMany(u => u.ManagedFacilities)
                     .HasForeignKey(e => e.FacilityManagerId)
                     .OnDelete(DeleteBehavior.SetNull);
+
+                // Seed data for sample facilities
+                entity.HasData(
+                    new Facility
+                    {
+                        FacilityId = "F00001",
+                        Name = "Room 101",
+                        Description = "Standard classroom on first floor",
+                        Capacity = 40,
+                        RoomNumber = "101",
+                        FloorNumber = "1",
+                        CampusId = "C0001",
+                        TypeId = "FT0001", // Classroom
+                        Status = FacilityStatus.Available,
+                        Amenities = "{\"projector\": true, \"whiteboard\": true, \"airConditioner\": true, \"speakers\": true}",
+                        MaxConcurrentBookings = 1,
+                        CreatedAt = new DateTime(2024, 1, 1, 0, 0, 0, DateTimeKind.Utc),
+                        UpdatedAt = new DateTime(2024, 1, 1, 0, 0, 0, DateTimeKind.Utc)
+                    },
+                    new Facility
+                    {
+                        FacilityId = "F00002",
+                        Name = "Meeting Room A",
+                        Description = "Small meeting room for group discussions",
+                        Capacity = 15,
+                        RoomNumber = "A201",
+                        FloorNumber = "2",
+                        CampusId = "C0001",
+                        TypeId = "FT0002", // Meeting Room
+                        Status = FacilityStatus.Available,
+                        Amenities = "{\"projector\": true, \"whiteboard\": true, \"videoConference\": true}",
+                        MaxConcurrentBookings = 1,
+                        CreatedAt = new DateTime(2024, 1, 1, 0, 0, 0, DateTimeKind.Utc),
+                        UpdatedAt = new DateTime(2024, 1, 1, 0, 0, 0, DateTimeKind.Utc)
+                    },
+                    new Facility
+                    {
+                        FacilityId = "F00003",
+                        Name = "Computer Lab 1",
+                        Description = "Computer laboratory with 30 workstations",
+                        Capacity = 30,
+                        RoomNumber = "LAB1",
+                        FloorNumber = "3",
+                        CampusId = "C0001",
+                        TypeId = "FT0003", // Computer Lab
+                        Status = FacilityStatus.Available,
+                        Amenities = "{\"computers\": 30, \"projector\": true, \"airConditioner\": true, \"printers\": 2}",
+                        MaxConcurrentBookings = 1,
+                        CreatedAt = new DateTime(2024, 1, 1, 0, 0, 0, DateTimeKind.Utc),
+                        UpdatedAt = new DateTime(2024, 1, 1, 0, 0, 0, DateTimeKind.Utc)
+                    },
+                    new Facility
+                    {
+                        FacilityId = "F00004",
+                        Name = "Basketball Court",
+                        Description = "Outdoor basketball court",
+                        Capacity = 20,
+                        RoomNumber = "COURT-BB1",
+                        FloorNumber = "Ground",
+                        CampusId = "C0001",
+                        TypeId = "FT0004", // Sports Court
+                        Status = FacilityStatus.Available,
+                        Amenities = "{\"scoreBoard\": true, \"lighting\": true, \"changeRoom\": true}",
+                        MaxConcurrentBookings = 1,
+                        CreatedAt = new DateTime(2024, 1, 1, 0, 0, 0, DateTimeKind.Utc),
+                        UpdatedAt = new DateTime(2024, 1, 1, 0, 0, 0, DateTimeKind.Utc)
+                    },
+                    new Facility
+                    {
+                        FacilityId = "F00005",
+                        Name = "Main Auditorium",
+                        Description = "Large auditorium for events and ceremonies",
+                        Capacity = 200,
+                        RoomNumber = "AUD-MAIN",
+                        FloorNumber = "1",
+                        CampusId = "C0001",
+                        TypeId = "FT0005", // Auditorium
+                        Status = FacilityStatus.Available,
+                        Amenities = "{\"projector\": true, \"soundSystem\": true, \"stage\": true, \"airConditioner\": true, \"recording\": true}",
+                        MaxConcurrentBookings = 1,
+                        CreatedAt = new DateTime(2024, 1, 1, 0, 0, 0, DateTimeKind.Utc),
+                        UpdatedAt = new DateTime(2024, 1, 1, 0, 0, 0, DateTimeKind.Utc)
+                    }
+                );
             });
 
             // FacilityImage configuration
