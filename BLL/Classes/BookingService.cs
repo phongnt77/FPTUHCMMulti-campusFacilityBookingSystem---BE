@@ -244,6 +244,119 @@ namespace BLL.Classes
 
             return $"B{(maxId + 1):D5}";
         }
+
+        public async Task<ApiResponse<BookingResponseDto>> ApproveBookingAsync(string bookingId, string approverId)
+        {
+            var booking = await _unitOfWork.BookingRepo.GetByIdAsync(bookingId);
+            if (booking == null)
+            {
+                return ApiResponse<BookingResponseDto>.Fail(404, "Booking not found");
+            }
+
+            // Check if booking is in draft or pending status (can be approved)
+            if (booking.Status != BookingStatus.Draft && booking.Status != BookingStatus.Pending_Approval)
+            {
+                return ApiResponse<BookingResponseDto>.Fail(400, $"Booking cannot be approved. Current status: {booking.Status}");
+            }
+
+            // check nếu thời gian không hợp lệ trước khi phê duyệt
+            var hasConflict = await _unitOfWork.BookingRepo.HasConflictAsync(
+                booking.FacilityId,
+                booking.StartTime,
+                booking.EndTime,
+                bookingId
+            );
+
+            if (hasConflict)
+            {
+                return ApiResponse<BookingResponseDto>.Fail(409, "Cannot approve booking. Time slot conflict detected.");
+            }
+
+            // phê duyệt booking
+            booking.Status = BookingStatus.Approved;
+            booking.ApprovedBy = approverId;
+            booking.ApprovedAt = DateTime.UtcNow;
+            booking.RejectionReason = null;
+            booking.UpdatedAt = DateTime.UtcNow;
+
+            await _unitOfWork.BookingRepo.UpdateAsync(booking);
+
+            var responseDto = new BookingResponseDto
+            {
+                BookingId = booking.BookingId,
+                UserId = booking.UserId,
+                UserName = booking.User?.FullName ?? string.Empty,
+                FacilityId = booking.FacilityId,
+                FacilityName = booking.Facility?.Name ?? string.Empty,
+                StartTime = booking.StartTime,
+                EndTime = booking.EndTime,
+                Purpose = booking.Purpose,
+                Category = booking.Category,
+                EstimatedAttendees = booking.EstimatedAttendees,
+                SpecialRequirements = booking.SpecialRequirements,
+                Status = booking.Status.ToString(),
+                ApprovedBy = booking.ApprovedBy,
+                ApprovedAt = booking.ApprovedAt,
+                RejectionReason = booking.RejectionReason,
+                CheckInTime = booking.CheckInTime,
+                CheckOutTime = booking.CheckOutTime,
+                IsUsed = booking.IsUsed,
+                CreatedAt = booking.CreatedAt,
+                UpdatedAt = booking.UpdatedAt
+            };
+
+            return ApiResponse<BookingResponseDto>.Ok(responseDto);
+        }
+
+        public async Task<ApiResponse<BookingResponseDto>> RejectBookingAsync(string bookingId, string approverId, string? reason)
+        {
+            var booking = await _unitOfWork.BookingRepo.GetByIdAsync(bookingId);
+            if (booking == null)
+            {
+                return ApiResponse<BookingResponseDto>.Fail(404, "Booking not found");
+            }
+
+            // check nếu booking đang draft hoặc pending approval thì có thể bị từ chối
+            if (booking.Status != BookingStatus.Draft && booking.Status != BookingStatus.Pending_Approval)
+            {
+                return ApiResponse<BookingResponseDto>.Fail(400, $"Booking cannot be rejected. Current status: {booking.Status}");
+            }
+
+            // từ chối booking
+            booking.Status = BookingStatus.Rejected;
+            booking.ApprovedBy = approverId;
+            booking.ApprovedAt = DateTime.UtcNow;
+            booking.RejectionReason = reason;
+            booking.UpdatedAt = DateTime.UtcNow;
+
+            await _unitOfWork.BookingRepo.UpdateAsync(booking);
+
+            var responseDto = new BookingResponseDto
+            {
+                BookingId = booking.BookingId,
+                UserId = booking.UserId,
+                UserName = booking.User?.FullName ?? string.Empty,
+                FacilityId = booking.FacilityId,
+                FacilityName = booking.Facility?.Name ?? string.Empty,
+                StartTime = booking.StartTime,
+                EndTime = booking.EndTime,
+                Purpose = booking.Purpose,
+                Category = booking.Category,
+                EstimatedAttendees = booking.EstimatedAttendees,
+                SpecialRequirements = booking.SpecialRequirements,
+                Status = booking.Status.ToString(),
+                ApprovedBy = booking.ApprovedBy,
+                ApprovedAt = booking.ApprovedAt,
+                RejectionReason = booking.RejectionReason,
+                CheckInTime = booking.CheckInTime,
+                CheckOutTime = booking.CheckOutTime,
+                IsUsed = booking.IsUsed,
+                CreatedAt = booking.CreatedAt,
+                UpdatedAt = booking.UpdatedAt
+            };
+
+            return ApiResponse<BookingResponseDto>.Ok(responseDto);
+        }
     }
 }
 

@@ -10,6 +10,8 @@ namespace BLL.Interfaces
         Task<ApiResponse<BookingResponseDto>> CreateAsync(CreateBookingDto dto);
         Task<ApiResponse<BookingResponseDto>> UpdateAsync(string id, UpdateBookingDto dto);
         Task<ApiResponse> CancelAsync(string id, string reason);
+        Task<ApiResponse<BookingResponseDto>> ApproveBookingAsync(string bookingId, string approverId);
+        Task<ApiResponse<BookingResponseDto>> RejectBookingAsync(string bookingId, string approverId, string? reason);
     }
 }
 
