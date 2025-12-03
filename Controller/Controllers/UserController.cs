@@ -1,0 +1,73 @@
+using Applications.DTOs.Request;
+using Applications.DTOs.Response;
+using BLL.Interfaces;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+
+namespace Controller.Controllers
+{
+    [ApiController]
+    [Route("api/users")]
+    [Authorize]
+    public class UserController : ControllerBase
+    {
+        private readonly IUserService _userService;
+
+        public UserController(IUserService userService)
+        {
+            _userService = userService;
+        }
+
+        [HttpGet("profile")]
+        public async Task<IActionResult> GetProfile()
+        {
+            var userId = User.FindFirstValue(JwtRegisteredClaimNames.Sub) ??
+                         User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            if (string.IsNullOrEmpty(userId))
+            {
+                return Unauthorized(ApiResponse.Fail(401, "User id is missing in token."));
+            }
+
+            var result = await _userService.GetProfileAsync(userId);
+
+            if (result == null)
+            {
+                return NotFound(ApiResponse.Fail(404, "User not found."));
+            }
+
+            return Ok(ApiResponse<UserResponseDto>.Ok(result));
+        }
+
+        [HttpPut("profile")]
+        public async Task<IActionResult> UpdateProfile([FromBody] UpdateUserProfileDto dto)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ApiResponse.Fail(400, "Invalid request data"));
+            }
+
+            var userId = User.FindFirstValue(JwtRegisteredClaimNames.Sub) ??
+                         User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            if (string.IsNullOrEmpty(userId))
+            {
+                return Unauthorized(ApiResponse.Fail(401, "User id is missing in token."));
+            }
+
+            var result = await _userService.UpdateProfileAsync(userId, dto);
+
+            if (result == null)
+            {
+                return NotFound(ApiResponse.Fail(404, "User not found."));
+            }
+
+            return Ok(ApiResponse<UserResponseDto>.Ok(result));
+        }
+    }
+}
+
+
+
