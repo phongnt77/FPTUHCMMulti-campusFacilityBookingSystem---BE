@@ -43,6 +43,48 @@ namespace DAL.Repositories.Classes
         {
             return await CreateAsync(entity);
         }
+
+        public async Task<(List<User> items, int total)> GetFilteredAsync(string? name, string? email, string? roleId, string? campusId, string? status, int page, int limit)
+        {
+            var query = _context.Set<User>()
+                .Include(u => u.Role)
+                .Include(u => u.Campus)
+                .AsQueryable();
+
+            if (!string.IsNullOrEmpty(name))
+            {
+                query = query.Where(u => u.FullName.Contains(name));
+            }
+
+            if (!string.IsNullOrEmpty(email))
+            {
+                query = query.Where(u => u.Email != null && u.Email.Contains(email));
+            }
+
+            if (!string.IsNullOrEmpty(roleId))
+            {
+                query = query.Where(u => u.RoleId == roleId);
+            }
+
+            if (!string.IsNullOrEmpty(campusId))
+            {
+                query = query.Where(u => u.CampusId == campusId);
+            }
+
+            if (!string.IsNullOrEmpty(status))
+            {
+                query = query.Where(u => u.Status.ToString() == status);
+            }
+
+            var total = await query.CountAsync();
+            var items = await query
+                .OrderByDescending(u => u.CreatedAt)
+                .Skip((page - 1) * limit)
+                .Take(limit)
+                .ToListAsync();
+
+            return (items, total);
+        }
     }
 }
 

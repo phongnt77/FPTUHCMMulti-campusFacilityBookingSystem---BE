@@ -8,6 +8,8 @@ namespace BLL.Interfaces
         Task<UserResponseDto?> GetProfileAsync(string userId);
         Task<UserResponseDto?> UpdateProfileAsync(string userId, UpdateUserProfileDto dto);
         Task<bool> ChangePasswordAsync(string userId, ChangePasswordDto dto);
+        Task<ApiResponseWithPagination<List<UserResponseDto>>> GetAllAsync(UserFilterDto filter);
+        Task<ApiResponse<UserResponseDto>> GetByIdAsync(string id);
     }
 }
 

@@ -9,6 +9,7 @@ namespace DAL.Repositories.Interfaces
         Task<int> CreateAsync(Campus entity);
         Task<int> UpdateAsync(Campus entity);
         Task<List<Campus>> GetAllAsync();
+        Task<List<Campus>> GetAllCampusesAsync();
     }
 }
 

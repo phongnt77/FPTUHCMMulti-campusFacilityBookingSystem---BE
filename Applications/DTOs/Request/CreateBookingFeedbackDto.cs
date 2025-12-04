@@ -4,14 +4,14 @@ namespace Applications.DTOs.Request
 {
     public class CreateBookingFeedbackDto
     {
-        [Required]
+        [Required(ErrorMessage = "ID lượt đặt là bắt buộc")]
         public string BookingId { get; set; } = string.Empty;
 
-        [Required]
+        [Required(ErrorMessage = "ID người dùng là bắt buộc")]
         public string UserId { get; set; } = string.Empty;
 
-        [Required]
-        [Range(1, 5)]
+        [Required(ErrorMessage = "Đánh giá là bắt buộc")]
+        [Range(1, 5, ErrorMessage = "Đánh giá phải từ 1 đến 5 sao")]
         public int Rating { get; set; }
 
         public string? Comments { get; set; }

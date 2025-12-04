@@ -1,6 +1,7 @@
 using DAL.Basic;
 using DAL.Dbcontext;
 using DAL.Models;
+using DAL.Models.Enums;
 using DAL.Repositories.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
@@ -23,6 +24,14 @@ namespace DAL.Repositories.Classes
                 .ToListAsync();
 
             return (items, total);
+        }
+
+        public async Task<List<Campus>> GetAllCampusesAsync()
+        {
+            return await _context.Set<Campus>()
+                .Where(c => c.Status == CampusStatus.Active)
+                .OrderBy(c => c.Name)
+                .ToListAsync();
         }
     }
 }

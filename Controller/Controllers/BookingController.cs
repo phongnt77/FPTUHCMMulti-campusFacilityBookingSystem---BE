@@ -55,7 +55,7 @@ namespace Controller.Controllers
         {
             if (!ModelState.IsValid)
             {
-                return BadRequest(ApiResponse.Fail(400, "Invalid request data"));
+                return BadRequest(ApiResponse.Fail(400, "Dữ liệu không hợp lệ."));
             }
 
             try

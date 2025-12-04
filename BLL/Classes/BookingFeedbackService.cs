@@ -46,7 +46,7 @@ namespace BLL.Classes
             var feedback = await _unitOfWork.BookingFeedbackRepo.GetByIdAsync(id);
             if (feedback == null)
             {
-                return ApiResponse<BookingFeedbackResponseDto>.Fail(404, "Feedback not found");
+                return ApiResponse<BookingFeedbackResponseDto>.Fail(404, "Không tìm thấy đánh giá.");
             }
 
             var responseDto = new BookingFeedbackResponseDto

@@ -4,8 +4,8 @@ namespace Applications.DTOs.Request
 {
     public class CreateCampusDto
     {
-        [Required]
-        [MaxLength(100)]
+        [Required(ErrorMessage = "Tên cơ sở là bắt buộc")]
+        [MaxLength(100, ErrorMessage = "Tên không được vượt quá 100 ký tự")]
         public string Name { get; set; } = string.Empty;
 
         public string? Address { get; set; }

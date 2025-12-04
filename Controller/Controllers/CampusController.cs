@@ -11,14 +11,33 @@ namespace Controller.Controllers
     public class CampusController : ControllerBase
     {
         private readonly ICampusService _campusService;
+        private readonly IFacilityService _facilityService;
 
-        public CampusController(ICampusService campusService)
+        public CampusController(ICampusService campusService, IFacilityService facilityService)
         {
             _campusService = campusService;
+            _facilityService = facilityService;
         }
 
+        // GET /campuses - List all campuses (for selection)
         [HttpGet]
-        public async Task<IActionResult> GetAll([FromQuery] PagedRequestDto request)
+        [AllowAnonymous]
+        public async Task<IActionResult> GetAll()
+        {
+            try
+            {
+                var result = await _campusService.GetAllCampusesAsync();
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ApiResponse.Fail(500, ex.Message));
+            }
+        }
+
+        [HttpGet("paged")]
+        [Authorize]
+        public async Task<IActionResult> GetAllPaged([FromQuery] PagedRequestDto request)
         {
             try
             {
@@ -31,7 +50,27 @@ namespace Controller.Controllers
             }
         }
 
+        // GET /campuses/{campusId}/facilities - Get facilities in a campus with availability
+        [HttpGet("{campusId}/facilities")]
+        [AllowAnonymous]
+        public async Task<IActionResult> GetCampusFacilities(string campusId, [FromQuery] DateTime? from, [FromQuery] DateTime? to)
+        {
+            try
+            {
+                var fromTime = from ?? DateTime.UtcNow;
+                var toTime = to ?? DateTime.UtcNow.AddHours(24);
+
+                var result = await _facilityService.GetFacilitiesWithAvailabilityAsync(campusId, fromTime, toTime);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ApiResponse.Fail(500, ex.Message));
+            }
+        }
+
         [HttpGet("{id}")]
+        [AllowAnonymous]
         public async Task<IActionResult> GetById(string id)
         {
             try
@@ -55,7 +94,7 @@ namespace Controller.Controllers
         {
             if (!ModelState.IsValid)
             {
-                return BadRequest(ApiResponse.Fail(400, "Invalid request data"));
+                return BadRequest(ApiResponse.Fail(400, "Dữ liệu không hợp lệ."));
             }
 
             try

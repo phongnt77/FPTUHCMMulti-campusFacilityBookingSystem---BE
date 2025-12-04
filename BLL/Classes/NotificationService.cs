@@ -45,7 +45,7 @@ namespace BLL.Classes
             var notification = await _unitOfWork.NotificationRepo.GetByIdAsync(id);
             if (notification == null)
             {
-                return ApiResponse<NotificationResponseDto>.Fail(404, "Notification not found");
+                return ApiResponse<NotificationResponseDto>.Fail(404, "Không tìm thấy thông báo.");
             }
 
             var responseDto = new NotificationResponseDto
@@ -102,7 +102,7 @@ namespace BLL.Classes
             var notification = await _unitOfWork.NotificationRepo.GetByIdAsync(id);
             if (notification == null)
             {
-                return ApiResponse.Fail(404, "Notification not found");
+                return ApiResponse.Fail(404, "Không tìm thấy thông báo.");
             }
 
             notification.IsRead = true;

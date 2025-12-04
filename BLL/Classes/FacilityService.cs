@@ -60,7 +60,63 @@ namespace BLL.Classes
             var facility = await _unitOfWork.FacilityRepo.GetByIdAsync(id);
             if (facility == null)
             {
-                return ApiResponse<FacilityResponseDto>.Fail(404, "Facility not found");
+                return ApiResponse<FacilityResponseDto>.Fail(404, "Không tìm thấy cơ sở vật chất.");
+            }
+
+            var responseDto = new FacilityResponseDto
+            {
+                FacilityId = facility.FacilityId,
+                Name = facility.Name,
+                Description = facility.Description,
+                Capacity = facility.Capacity,
+                RoomNumber = facility.RoomNumber,
+                FloorNumber = facility.FloorNumber,
+                CampusId = facility.CampusId,
+                CampusName = facility.Campus?.Name ?? string.Empty,
+                TypeId = facility.TypeId,
+                TypeName = facility.FacilityType?.Name ?? string.Empty,
+                Status = facility.Status.ToString(),
+                Amenities = facility.Amenities,
+                FacilityManagerId = facility.FacilityManagerId,
+                MaxConcurrentBookings = facility.MaxConcurrentBookings,
+                CreatedAt = facility.CreatedAt,
+                UpdatedAt = facility.UpdatedAt
+            };
+
+            return ApiResponse<FacilityResponseDto>.Ok(responseDto);
+        }
+
+        public async Task<ApiResponse<List<FacilityAvailabilityDto>>> GetFacilitiesWithAvailabilityAsync(string campusId, DateTime from, DateTime to)
+        {
+            var facilities = await _unitOfWork.FacilityRepo.GetFacilitiesWithAvailabilityAsync(campusId, from, to);
+
+            var responseDtos = facilities.Select(f => new FacilityAvailabilityDto
+            {
+                FacilityId = f.FacilityId,
+                Name = f.Name,
+                Description = f.Description,
+                Capacity = f.Capacity,
+                RoomNumber = f.RoomNumber,
+                TypeName = f.FacilityType?.Name ?? string.Empty,
+                Status = f.Status.ToString(),
+                IsAvailable = !f.Bookings.Any(),
+                BookedSlots = f.Bookings.Select(b => new BookingSlot
+                {
+                    StartTime = b.StartTime,
+                    EndTime = b.EndTime,
+                    Status = b.Status.ToString()
+                }).ToList()
+            }).ToList();
+
+            return ApiResponse<List<FacilityAvailabilityDto>>.Ok(responseDtos);
+        }
+
+        public async Task<ApiResponse<FacilityResponseDto>> GetFacilityDetailAsync(string id)
+        {
+            var facility = await _unitOfWork.FacilityRepo.GetByIdWithDetailsAsync(id);
+            if (facility == null)
+            {
+                return ApiResponse<FacilityResponseDto>.Fail(404, "Không tìm thấy cơ sở vật chất.");
             }
 
             var responseDto = new FacilityResponseDto
@@ -136,7 +192,7 @@ namespace BLL.Classes
             var facility = await _unitOfWork.FacilityRepo.GetByIdAsync(id);
             if (facility == null)
             {
-                return ApiResponse<FacilityResponseDto>.Fail(404, "Facility not found");
+                return ApiResponse<FacilityResponseDto>.Fail(404, "Không tìm thấy cơ sở vật chất.");
             }
 
             if (!string.IsNullOrEmpty(dto.Name))

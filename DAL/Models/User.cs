@@ -16,8 +16,10 @@ namespace DAL.Models
         public VerificationStatus IsVerify { get; set; } = VerificationStatus.Unverified;
         public string? AvatarUrl { get; set; }
         public DateTime? LastLogin { get; set; }
-        public string? EmailVerificationToken { get; set; }
-        public DateTime? EmailVerificationTokenExpiry { get; set; }
+        public string? EmailVerificationCode { get; set; }
+        public DateTime? EmailVerificationCodeExpiry { get; set; }
+        public string? PasswordResetCode { get; set; }
+        public DateTime? PasswordResetCodeExpiry { get; set; }
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
         public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
 

@@ -66,7 +66,7 @@ namespace BLL.Classes
             var image = await _unitOfWork.FacilityImageRepo.GetByIdAsync(id);
             if (image == null)
             {
-                return ApiResponse.Fail(404, "Image not found");
+                return ApiResponse.Fail(404, "Không tìm thấy hình ảnh.");
             }
 
             await _unitOfWork.FacilityImageRepo.RemoveAsync(image);

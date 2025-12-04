@@ -22,7 +22,7 @@ namespace Controller.Controllers
         {
             if (!ModelState.IsValid)
             {
-                return BadRequest(ApiResponse.Fail(400, "Invalid request data"));
+                return BadRequest(ApiResponse.Fail(400, "Dữ liệu không hợp lệ."));
             }
 
             try
@@ -53,7 +53,7 @@ namespace Controller.Controllers
         {
             if (!ModelState.IsValid)
             {
-                return BadRequest(ApiResponse.Fail(400, "Invalid request data"));
+                return BadRequest(ApiResponse.Fail(400, "Dữ liệu không hợp lệ."));
             }
 
             try
@@ -71,22 +71,22 @@ namespace Controller.Controllers
             }
         }
 
-        [HttpGet("verify-email")]
-        public async Task<IActionResult> VerifyEmail([FromQuery] string email, [FromQuery] string token)
+        [HttpPost("verify-email")]
+        public async Task<IActionResult> VerifyEmail([FromQuery] string email, [FromQuery] string code)
         {
-            if (string.IsNullOrEmpty(email) || string.IsNullOrEmpty(token))
+            if (string.IsNullOrEmpty(email) || string.IsNullOrEmpty(code))
             {
-                return BadRequest(ApiResponse.Fail(400, "Email and token are required"));
+                return BadRequest(ApiResponse.Fail(400, "Email và mã xác thực là bắt buộc."));
             }
 
             try
             {
-                var result = await _authService.VerifyEmailAsync(email, token);
+                var result = await _authService.VerifyEmailAsync(email, code);
                 if (result)
                 {
                     return Ok(ApiResponse.Ok());
                 }
-                return BadRequest(ApiResponse.Fail(400, "Invalid or expired verification token"));
+                return BadRequest(ApiResponse.Fail(400, "Mã xác thực không hợp lệ hoặc đã hết hạn."));
             }
             catch (Exception ex)
             {
@@ -99,7 +99,7 @@ namespace Controller.Controllers
         {
             if (string.IsNullOrEmpty(email))
             {
-                return BadRequest(ApiResponse.Fail(400, "Email is required"));
+                return BadRequest(ApiResponse.Fail(400, "Email là bắt buộc."));
             }
 
             try
@@ -109,7 +109,7 @@ namespace Controller.Controllers
                 {
                     return Ok(ApiResponse.Ok());
                 }
-                return BadRequest(ApiResponse.Fail(400, "Failed to send verification email"));
+                return BadRequest(ApiResponse.Fail(400, "Không thể gửi email xác thực."));
             }
             catch (ArgumentException ex)
             {
@@ -118,6 +118,60 @@ namespace Controller.Controllers
             catch (InvalidOperationException ex)
             {
                 return BadRequest(ApiResponse.Fail(400, ex.Message));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ApiResponse.Fail(500, ex.Message));
+            }
+        }
+
+        [HttpPost("forgot-password")]
+        public async Task<IActionResult> ForgotPassword([FromQuery] string email)
+        {
+            if (string.IsNullOrEmpty(email))
+            {
+                return BadRequest(ApiResponse.Fail(400, "Email là bắt buộc."));
+            }
+
+            try
+            {
+                var result = await _authService.ForgotPasswordAsync(email);
+                if (result)
+                {
+                    return Ok(ApiResponse.Ok());
+                }
+                return BadRequest(ApiResponse.Fail(400, "Không thể gửi mã đặt lại mật khẩu."));
+            }
+            catch (ArgumentException ex)
+            {
+                return NotFound(ApiResponse.Fail(404, ex.Message));
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(ApiResponse.Fail(400, ex.Message));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ApiResponse.Fail(500, ex.Message));
+            }
+        }
+
+        [HttpPost("reset-password")]
+        public async Task<IActionResult> ResetPassword([FromQuery] string email, [FromQuery] string code, [FromQuery] string newPassword)
+        {
+            if (string.IsNullOrEmpty(email) || string.IsNullOrEmpty(code) || string.IsNullOrEmpty(newPassword))
+            {
+                return BadRequest(ApiResponse.Fail(400, "Email, mã xác thực và mật khẩu mới là bắt buộc."));
+            }
+
+            try
+            {
+                var result = await _authService.ResetPasswordAsync(email, code, newPassword);
+                if (result)
+                {
+                    return Ok(ApiResponse.Ok());
+                }
+                return BadRequest(ApiResponse.Fail(400, "Mã đặt lại mật khẩu không hợp lệ hoặc đã hết hạn."));
             }
             catch (Exception ex)
             {

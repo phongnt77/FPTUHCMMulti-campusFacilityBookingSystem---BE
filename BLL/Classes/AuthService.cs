@@ -34,19 +34,19 @@ namespace BLL.Classes
 
             if (user == null)
             {
-                throw new UnauthorizedAccessException("Invalid email/username or password.");
+                throw new UnauthorizedAccessException("Email/tên đăng nhập hoặc mật khẩu không đúng.");
             }
 
             // Check if user is trying to login with Google account
             if (user.Password == DefaultGooglePasswordHash)
             {
-                throw new UnauthorizedAccessException("This account uses Google login. Please sign in with Google.");
+                throw new UnauthorizedAccessException("Tài khoản này sử dụng đăng nhập Google. Vui lòng đăng nhập bằng Google.");
             }
 
             // Check if user has password (email/username login)
             if (string.IsNullOrEmpty(user.Password))
             {
-                throw new UnauthorizedAccessException("Invalid email/username or password.");
+                throw new UnauthorizedAccessException("Email/tên đăng nhập hoặc mật khẩu không đúng.");
             }
 
             // Ensure user is using the correct login method
@@ -64,7 +64,7 @@ namespace BLL.Classes
 
             if (!isValidLoginMethod)
             {
-                throw new UnauthorizedAccessException("Invalid email/username or password.");
+                throw new UnauthorizedAccessException("Email/tên đăng nhập hoặc mật khẩu không đúng.");
             }
 
             // Verify password
@@ -80,12 +80,12 @@ namespace BLL.Classes
 
             if (!isPasswordValid)
             {
-                throw new UnauthorizedAccessException("Invalid email/username or password.");
+                throw new UnauthorizedAccessException("Email/tên đăng nhập hoặc mật khẩu không đúng.");
             }
 
             if (user.Status != UserStatus.Active)
             {
-                throw new UnauthorizedAccessException("Your account is inactive. Please contact support.");
+                throw new UnauthorizedAccessException("Tài khoản của bạn đã bị vô hiệu hóa. Vui lòng liên hệ hỗ trợ.");
             }
 
             // Update last login
@@ -121,7 +121,7 @@ namespace BLL.Classes
             // Validate email domain
             if (!IsValidFptEmail(email))
             {
-                throw new UnauthorizedAccessException("Only @fpt.edu.vn or @fe.edu.vn email addresses are allowed.");
+                throw new UnauthorizedAccessException("Chỉ cho phép địa chỉ email @fpt.edu.vn hoặc @fe.edu.vn.");
             }
 
             var user = await _unitOfWork.UserRepo.GetByEmailAsync(email);
@@ -136,13 +136,13 @@ namespace BLL.Classes
                 // Check if user is trying to login with Google but account was created with email/username
                 if (user.Password != DefaultGooglePasswordHash && !string.IsNullOrEmpty(user.Password))
                 {
-                    throw new UnauthorizedAccessException("This account uses email/username login. Please sign in with your credentials.");
+                    throw new UnauthorizedAccessException("Tài khoản này sử dụng đăng nhập bằng email/tên đăng nhập. Vui lòng đăng nhập bằng thông tin đăng nhập của bạn.");
                 }
             }
 
             if (user.Status != UserStatus.Active)
             {
-                throw new UnauthorizedAccessException("Your account is inactive. Please contact support.");
+                throw new UnauthorizedAccessException("Tài khoản của bạn đã bị vô hiệu hóa. Vui lòng liên hệ hỗ trợ.");
             }
 
             // Update last login
@@ -162,21 +162,21 @@ namespace BLL.Classes
             };
         }
 
-        public async Task<bool> VerifyEmailAsync(string email, string token)
+        public async Task<bool> VerifyEmailAsync(string email, string code)
         {
             var user = await _unitOfWork.UserRepo.GetByEmailAsync(email);
 
             if (user == null ||
-                string.IsNullOrEmpty(user.EmailVerificationToken) ||
-                user.EmailVerificationToken != token ||
-                user.EmailVerificationTokenExpiry < DateTime.UtcNow)
+                string.IsNullOrEmpty(user.EmailVerificationCode) ||
+                user.EmailVerificationCode != code ||
+                user.EmailVerificationCodeExpiry < DateTime.UtcNow)
             {
                 return false;
             }
 
             user.IsVerify = VerificationStatus.Verified;
-            user.EmailVerificationToken = null;
-            user.EmailVerificationTokenExpiry = null;
+            user.EmailVerificationCode = null;
+            user.EmailVerificationCodeExpiry = null;
             user.UpdatedAt = DateTime.UtcNow;
 
             await _unitOfWork.UserRepo.UpdateAsync(user);
@@ -191,28 +191,86 @@ namespace BLL.Classes
 
             if (user == null)
             {
-                throw new ArgumentException("User not found with this email.");
+                throw new ArgumentException("Không tìm thấy người dùng với email này.");
             }
 
             // Check if user is already verified
             if (user.IsVerify == VerificationStatus.Verified)
             {
-                throw new InvalidOperationException("Email is already verified.");
+                throw new InvalidOperationException("Email đã được xác thực.");
             }
 
-            // Generate new verification token
-            user.EmailVerificationToken = Guid.NewGuid().ToString();
-            user.EmailVerificationTokenExpiry = DateTime.UtcNow.AddDays(1);
+            // Generate new verification code (6 digits)
+            user.EmailVerificationCode = GenerateVerificationCode();
+            user.EmailVerificationCodeExpiry = DateTime.UtcNow.AddHours(24);
             user.UpdatedAt = DateTime.UtcNow;
 
             await _unitOfWork.UserRepo.UpdateAsync(user);
             await _unitOfWork.SaveChangesAsync();
 
             // Send verification email
-            var callbackUrl = _configuration["AppSettings:VerificationCallbackUrl"] ?? "http://localhost:3000/verify-email";
-            await _emailService.SendVerificationEmailAsync(user.Email!, user.EmailVerificationToken, callbackUrl);
+            await _emailService.SendVerificationCodeAsync(user.Email!, user.EmailVerificationCode);
 
             return true;
+        }
+
+        public async Task<bool> ForgotPasswordAsync(string email)
+        {
+            var user = await _unitOfWork.UserRepo.GetByEmailAsync(email);
+
+            if (user == null)
+            {
+                throw new ArgumentException("Không tìm thấy người dùng với email này.");
+            }
+
+            // Check if user uses Google login
+            if (user.Password == DefaultGooglePasswordHash)
+            {
+                throw new InvalidOperationException("Tài khoản này sử dụng đăng nhập Google. Không thể đặt lại mật khẩu.");
+            }
+
+            // Generate password reset code (6 digits)
+            user.PasswordResetCode = GenerateVerificationCode();
+            user.PasswordResetCodeExpiry = DateTime.UtcNow.AddHours(1); // 1 hour expiry
+            user.UpdatedAt = DateTime.UtcNow;
+
+            await _unitOfWork.UserRepo.UpdateAsync(user);
+            await _unitOfWork.SaveChangesAsync();
+
+            // Send password reset email
+            await _emailService.SendPasswordResetCodeAsync(user.Email!, user.PasswordResetCode);
+
+            return true;
+        }
+
+        public async Task<bool> ResetPasswordAsync(string email, string code, string newPassword)
+        {
+            var user = await _unitOfWork.UserRepo.GetByEmailAsync(email);
+
+            if (user == null ||
+                string.IsNullOrEmpty(user.PasswordResetCode) ||
+                user.PasswordResetCode != code ||
+                user.PasswordResetCodeExpiry < DateTime.UtcNow)
+            {
+                return false;
+            }
+
+            // Update password
+            user.Password = BCrypt.Net.BCrypt.HashPassword(newPassword);
+            user.PasswordResetCode = null;
+            user.PasswordResetCodeExpiry = null;
+            user.UpdatedAt = DateTime.UtcNow;
+
+            await _unitOfWork.UserRepo.UpdateAsync(user);
+            await _unitOfWork.SaveChangesAsync();
+
+            return true;
+        }
+
+        private string GenerateVerificationCode()
+        {
+            var random = new Random();
+            return random.Next(100000, 999999).ToString();
         }
 
         private async Task<User> CreateGoogleUserAsync(Payload payload)
@@ -234,8 +292,8 @@ namespace BLL.Classes
                 Status = UserStatus.Active,
                 IsVerify = VerificationStatus.Unverified,
                 AvatarUrl = null, // Leave avatar blank
-                EmailVerificationToken = Guid.NewGuid().ToString(),
-                EmailVerificationTokenExpiry = DateTime.UtcNow.AddDays(1),
+                EmailVerificationCode = GenerateVerificationCode(),
+                EmailVerificationCodeExpiry = DateTime.UtcNow.AddHours(24),
                 CreatedAt = DateTime.UtcNow,
                 UpdatedAt = DateTime.UtcNow
             };
@@ -244,8 +302,7 @@ namespace BLL.Classes
             await _unitOfWork.SaveChangesAsync();
 
             // Send verification email
-            var callbackUrl = _configuration["AppSettings:VerificationCallbackUrl"] ?? "http://localhost:3000/verify-email";
-            await _emailService.SendVerificationEmailAsync(user.Email!, user.EmailVerificationToken, callbackUrl);
+            await _emailService.SendVerificationCodeAsync(user.Email!, user.EmailVerificationCode);
 
             return user;
         }

@@ -41,12 +41,32 @@ namespace BLL.Classes
             );
         }
 
+        public async Task<ApiResponse<List<CampusResponseDto>>> GetAllCampusesAsync()
+        {
+            var campuses = await _unitOfWork.CampusRepo.GetAllCampusesAsync();
+
+            var responseDtos = campuses.Select(c => new CampusResponseDto
+            {
+                CampusId = c.CampusId,
+                Name = c.Name,
+                Address = c.Address,
+                PhoneNumber = c.PhoneNumber,
+                Email = c.Email,
+                FacilityManagerId = c.FacilityManagerId,
+                Status = c.Status.ToString(),
+                CreatedAt = c.CreatedAt,
+                UpdatedAt = c.UpdatedAt
+            }).ToList();
+
+            return ApiResponse<List<CampusResponseDto>>.Ok(responseDtos);
+        }
+
         public async Task<ApiResponse<CampusResponseDto>> GetByIdAsync(string id)
         {
             var campus = await _unitOfWork.CampusRepo.GetByIdAsync(id);
             if (campus == null)
             {
-                return ApiResponse<CampusResponseDto>.Fail(404, "Campus not found");
+                return ApiResponse<CampusResponseDto>.Fail(404, "Không tìm thấy cơ sở.");
             }
 
             var responseDto = new CampusResponseDto
@@ -105,7 +125,7 @@ namespace BLL.Classes
             var campus = await _unitOfWork.CampusRepo.GetByIdAsync(id);
             if (campus == null)
             {
-                return ApiResponse<CampusResponseDto>.Fail(404, "Campus not found");
+                return ApiResponse<CampusResponseDto>.Fail(404, "Không tìm thấy cơ sở.");
             }
 
             if (!string.IsNullOrEmpty(dto.Name))
@@ -144,7 +164,7 @@ namespace BLL.Classes
             var campus = await _unitOfWork.CampusRepo.GetByIdAsync(id);
             if (campus == null)
             {
-                return ApiResponse.Fail(404, "Campus not found");
+                return ApiResponse.Fail(404, "Không tìm thấy cơ sở.");
             }
 
             // Soft delete

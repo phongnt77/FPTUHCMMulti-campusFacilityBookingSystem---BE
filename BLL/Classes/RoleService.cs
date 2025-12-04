@@ -41,7 +41,7 @@ namespace BLL.Classes
             var role = await _unitOfWork.RoleRepo.GetByIdAsync(id);
             if (role == null)
             {
-                return ApiResponse<RoleResponseDto>.Fail(404, "Role not found");
+                return ApiResponse<RoleResponseDto>.Fail(404, "Không tìm thấy vai trò.");
             }
 
             var responseDto = new RoleResponseDto
@@ -85,7 +85,7 @@ namespace BLL.Classes
             var role = await _unitOfWork.RoleRepo.GetByIdAsync(id);
             if (role == null)
             {
-                return ApiResponse<RoleResponseDto>.Fail(404, "Role not found");
+                return ApiResponse<RoleResponseDto>.Fail(404, "Không tìm thấy vai trò.");
             }
 
             if (!string.IsNullOrEmpty(dto.RoleName))
@@ -108,7 +108,7 @@ namespace BLL.Classes
 
         public Task<ApiResponse> DeleteAsync(string id)
         {
-            return Task.FromResult(ApiResponse.Fail(403, "Roles cannot be deleted"));
+            return Task.FromResult(ApiResponse.Fail(403, "Không thể xóa vai trò hệ thống."));
         }
 
         private async Task<string> GenerateRoleIdAsync()

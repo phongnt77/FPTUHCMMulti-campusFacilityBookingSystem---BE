@@ -109,6 +109,40 @@ namespace Controller.Controllers
                 return StatusCode(500, ApiResponse.Fail(500, ex.Message));
             }
         }
+
+        [HttpGet]
+        [Authorize(Roles = "RL0003")]
+        public async Task<IActionResult> GetAll([FromQuery] UserFilterDto filter)
+        {
+            try
+            {
+                var result = await _userService.GetAllAsync(filter);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ApiResponse.Fail(500, ex.Message));
+            }
+        }
+
+        [HttpGet("{id}")]
+        [Authorize(Roles = "RL0003")] 
+        public async Task<IActionResult> GetById(string id)
+        {
+            try
+            {
+                var result = await _userService.GetByIdAsync(id);
+                if (!result.Success)
+                {
+                    return NotFound(result);
+                }
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ApiResponse.Fail(500, ex.Message));
+            }
+        }
     }
 }
 

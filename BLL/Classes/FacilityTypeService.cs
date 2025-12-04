@@ -45,7 +45,7 @@ namespace BLL.Classes
             var facilityType = await _unitOfWork.FacilityTypeRepo.GetByIdAsync(id);
             if (facilityType == null)
             {
-                return ApiResponse<FacilityTypeResponseDto>.Fail(404, "Facility Type not found");
+                return ApiResponse<FacilityTypeResponseDto>.Fail(404, "Không tìm thấy loại cơ sở vật chất.");
             }
 
             var responseDto = new FacilityTypeResponseDto
@@ -104,7 +104,7 @@ namespace BLL.Classes
             var facilityType = await _unitOfWork.FacilityTypeRepo.GetByIdAsync(id);
             if (facilityType == null)
             {
-                return ApiResponse<FacilityTypeResponseDto>.Fail(404, "Facility Type not found");
+                return ApiResponse<FacilityTypeResponseDto>.Fail(404, "Không tìm thấy loại cơ sở vật chất.");
             }
 
             if (!string.IsNullOrEmpty(dto.Name))

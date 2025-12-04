@@ -52,7 +52,7 @@ namespace BLL.Classes
             var maintenance = await _unitOfWork.FacilityMaintenanceRepo.GetByIdAsync(id);
             if (maintenance == null)
             {
-                return ApiResponse<MaintenanceResponseDto>.Fail(404, "Maintenance record not found");
+                return ApiResponse<MaintenanceResponseDto>.Fail(404, "Không tìm thấy bản ghi bảo trì.");
             }
 
             var responseDto = new MaintenanceResponseDto

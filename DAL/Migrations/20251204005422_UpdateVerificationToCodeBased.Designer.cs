@@ -4,6 +4,7 @@ using DAL.Dbcontext;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DAL.Migrations
 {
     [DbContext(typeof(FacilityBookingDbContext))]
-    partial class FacilityBookingDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251204005422_UpdateVerificationToCodeBased")]
+    partial class UpdateVerificationToCodeBased
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -1092,7 +1095,7 @@ namespace DAL.Migrations
                             Email = "admin@fpt.edu.vn",
                             FullName = "System Administrator",
                             IsVerify = "Verified",
-                            Password = "$2a$11$TIVU8ZE3OrfuOviEr6tsX.9eU.7TRCXyvyRmlox1ZRvOew0spEt4.",
+                            Password = "$2a$11$kEZDIjiuxh5xGevQigZ0a.QOk9040yBDRNgTldIxJUXrP4wTndoi6",
                             RoleId = "RL0003",
                             Status = "Active",
                             UpdatedAt = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc)
@@ -1105,7 +1108,7 @@ namespace DAL.Migrations
                             Email = "lecturer@fpt.edu.vn",
                             FullName = "John Lecturer",
                             IsVerify = "Verified",
-                            Password = "$2a$11$UJSb0psh.BKKtXpTARFv9OR.x1o0rBV.7bKLQWdr4fQLCgPXw2x6e",
+                            Password = "$2a$11$uRMsT5qJeUI1n9iHnro52etxwsrsntXtKqS.qt.lPfKL710L9Ut6y",
                             RoleId = "RL0002",
                             Status = "Active",
                             UpdatedAt = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc)
@@ -1118,7 +1121,7 @@ namespace DAL.Migrations
                             Email = "student@fpt.edu.vn",
                             FullName = "Jane Student",
                             IsVerify = "Verified",
-                            Password = "$2a$11$M4UloZrPQdux69a/l0l4S.PM/rgqw2r0xdSD1URMNLbvEx/V4gkWC",
+                            Password = "$2a$11$0ehSRhdkOGBWn.DHkpnS2Oho3gRtPPPIgLmBSZQw1EHWp/TmULJ/i",
                             RoleId = "RL0001",
                             Status = "Active",
                             UpdatedAt = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc)

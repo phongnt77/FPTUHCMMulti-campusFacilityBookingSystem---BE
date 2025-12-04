@@ -127,6 +127,72 @@ namespace BLL.Classes
 
             return true;
         }
+        public async Task<ApiResponseWithPagination<List<UserResponseDto>>> GetAllAsync(UserFilterDto filter)
+        {
+            var (items, total) = await _unitOfWork.UserRepo.GetFilteredAsync(
+                filter.Name,
+                filter.Email,
+                filter.RoleId,
+                filter.CampusId,
+                filter.Status,
+                filter.Page,
+                filter.Limit
+            );
+
+            var responseDtos = items.Select(u => new UserResponseDto
+            {
+                UserId = u.UserId,
+                Email = u.Email,
+                FullName = u.FullName,
+                PhoneNumber = u.PhoneNumber,
+                UserName = u.UserName,
+                RoleId = u.RoleId,
+                RoleName = u.Role?.RoleName ?? string.Empty,
+                CampusId = u.CampusId,
+                CampusName = u.Campus?.Name ?? string.Empty,
+                Status = u.Status.ToString(),
+                IsVerify = u.IsVerify.ToString(),
+                AvatarUrl = u.AvatarUrl,
+                LastLogin = u.LastLogin,
+                CreatedAt = u.CreatedAt,
+                UpdatedAt = u.UpdatedAt
+            }).ToList();
+
+            return ApiResponseWithPagination<List<UserResponseDto>>.Ok(
+                responseDtos,
+                filter.Page,
+                filter.Limit,
+                total
+            );
+        }
+
+        public async Task<ApiResponse<UserResponseDto>> GetByIdAsync(string id)
+        {
+            var user = await _unitOfWork.UserRepo.GetByIdAsync(id);
+            if (user == null)
+            {
+                return ApiResponse<UserResponseDto>.Fail(404, "User not found");
+            }
+
+            var responseDto = new UserResponseDto
+            {
+                UserId = user.UserId,
+                Email = user.Email,
+                FullName = user.FullName,
+                PhoneNumber = user.PhoneNumber,
+                UserName = user.UserName,
+                RoleId = user.RoleId,
+                CampusId = user.CampusId,
+                Status = user.Status.ToString(),
+                IsVerify = user.IsVerify.ToString(),
+                AvatarUrl = user.AvatarUrl,
+                LastLogin = user.LastLogin,
+                CreatedAt = user.CreatedAt,
+                UpdatedAt = user.UpdatedAt
+            };
+
+            return ApiResponse<UserResponseDto>.Ok(responseDto);
+        }
     }
 }
 

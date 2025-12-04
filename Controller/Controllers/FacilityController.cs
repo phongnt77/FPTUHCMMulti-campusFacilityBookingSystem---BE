@@ -31,12 +31,14 @@ namespace Controller.Controllers
             }
         }
 
+        // GET /facilities/{facilityId} - Facility detail with full info
         [HttpGet("{id}")]
+        [AllowAnonymous]
         public async Task<IActionResult> GetById(string id)
         {
             try
             {
-                var result = await _facilityService.GetByIdAsync(id);
+                var result = await _facilityService.GetFacilityDetailAsync(id);
                 if (!result.Success)
                 {
                     return NotFound(result);
@@ -50,12 +52,12 @@ namespace Controller.Controllers
         }
 
         [HttpPost]
-        [Authorize]
+        [Authorize(Roles = "RL0003")]
         public async Task<IActionResult> Create([FromBody] CreateFacilityDto dto)
         {
             if (!ModelState.IsValid)
             {
-                return BadRequest(ApiResponse.Fail(400, "Invalid request data"));
+                return BadRequest(ApiResponse.Fail(400, "Dữ liệu không hợp lệ."));
             }
 
             try
@@ -70,7 +72,7 @@ namespace Controller.Controllers
         }
 
         [HttpPut("{id}")]
-        [Authorize]
+        [Authorize(Roles = "RL0003")]
         public async Task<IActionResult> Update(string id, [FromBody] UpdateFacilityDto dto)
         {
             try
@@ -89,7 +91,7 @@ namespace Controller.Controllers
         }
 
         [HttpDelete("{id}")]
-        [Authorize]
+        [Authorize(Roles = "RL0003")]
         public async Task<IActionResult> Delete(string id)
         {
             try

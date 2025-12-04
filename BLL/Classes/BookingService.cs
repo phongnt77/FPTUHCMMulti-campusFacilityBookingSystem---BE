@@ -63,7 +63,7 @@ namespace BLL.Classes
             var booking = await _unitOfWork.BookingRepo.GetByIdAsync(id);
             if (booking == null)
             {
-                return ApiResponse<BookingResponseDto>.Fail(404, "Booking not found");
+                return ApiResponse<BookingResponseDto>.Fail(404, "Không tìm thấy lượt đặt.");
             }
 
             var responseDto = new BookingResponseDto
@@ -99,7 +99,7 @@ namespace BLL.Classes
             var hasConflict = await _unitOfWork.BookingRepo.HasConflictAsync(dto.FacilityId, dto.StartTime, dto.EndTime);
             if (hasConflict)
             {
-                return ApiResponse<BookingResponseDto>.Fail(409, "This time slot is already booked");
+                return ApiResponse<BookingResponseDto>.Fail(409, "Khung giờ này đã được đặt trước.");
             }
 
             var bookingId = await GenerateBookingIdAsync();
@@ -146,7 +146,7 @@ namespace BLL.Classes
             var booking = await _unitOfWork.BookingRepo.GetByIdAsync(id);
             if (booking == null)
             {
-                return ApiResponse<BookingResponseDto>.Fail(404, "Booking not found");
+                return ApiResponse<BookingResponseDto>.Fail(404, "Không tìm thấy lượt đặt.");
             }
 
             // Check for time conflicts if time is being updated
@@ -164,7 +164,7 @@ namespace BLL.Classes
                 
                 if (hasConflict)
                 {
-                    return ApiResponse<BookingResponseDto>.Fail(409, "This time slot is already booked");
+                    return ApiResponse<BookingResponseDto>.Fail(409, "Khung giờ này đã được đặt trước.");
                 }
 
                 booking.StartTime = newStartTime;
@@ -212,7 +212,7 @@ namespace BLL.Classes
             var booking = await _unitOfWork.BookingRepo.GetByIdAsync(id);
             if (booking == null)
             {
-                return ApiResponse.Fail(404, "Booking not found");
+                return ApiResponse.Fail(404, "Không tìm thấy lượt đặt.");
             }
 
             booking.Status = BookingStatus.Cancelled;
@@ -250,7 +250,7 @@ namespace BLL.Classes
             var booking = await _unitOfWork.BookingRepo.GetByIdAsync(bookingId);
             if (booking == null)
             {
-                return ApiResponse<BookingResponseDto>.Fail(404, "Booking not found");
+                return ApiResponse<BookingResponseDto>.Fail(404, "Không tìm thấy lượt đặt.");
             }
 
             // Check if booking is in draft or pending status (can be approved)
@@ -313,7 +313,7 @@ namespace BLL.Classes
             var booking = await _unitOfWork.BookingRepo.GetByIdAsync(bookingId);
             if (booking == null)
             {
-                return ApiResponse<BookingResponseDto>.Fail(404, "Booking not found");
+                return ApiResponse<BookingResponseDto>.Fail(404, "Không tìm thấy lượt đặt.");
             }
 
             // check nếu booking đang draft hoặc pending approval thì có thể bị từ chối

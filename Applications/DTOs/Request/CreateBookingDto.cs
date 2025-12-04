@@ -4,16 +4,16 @@ namespace Applications.DTOs.Request
 {
     public class CreateBookingDto
     {
-        [Required]
+        [Required(ErrorMessage = "ID người dùng là bắt buộc")]
         public string UserId { get; set; } = string.Empty;
 
-        [Required]
+        [Required(ErrorMessage = "ID cơ sở vật chất là bắt buộc")]
         public string FacilityId { get; set; } = string.Empty;
 
-        [Required]
+        [Required(ErrorMessage = "Thời gian bắt đầu là bắt buộc")]
         public DateTime StartTime { get; set; }
 
-        [Required]
+        [Required(ErrorMessage = "Thời gian kết thúc là bắt buộc")]
         public DateTime EndTime { get; set; }
 
         public string? Purpose { get; set; }

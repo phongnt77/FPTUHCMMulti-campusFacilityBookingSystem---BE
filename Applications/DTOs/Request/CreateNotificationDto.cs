@@ -4,7 +4,7 @@ namespace Applications.DTOs.Request
 {
     public class CreateNotificationDto
     {
-        [Required]
+        [Required(ErrorMessage = "ID người dùng là bắt buộc")]
         public string UserId { get; set; } = string.Empty;
 
         public string? Title { get; set; }

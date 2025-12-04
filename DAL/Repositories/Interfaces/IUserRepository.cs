@@ -6,6 +6,7 @@ namespace DAL.Repositories.Interfaces
     {
         Task<User?> GetByIdAsync(string id);
         Task<List<User>> GetAllAsync();
+        Task<(List<User> items, int total)> GetFilteredAsync(string? name, string? email, string? roleId, string? campusId, string? status, int page, int limit);
         Task<int> AddAsync(User entity);
         Task<int> CreateAsync(User entity);
         Task<int> UpdateAsync(User entity);

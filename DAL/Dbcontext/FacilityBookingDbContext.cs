@@ -288,11 +288,16 @@ namespace DAL.Dbcontext
                     .HasMaxLength(255);
                 entity.Property(e => e.LastLogin)
                     .HasColumnName("last_login");
-                entity.Property(e => e.EmailVerificationToken)
-                    .HasColumnName("email_verification_token")
-                    .HasMaxLength(255);
-                entity.Property(e => e.EmailVerificationTokenExpiry)
-                    .HasColumnName("email_verification_token_expiry");
+                entity.Property(e => e.EmailVerificationCode)
+                    .HasColumnName("email_verification_code")
+                    .HasMaxLength(6);
+                entity.Property(e => e.EmailVerificationCodeExpiry)
+                    .HasColumnName("email_verification_code_expiry");
+                entity.Property(e => e.PasswordResetCode)
+                    .HasColumnName("password_reset_code")
+                    .HasMaxLength(6);
+                entity.Property(e => e.PasswordResetCodeExpiry)
+                    .HasColumnName("password_reset_code_expiry");
                 entity.Property(e => e.CreatedAt)
                     .HasColumnName("created_at")
                     .HasDefaultValueSql("GETUTCDATE()");
