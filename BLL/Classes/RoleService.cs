@@ -1,5 +1,6 @@
 using Applications.DTOs.Request;
 using Applications.DTOs.Response;
+using Applications.Helpers;
 using BLL.Interfaces;
 using DAL.Models;
 using DAL.Models.Enums;
@@ -63,8 +64,8 @@ namespace BLL.Classes
             {
                 RoleId = roleId,
                 RoleName = dto.RoleName,
-                CreatedAt = DateTime.UtcNow,
-                UpdatedAt = DateTime.UtcNow
+                CreatedAt = DateTimeHelper.VietnamNow,
+                UpdatedAt = DateTimeHelper.VietnamNow
             };
 
             await _unitOfWork.RoleRepo.CreateAsync(role);
@@ -91,7 +92,7 @@ namespace BLL.Classes
             if (!string.IsNullOrEmpty(dto.RoleName))
                 role.RoleName = dto.RoleName;
 
-            role.UpdatedAt = DateTime.UtcNow;
+            role.UpdatedAt = DateTimeHelper.VietnamNow;
 
             await _unitOfWork.RoleRepo.UpdateAsync(role);
 

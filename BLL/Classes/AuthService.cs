@@ -1,5 +1,6 @@
 using Applications.DTOs.Request;
 using Applications.DTOs.Response;
+using Applications.Helpers;
 using BLL.Interfaces;
 using DAL.Models;
 using DAL.Models.Enums;
@@ -89,7 +90,7 @@ namespace BLL.Classes
             }
 
             // Update last login
-            user.LastLogin = DateTime.UtcNow;
+            user.LastLogin = DateTimeHelper.VietnamNow;
             await _unitOfWork.UserRepo.UpdateAsync(user);
             await _unitOfWork.SaveChangesAsync();
 
@@ -146,7 +147,7 @@ namespace BLL.Classes
             }
 
             // Update last login
-            user.LastLogin = DateTime.UtcNow;
+            user.LastLogin = DateTimeHelper.VietnamNow;
             await _unitOfWork.UserRepo.UpdateAsync(user);
             await _unitOfWork.SaveChangesAsync();
 
@@ -177,7 +178,7 @@ namespace BLL.Classes
             user.IsVerify = VerificationStatus.Verified;
             user.EmailVerificationCode = null;
             user.EmailVerificationCodeExpiry = null;
-            user.UpdatedAt = DateTime.UtcNow;
+            user.UpdatedAt = DateTimeHelper.VietnamNow;
 
             await _unitOfWork.UserRepo.UpdateAsync(user);
             await _unitOfWork.SaveChangesAsync();
@@ -202,8 +203,8 @@ namespace BLL.Classes
 
             // Generate new verification code (6 digits)
             user.EmailVerificationCode = GenerateVerificationCode();
-            user.EmailVerificationCodeExpiry = DateTime.UtcNow.AddHours(24);
-            user.UpdatedAt = DateTime.UtcNow;
+            user.EmailVerificationCodeExpiry = DateTimeHelper.VietnamNow.AddHours(24);
+            user.UpdatedAt = DateTimeHelper.VietnamNow;
 
             await _unitOfWork.UserRepo.UpdateAsync(user);
             await _unitOfWork.SaveChangesAsync();
@@ -231,8 +232,8 @@ namespace BLL.Classes
 
             // Generate password reset code (6 digits)
             user.PasswordResetCode = GenerateVerificationCode();
-            user.PasswordResetCodeExpiry = DateTime.UtcNow.AddHours(1); // 1 hour expiry
-            user.UpdatedAt = DateTime.UtcNow;
+            user.PasswordResetCodeExpiry = DateTimeHelper.VietnamNow.AddHours(1); // 1 hour expiry
+            user.UpdatedAt = DateTimeHelper.VietnamNow;
 
             await _unitOfWork.UserRepo.UpdateAsync(user);
             await _unitOfWork.SaveChangesAsync();
@@ -259,7 +260,7 @@ namespace BLL.Classes
             user.Password = BCrypt.Net.BCrypt.HashPassword(newPassword);
             user.PasswordResetCode = null;
             user.PasswordResetCodeExpiry = null;
-            user.UpdatedAt = DateTime.UtcNow;
+            user.UpdatedAt = DateTimeHelper.VietnamNow;
 
             await _unitOfWork.UserRepo.UpdateAsync(user);
             await _unitOfWork.SaveChangesAsync();
@@ -293,9 +294,9 @@ namespace BLL.Classes
                 IsVerify = VerificationStatus.Unverified,
                 AvatarUrl = null, // Leave avatar blank
                 EmailVerificationCode = GenerateVerificationCode(),
-                EmailVerificationCodeExpiry = DateTime.UtcNow.AddHours(24),
-                CreatedAt = DateTime.UtcNow,
-                UpdatedAt = DateTime.UtcNow
+                EmailVerificationCodeExpiry = DateTimeHelper.VietnamNow.AddHours(24),
+                CreatedAt = DateTimeHelper.VietnamNow,
+                UpdatedAt = DateTimeHelper.VietnamNow
             };
 
             await _unitOfWork.UserRepo.AddAsync(user);

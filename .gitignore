@@ -48,4 +48,4 @@ TestResults/
 coverage.json
 *.cobertura.xml
 Controller/appsettings.json
-API_ENDPOINTS.md
+*.md

@@ -1,5 +1,6 @@
 using Applications.DTOs.Request;
 using Applications.DTOs.Response;
+using Applications.Helpers;
 using BLL.Interfaces;
 using DAL.Models;
 using DAL.Models.Enums;
@@ -21,7 +22,7 @@ namespace BLL.Classes
             var (items, total) = await _unitOfWork.BookingRepo.GetPagedAsync(
                 filter.UserId,
                 filter.FacilityId,
-                filter.Status,
+                filter.Status?.ToString(),
                 filter.Page,
                 filter.Limit
             );
@@ -116,8 +117,8 @@ namespace BLL.Classes
                 EstimatedAttendees = dto.EstimatedAttendees,
                 SpecialRequirements = dto.SpecialRequirements,
                 Status = BookingStatus.Draft,
-                CreatedAt = DateTime.UtcNow,
-                UpdatedAt = DateTime.UtcNow
+                CreatedAt = DateTimeHelper.VietnamNow,
+                UpdatedAt = DateTimeHelper.VietnamNow
             };
 
             await _unitOfWork.BookingRepo.CreateAsync(booking);
@@ -182,7 +183,7 @@ namespace BLL.Classes
             if (!string.IsNullOrEmpty(dto.Status))
                 booking.Status = Enum.Parse<BookingStatus>(dto.Status);
 
-            booking.UpdatedAt = DateTime.UtcNow;
+            booking.UpdatedAt = DateTimeHelper.VietnamNow;
 
             await _unitOfWork.BookingRepo.UpdateAsync(booking);
 
@@ -216,9 +217,9 @@ namespace BLL.Classes
             }
 
             booking.Status = BookingStatus.Cancelled;
-            booking.CancelledAt = DateTime.UtcNow;
+            booking.CancelledAt = DateTimeHelper.VietnamNow;
             booking.CancellationReason = reason;
-            booking.UpdatedAt = DateTime.UtcNow;
+            booking.UpdatedAt = DateTimeHelper.VietnamNow;
 
             await _unitOfWork.BookingRepo.UpdateAsync(booking);
 
@@ -275,9 +276,9 @@ namespace BLL.Classes
             // phê duyệt booking
             booking.Status = BookingStatus.Approved;
             booking.ApprovedBy = approverId;
-            booking.ApprovedAt = DateTime.UtcNow;
+            booking.ApprovedAt = DateTimeHelper.VietnamNow;
             booking.RejectionReason = null;
-            booking.UpdatedAt = DateTime.UtcNow;
+            booking.UpdatedAt = DateTimeHelper.VietnamNow;
 
             await _unitOfWork.BookingRepo.UpdateAsync(booking);
 
@@ -325,9 +326,9 @@ namespace BLL.Classes
             // từ chối booking
             booking.Status = BookingStatus.Rejected;
             booking.ApprovedBy = approverId;
-            booking.ApprovedAt = DateTime.UtcNow;
+            booking.ApprovedAt = DateTimeHelper.VietnamNow;
             booking.RejectionReason = reason;
-            booking.UpdatedAt = DateTime.UtcNow;
+            booking.UpdatedAt = DateTimeHelper.VietnamNow;
 
             await _unitOfWork.BookingRepo.UpdateAsync(booking);
 

@@ -1,5 +1,6 @@
 using Applications.DTOs.Request;
 using Applications.DTOs.Response;
+using Applications.Helpers;
 using BLL.Interfaces;
 using DAL.Models;
 using DAL.Models.Enums;
@@ -20,7 +21,7 @@ namespace BLL.Classes
         {
             var (items, total) = await _unitOfWork.FacilityRepo.GetFilteredAsync(
                 filter.Name,
-                filter.Status,
+                filter.Status?.ToString(),
                 filter.TypeId,
                 filter.CampusId,
                 filter.Page,
@@ -160,8 +161,8 @@ namespace BLL.Classes
                 Amenities = dto.Amenities,
                 FacilityManagerId = dto.FacilityManagerId,
                 MaxConcurrentBookings = dto.MaxConcurrentBookings,
-                CreatedAt = DateTime.UtcNow,
-                UpdatedAt = DateTime.UtcNow
+                CreatedAt = DateTimeHelper.VietnamNow,
+                UpdatedAt = DateTimeHelper.VietnamNow
             };
 
             await _unitOfWork.FacilityRepo.CreateAsync(facility);
@@ -214,7 +215,7 @@ namespace BLL.Classes
             if (dto.MaxConcurrentBookings.HasValue)
                 facility.MaxConcurrentBookings = dto.MaxConcurrentBookings.Value;
 
-            facility.UpdatedAt = DateTime.UtcNow;
+            facility.UpdatedAt = DateTimeHelper.VietnamNow;
 
             await _unitOfWork.FacilityRepo.UpdateAsync(facility);
 
@@ -249,7 +250,7 @@ namespace BLL.Classes
 
             // Soft delete: set status to Under_Maintenance (inactive)
             facility.Status = FacilityStatus.Under_Maintenance;
-            facility.UpdatedAt = DateTime.UtcNow;
+            facility.UpdatedAt = DateTimeHelper.VietnamNow;
 
             await _unitOfWork.FacilityRepo.UpdateAsync(facility);
 

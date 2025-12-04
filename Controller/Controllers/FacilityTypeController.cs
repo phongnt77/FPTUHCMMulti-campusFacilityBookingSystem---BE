@@ -6,6 +6,9 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Controller.Controllers
 {
+    /// <summary>
+    /// API quản lý loại cơ sở vật chất (Facility Types)
+    /// </summary>
     [ApiController]
     [Route("api/facility-types")]
     public class FacilityTypeController : ControllerBase
@@ -17,7 +20,25 @@ namespace Controller.Controllers
             _facilityTypeService = facilityTypeService;
         }
 
+        /// <summary>
+        /// Lấy danh sách tất cả loại cơ sở vật chất
+        /// </summary>
+        /// <param name="request">Pagination parameters</param>
+        /// <returns>Danh sách facility types</returns>
+        /// <response code="200">Trả về danh sách thành công</response>
+        /// <remarks>
+        /// **Roles:** Công khai - Không cần đăng nhập
+        /// 
+        /// **5 Loại cơ sở:**
+        /// - FT0001: Classroom
+        /// - FT0002: Meeting Room
+        /// - FT0003: Computer Lab
+        /// - FT0004: Sports Court
+        /// - FT0005: Auditorium
+        /// </remarks>
         [HttpGet]
+        [AllowAnonymous]
+        [ProducesResponseType(typeof(ApiResponseWithPagination<List<FacilityTypeResponseDto>>), 200)]
         public async Task<IActionResult> GetAll([FromQuery] PagedRequestDto request)
         {
             try
@@ -31,7 +52,22 @@ namespace Controller.Controllers
             }
         }
 
+        /// <summary>
+        /// Lấy chi tiết loại cơ sở vật chất
+        /// </summary>
+        /// <param name="id">Facility Type ID</param>
+        /// <returns>Thông tin chi tiết</returns>
+        /// <response code="200">Trả về thông tin thành công</response>
+        /// <response code="404">Không tìm thấy loại cơ sở</response>
+        /// <remarks>
+        /// **Roles:** Công khai - Không cần đăng nhập
+        /// 
+        /// **Mục đích:** Xem thông tin loại cơ sở (capacity mặc định, amenities, etc.)
+        /// </remarks>
         [HttpGet("{id}")]
+        [AllowAnonymous]
+        [ProducesResponseType(typeof(ApiResponse<FacilityTypeResponseDto>), 200)]
+        [ProducesResponseType(typeof(ApiResponse), 404)]
         public async Task<IActionResult> GetById(string id)
         {
             try
@@ -49,8 +85,20 @@ namespace Controller.Controllers
             }
         }
 
+        /// <summary>
+        /// Tạo loại cơ sở vật chất mới
+        /// </summary>
+        /// <param name="dto">Thông tin loại cơ sở</param>
+        /// <returns>Facility type đã tạo</returns>
+        /// <response code="200">Tạo thành công</response>
+        /// <response code="403">Không có quyền</response>
+        /// <remarks>
+        /// **Roles:** Chỉ Facility_Admin (RL0003)
+        /// </remarks>
         [HttpPost]
-        [Authorize]
+        [Authorize(Roles = "RL0003")]
+        [ProducesResponseType(typeof(ApiResponse<FacilityTypeResponseDto>), 200)]
+        [ProducesResponseType(403)]
         public async Task<IActionResult> Create([FromBody] CreateFacilityTypeDto dto)
         {
             if (!ModelState.IsValid)
@@ -69,8 +117,21 @@ namespace Controller.Controllers
             }
         }
 
+        /// <summary>
+        /// Cập nhật thông tin loại cơ sở vật chất
+        /// </summary>
+        /// <param name="id">Facility Type ID</param>
+        /// <param name="dto">Thông tin cập nhật</param>
+        /// <returns>Facility type đã cập nhật</returns>
+        /// <response code="200">Cập nhật thành công</response>
+        /// <response code="404">Không tìm thấy loại cơ sở</response>
+        /// <remarks>
+        /// **Roles:** Chỉ Facility_Admin (RL0003)
+        /// </remarks>
         [HttpPut("{id}")]
-        [Authorize]
+        [Authorize(Roles = "RL0003")]
+        [ProducesResponseType(typeof(ApiResponse<FacilityTypeResponseDto>), 200)]
+        [ProducesResponseType(typeof(ApiResponse), 404)]
         public async Task<IActionResult> Update(string id, [FromBody] UpdateFacilityTypeDto dto)
         {
             try
@@ -89,5 +150,3 @@ namespace Controller.Controllers
         }
     }
 }
-
-

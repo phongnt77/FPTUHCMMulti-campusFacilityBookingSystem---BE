@@ -1,5 +1,6 @@
 using Applications.DTOs.Request;
 using Applications.DTOs.Response;
+using Applications.Helpers;
 using BLL.Interfaces;
 using DAL.Models.Enums;
 using DAL.Repositories;
@@ -55,7 +56,7 @@ namespace BLL.Classes
 
             user.PhoneNumber = dto.PhoneNumber;
             user.AvatarUrl = dto.AvatarUrl;
-            user.UpdatedAt = DateTime.UtcNow;
+            user.UpdatedAt = DateTimeHelper.VietnamNow;
 
             await _unitOfWork.UserRepo.UpdateAsync(user);
             await _unitOfWork.SaveChangesAsync();
@@ -120,7 +121,7 @@ namespace BLL.Classes
 
             // update password mới 
             user.Password = BCrypt.Net.BCrypt.HashPassword(dto.NewPassword);
-            user.UpdatedAt = DateTime.UtcNow;
+            user.UpdatedAt = DateTimeHelper.VietnamNow;
 
             await _unitOfWork.UserRepo.UpdateAsync(user);
             await _unitOfWork.SaveChangesAsync();
@@ -134,7 +135,7 @@ namespace BLL.Classes
                 filter.Email,
                 filter.RoleId,
                 filter.CampusId,
-                filter.Status,
+                filter.Status?.ToString(),
                 filter.Page,
                 filter.Limit
             );

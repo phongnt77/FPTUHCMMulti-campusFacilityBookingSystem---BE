@@ -1,5 +1,6 @@
 using Applications.DTOs.Request;
 using Applications.DTOs.Response;
+using Applications.Helpers;
 using BLL.Interfaces;
 using DAL.Models;
 using DAL.Repositories;
@@ -77,8 +78,8 @@ namespace BLL.Classes
                 DefaultCapacity = dto.DefaultCapacity,
                 TypicalDurationHours = dto.TypicalDurationHours,
                 IconUrl = dto.IconUrl,
-                CreatedAt = DateTime.UtcNow,
-                UpdatedAt = DateTime.UtcNow
+                CreatedAt = DateTimeHelper.VietnamNow,
+                UpdatedAt = DateTimeHelper.VietnamNow
             };
 
             await _unitOfWork.FacilityTypeRepo.CreateAsync(facilityType);
@@ -120,7 +121,7 @@ namespace BLL.Classes
             if (dto.IconUrl != null)
                 facilityType.IconUrl = dto.IconUrl;
 
-            facilityType.UpdatedAt = DateTime.UtcNow;
+            facilityType.UpdatedAt = DateTimeHelper.VietnamNow;
 
             await _unitOfWork.FacilityTypeRepo.UpdateAsync(facilityType);
 

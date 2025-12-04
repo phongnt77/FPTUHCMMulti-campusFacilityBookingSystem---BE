@@ -1,5 +1,6 @@
 using Applications.DTOs.Request;
 using Applications.DTOs.Response;
+using Applications.Helpers;
 using BLL.Interfaces;
 using DAL.Models;
 using DAL.Repositories;
@@ -77,7 +78,7 @@ namespace BLL.Classes
                 RelatedEntityType = dto.RelatedEntityType,
                 RelatedEntityId = dto.RelatedEntityId,
                 IsRead = false,
-                CreatedAt = DateTime.UtcNow
+                CreatedAt = DateTimeHelper.VietnamNow
             };
 
             await _unitOfWork.NotificationRepo.CreateAsync(notification);
@@ -106,7 +107,7 @@ namespace BLL.Classes
             }
 
             notification.IsRead = true;
-            notification.ReadAt = DateTime.UtcNow;
+            notification.ReadAt = DateTimeHelper.VietnamNow;
 
             await _unitOfWork.NotificationRepo.UpdateAsync(notification);
 

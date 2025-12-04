@@ -131,6 +131,17 @@ namespace DAL.Dbcontext
                         Status = CampusStatus.Active,
                         CreatedAt = new DateTime(2024, 1, 1, 0, 0, 0, DateTimeKind.Utc),
                         UpdatedAt = new DateTime(2024, 1, 1, 0, 0, 0, DateTimeKind.Utc)
+                    },
+                    new Campus 
+                    { 
+                        CampusId = "C0002", 
+                        Name = "FPTU Quy Nhơn Campus", 
+                        Address = "Khu đô thị Nhơn Hội, TP. Quy Nhơn, Bình Định",
+                        PhoneNumber = "0256 3842 468",
+                        Email = "qn@fpt.edu.vn",
+                        Status = CampusStatus.Active,
+                        CreatedAt = new DateTime(2024, 1, 1, 0, 0, 0, DateTimeKind.Utc),
+                        UpdatedAt = new DateTime(2024, 1, 1, 0, 0, 0, DateTimeKind.Utc)
                     }
                 );
 
@@ -455,88 +466,43 @@ namespace DAL.Dbcontext
                     .HasForeignKey(e => e.FacilityManagerId)
                     .OnDelete(DeleteBehavior.SetNull);
 
-                // Seed data for sample facilities
+                // Seed data for sample facilities - HCM Campus (10 facilities)
                 entity.HasData(
-                    new Facility
-                    {
-                        FacilityId = "F00001",
-                        Name = "Room 101",
-                        Description = "Standard classroom on first floor",
-                        Capacity = 40,
-                        RoomNumber = "101",
-                        FloorNumber = "1",
-                        CampusId = "C0001",
-                        TypeId = "FT0001", // Classroom
-                        Status = FacilityStatus.Available,
-                        Amenities = "{\"projector\": true, \"whiteboard\": true, \"airConditioner\": true, \"speakers\": true}",
-                        MaxConcurrentBookings = 1,
-                        CreatedAt = new DateTime(2024, 1, 1, 0, 0, 0, DateTimeKind.Utc),
-                        UpdatedAt = new DateTime(2024, 1, 1, 0, 0, 0, DateTimeKind.Utc)
-                    },
-                    new Facility
-                    {
-                        FacilityId = "F00002",
-                        Name = "Meeting Room A",
-                        Description = "Small meeting room for group discussions",
-                        Capacity = 15,
-                        RoomNumber = "A201",
-                        FloorNumber = "2",
-                        CampusId = "C0001",
-                        TypeId = "FT0002", // Meeting Room
-                        Status = FacilityStatus.Available,
-                        Amenities = "{\"projector\": true, \"whiteboard\": true, \"videoConference\": true}",
-                        MaxConcurrentBookings = 1,
-                        CreatedAt = new DateTime(2024, 1, 1, 0, 0, 0, DateTimeKind.Utc),
-                        UpdatedAt = new DateTime(2024, 1, 1, 0, 0, 0, DateTimeKind.Utc)
-                    },
-                    new Facility
-                    {
-                        FacilityId = "F00003",
-                        Name = "Computer Lab 1",
-                        Description = "Computer laboratory with 30 workstations",
-                        Capacity = 30,
-                        RoomNumber = "LAB1",
-                        FloorNumber = "3",
-                        CampusId = "C0001",
-                        TypeId = "FT0003", // Computer Lab
-                        Status = FacilityStatus.Available,
-                        Amenities = "{\"computers\": 30, \"projector\": true, \"airConditioner\": true, \"printers\": 2}",
-                        MaxConcurrentBookings = 1,
-                        CreatedAt = new DateTime(2024, 1, 1, 0, 0, 0, DateTimeKind.Utc),
-                        UpdatedAt = new DateTime(2024, 1, 1, 0, 0, 0, DateTimeKind.Utc)
-                    },
-                    new Facility
-                    {
-                        FacilityId = "F00004",
-                        Name = "Basketball Court",
-                        Description = "Outdoor basketball court",
-                        Capacity = 20,
-                        RoomNumber = "COURT-BB1",
-                        FloorNumber = "Ground",
-                        CampusId = "C0001",
-                        TypeId = "FT0004", // Sports Court
-                        Status = FacilityStatus.Available,
-                        Amenities = "{\"scoreBoard\": true, \"lighting\": true, \"changeRoom\": true}",
-                        MaxConcurrentBookings = 1,
-                        CreatedAt = new DateTime(2024, 1, 1, 0, 0, 0, DateTimeKind.Utc),
-                        UpdatedAt = new DateTime(2024, 1, 1, 0, 0, 0, DateTimeKind.Utc)
-                    },
-                    new Facility
-                    {
-                        FacilityId = "F00005",
-                        Name = "Main Auditorium",
-                        Description = "Large auditorium for events and ceremonies",
-                        Capacity = 200,
-                        RoomNumber = "AUD-MAIN",
-                        FloorNumber = "1",
-                        CampusId = "C0001",
-                        TypeId = "FT0005", // Auditorium
-                        Status = FacilityStatus.Available,
-                        Amenities = "{\"projector\": true, \"soundSystem\": true, \"stage\": true, \"airConditioner\": true, \"recording\": true}",
-                        MaxConcurrentBookings = 1,
-                        CreatedAt = new DateTime(2024, 1, 1, 0, 0, 0, DateTimeKind.Utc),
-                        UpdatedAt = new DateTime(2024, 1, 1, 0, 0, 0, DateTimeKind.Utc)
-                    }
+                    // HCM Campus - Classrooms
+                    new Facility { FacilityId = "F00001", Name = "Phòng 101", Description = "Phòng học tiêu chuẩn tầng 1", Capacity = 40, RoomNumber = "101", FloorNumber = "1", CampusId = "C0001", TypeId = "FT0001", Status = FacilityStatus.Available, Amenities = "{\"projector\": true, \"whiteboard\": true, \"airConditioner\": true, \"speakers\": true}", MaxConcurrentBookings = 1, CreatedAt = new DateTime(2024, 1, 1, 0, 0, 0, DateTimeKind.Utc), UpdatedAt = new DateTime(2024, 1, 1, 0, 0, 0, DateTimeKind.Utc) },
+                    new Facility { FacilityId = "F00002", Name = "Phòng 102", Description = "Phòng học lớn tầng 1", Capacity = 50, RoomNumber = "102", FloorNumber = "1", CampusId = "C0001", TypeId = "FT0001", Status = FacilityStatus.Available, Amenities = "{\"projector\": true, \"whiteboard\": true, \"airConditioner\": true}", MaxConcurrentBookings = 1, CreatedAt = new DateTime(2024, 1, 1, 0, 0, 0, DateTimeKind.Utc), UpdatedAt = new DateTime(2024, 1, 1, 0, 0, 0, DateTimeKind.Utc) },
+                    new Facility { FacilityId = "F00003", Name = "Phòng 201", Description = "Phòng học tầng 2", Capacity = 45, RoomNumber = "201", FloorNumber = "2", CampusId = "C0001", TypeId = "FT0001", Status = FacilityStatus.Available, Amenities = "{\"projector\": true, \"whiteboard\": true, \"airConditioner\": true}", MaxConcurrentBookings = 1, CreatedAt = new DateTime(2024, 1, 1, 0, 0, 0, DateTimeKind.Utc), UpdatedAt = new DateTime(2024, 1, 1, 0, 0, 0, DateTimeKind.Utc) },
+                    
+                    // HCM Campus - Meeting Rooms
+                    new Facility { FacilityId = "F00004", Name = "Phòng Họp A", Description = "Phòng họp nhỏ", Capacity = 15, RoomNumber = "A201", FloorNumber = "2", CampusId = "C0001", TypeId = "FT0002", Status = FacilityStatus.Available, Amenities = "{\"projector\": true, \"whiteboard\": true, \"videoConference\": true}", MaxConcurrentBookings = 1, CreatedAt = new DateTime(2024, 1, 1, 0, 0, 0, DateTimeKind.Utc), UpdatedAt = new DateTime(2024, 1, 1, 0, 0, 0, DateTimeKind.Utc) },
+                    new Facility { FacilityId = "F00005", Name = "Phòng Họp B", Description = "Phòng họp vừa", Capacity = 20, RoomNumber = "B201", FloorNumber = "2", CampusId = "C0001", TypeId = "FT0002", Status = FacilityStatus.Available, Amenities = "{\"projector\": true, \"whiteboard\": true, \"videoConference\": true}", MaxConcurrentBookings = 1, CreatedAt = new DateTime(2024, 1, 1, 0, 0, 0, DateTimeKind.Utc), UpdatedAt = new DateTime(2024, 1, 1, 0, 0, 0, DateTimeKind.Utc) },
+                    
+                    // HCM Campus - Labs
+                    new Facility { FacilityId = "F00006", Name = "Phòng Lab 1", Description = "Phòng thực hành máy tính", Capacity = 30, RoomNumber = "LAB1", FloorNumber = "3", CampusId = "C0001", TypeId = "FT0003", Status = FacilityStatus.Available, Amenities = "{\"computers\": 30, \"projector\": true, \"airConditioner\": true, \"printers\": 2}", MaxConcurrentBookings = 1, CreatedAt = new DateTime(2024, 1, 1, 0, 0, 0, DateTimeKind.Utc), UpdatedAt = new DateTime(2024, 1, 1, 0, 0, 0, DateTimeKind.Utc) },
+                    new Facility { FacilityId = "F00007", Name = "Phòng Lab 2", Description = "Phòng thực hành lập trình", Capacity = 30, RoomNumber = "LAB2", FloorNumber = "3", CampusId = "C0001", TypeId = "FT0003", Status = FacilityStatus.Available, Amenities = "{\"computers\": 30, \"projector\": true, \"airConditioner\": true}", MaxConcurrentBookings = 1, CreatedAt = new DateTime(2024, 1, 1, 0, 0, 0, DateTimeKind.Utc), UpdatedAt = new DateTime(2024, 1, 1, 0, 0, 0, DateTimeKind.Utc) },
+                    
+                    // HCM Campus - Sports & Special
+                    new Facility { FacilityId = "F00008", Name = "Sân Bóng Rổ", Description = "Sân bóng rổ ngoài trời", Capacity = 20, RoomNumber = "COURT-BB1", FloorNumber = "Ground", CampusId = "C0001", TypeId = "FT0004", Status = FacilityStatus.Available, Amenities = "{\"scoreBoard\": true, \"lighting\": true, \"changeRoom\": true}", MaxConcurrentBookings = 1, CreatedAt = new DateTime(2024, 1, 1, 0, 0, 0, DateTimeKind.Utc), UpdatedAt = new DateTime(2024, 1, 1, 0, 0, 0, DateTimeKind.Utc) },
+                    new Facility { FacilityId = "F00009", Name = "Sân Cầu Lông", Description = "Sân cầu lông trong nhà", Capacity = 10, RoomNumber = "COURT-BD1", FloorNumber = "Ground", CampusId = "C0001", TypeId = "FT0004", Status = FacilityStatus.Available, Amenities = "{\"lighting\": true, \"changeRoom\": true}", MaxConcurrentBookings = 1, CreatedAt = new DateTime(2024, 1, 1, 0, 0, 0, DateTimeKind.Utc), UpdatedAt = new DateTime(2024, 1, 1, 0, 0, 0, DateTimeKind.Utc) },
+                    new Facility { FacilityId = "F00010", Name = "Hội Trường Chính", Description = "Hội trường lớn cho sự kiện", Capacity = 200, RoomNumber = "AUD-MAIN", FloorNumber = "1", CampusId = "C0001", TypeId = "FT0005", Status = FacilityStatus.Available, Amenities = "{\"projector\": true, \"soundSystem\": true, \"stage\": true, \"airConditioner\": true, \"recording\": true}", MaxConcurrentBookings = 1, CreatedAt = new DateTime(2024, 1, 1, 0, 0, 0, DateTimeKind.Utc), UpdatedAt = new DateTime(2024, 1, 1, 0, 0, 0, DateTimeKind.Utc) },
+                    
+                    // Quy Nhơn Campus - Classrooms
+                    new Facility { FacilityId = "F00011", Name = "Phòng QN-101", Description = "Phòng học tầng 1 - QN", Capacity = 40, RoomNumber = "QN-101", FloorNumber = "1", CampusId = "C0002", TypeId = "FT0001", Status = FacilityStatus.Available, Amenities = "{\"projector\": true, \"whiteboard\": true, \"airConditioner\": true}", MaxConcurrentBookings = 1, CreatedAt = new DateTime(2024, 1, 1, 0, 0, 0, DateTimeKind.Utc), UpdatedAt = new DateTime(2024, 1, 1, 0, 0, 0, DateTimeKind.Utc) },
+                    new Facility { FacilityId = "F00012", Name = "Phòng QN-102", Description = "Phòng học tầng 1 - QN", Capacity = 35, RoomNumber = "QN-102", FloorNumber = "1", CampusId = "C0002", TypeId = "FT0001", Status = FacilityStatus.Available, Amenities = "{\"projector\": true, \"whiteboard\": true, \"airConditioner\": true}", MaxConcurrentBookings = 1, CreatedAt = new DateTime(2024, 1, 1, 0, 0, 0, DateTimeKind.Utc), UpdatedAt = new DateTime(2024, 1, 1, 0, 0, 0, DateTimeKind.Utc) },
+                    new Facility { FacilityId = "F00013", Name = "Phòng QN-201", Description = "Phòng học tầng 2 - QN", Capacity = 40, RoomNumber = "QN-201", FloorNumber = "2", CampusId = "C0002", TypeId = "FT0001", Status = FacilityStatus.Available, Amenities = "{\"projector\": true, \"whiteboard\": true, \"airConditioner\": true}", MaxConcurrentBookings = 1, CreatedAt = new DateTime(2024, 1, 1, 0, 0, 0, DateTimeKind.Utc), UpdatedAt = new DateTime(2024, 1, 1, 0, 0, 0, DateTimeKind.Utc) },
+                    new Facility { FacilityId = "F00014", Name = "Phòng QN-202", Description = "Phòng học tầng 2 - QN", Capacity = 45, RoomNumber = "QN-202", FloorNumber = "2", CampusId = "C0002", TypeId = "FT0001", Status = FacilityStatus.Available, Amenities = "{\"projector\": true, \"whiteboard\": true, \"airConditioner\": true}", MaxConcurrentBookings = 1, CreatedAt = new DateTime(2024, 1, 1, 0, 0, 0, DateTimeKind.Utc), UpdatedAt = new DateTime(2024, 1, 1, 0, 0, 0, DateTimeKind.Utc) },
+                    
+                    // Quy Nhơn Campus - Meeting Rooms
+                    new Facility { FacilityId = "F00015", Name = "Phòng Họp QN-A", Description = "Phòng họp nhóm", Capacity = 12, RoomNumber = "QN-A301", FloorNumber = "3", CampusId = "C0002", TypeId = "FT0002", Status = FacilityStatus.Available, Amenities = "{\"projector\": true, \"whiteboard\": true, \"videoConference\": true}", MaxConcurrentBookings = 1, CreatedAt = new DateTime(2024, 1, 1, 0, 0, 0, DateTimeKind.Utc), UpdatedAt = new DateTime(2024, 1, 1, 0, 0, 0, DateTimeKind.Utc) },
+                    new Facility { FacilityId = "F00016", Name = "Phòng Họp QN-B", Description = "Phòng họp lớn", Capacity = 20, RoomNumber = "QN-B301", FloorNumber = "3", CampusId = "C0002", TypeId = "FT0002", Status = FacilityStatus.Available, Amenities = "{\"projector\": true, \"whiteboard\": true, \"videoConference\": true}", MaxConcurrentBookings = 1, CreatedAt = new DateTime(2024, 1, 1, 0, 0, 0, DateTimeKind.Utc), UpdatedAt = new DateTime(2024, 1, 1, 0, 0, 0, DateTimeKind.Utc) },
+                    
+                    // Quy Nhơn Campus - Labs
+                    new Facility { FacilityId = "F00017", Name = "Lab QN-1", Description = "Phòng thực hành IT", Capacity = 35, RoomNumber = "QN-LAB1", FloorNumber = "4", CampusId = "C0002", TypeId = "FT0003", Status = FacilityStatus.Available, Amenities = "{\"computers\": 35, \"projector\": true, \"airConditioner\": true, \"printers\": 2}", MaxConcurrentBookings = 1, CreatedAt = new DateTime(2024, 1, 1, 0, 0, 0, DateTimeKind.Utc), UpdatedAt = new DateTime(2024, 1, 1, 0, 0, 0, DateTimeKind.Utc) },
+                    new Facility { FacilityId = "F00018", Name = "Lab QN-2", Description = "Phòng thực hành software", Capacity = 30, RoomNumber = "QN-LAB2", FloorNumber = "4", CampusId = "C0002", TypeId = "FT0003", Status = FacilityStatus.Available, Amenities = "{\"computers\": 30, \"projector\": true, \"airConditioner\": true}", MaxConcurrentBookings = 1, CreatedAt = new DateTime(2024, 1, 1, 0, 0, 0, DateTimeKind.Utc), UpdatedAt = new DateTime(2024, 1, 1, 0, 0, 0, DateTimeKind.Utc) },
+                    
+                    // Quy Nhơn Campus - Sports
+                    new Facility { FacilityId = "F00019", Name = "Sân Bóng Đá Mini", Description = "Sân bóng đá mini ngoài trời", Capacity = 14, RoomNumber = "QN-COURT-F1", FloorNumber = "Ground", CampusId = "C0002", TypeId = "FT0004", Status = FacilityStatus.Available, Amenities = "{\"lighting\": true, \"scoreBoard\": true}", MaxConcurrentBookings = 1, CreatedAt = new DateTime(2024, 1, 1, 0, 0, 0, DateTimeKind.Utc), UpdatedAt = new DateTime(2024, 1, 1, 0, 0, 0, DateTimeKind.Utc) },
+                    new Facility { FacilityId = "F00020", Name = "Hội Trường QN", Description = "Hội trường campus Quy Nhơn", Capacity = 150, RoomNumber = "QN-AUD", FloorNumber = "1", CampusId = "C0002", TypeId = "FT0005", Status = FacilityStatus.Available, Amenities = "{\"projector\": true, \"soundSystem\": true, \"stage\": true, \"airConditioner\": true}", MaxConcurrentBookings = 1, CreatedAt = new DateTime(2024, 1, 1, 0, 0, 0, DateTimeKind.Utc), UpdatedAt = new DateTime(2024, 1, 1, 0, 0, 0, DateTimeKind.Utc) }
                 );
             });
 

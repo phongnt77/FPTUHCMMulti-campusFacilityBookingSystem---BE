@@ -1,3 +1,5 @@
+using DAL.Models.Enums;
+
 namespace Applications.DTOs.Request
 {
     public class UserFilterDto : PagedRequestDto
@@ -6,7 +8,7 @@ namespace Applications.DTOs.Request
         public string? Email { get; set; }
         public string? RoleId { get; set; }
         public string? CampusId { get; set; }
-        public string? Status { get; set; }
+        public UserStatus? Status { get; set; }
     }
 }
 

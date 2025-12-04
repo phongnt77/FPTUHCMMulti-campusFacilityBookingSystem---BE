@@ -4,6 +4,7 @@ using DAL.Dbcontext;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DAL.Migrations
 {
     [DbContext(typeof(FacilityBookingDbContext))]
-    partial class FacilityBookingDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251204015027_AddQuyNhonCampusAndMoreFacilities")]
+    partial class AddQuyNhonCampusAndMoreFacilities
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -320,11 +323,11 @@ namespace DAL.Migrations
                         new
                         {
                             CampusId = "C0002",
-                            Address = "Khu đô thị Nhơn Hội, TP. Quy Nhơn, Bình Định",
+                            Address = "Khu đô thị mới An Phú Thịnh, P.Nhơn Bình, TP.Quy Nhơn, Bình Định",
                             CreatedAt = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
-                            Email = "qn@fpt.edu.vn",
+                            Email = "quynhon@fpt.edu.vn",
                             Name = "FPTU Quy Nhơn Campus",
-                            PhoneNumber = "0256 3842 468",
+                            PhoneNumber = "0256 3846 849",
                             Status = "Active",
                             UpdatedAt = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc)
                         });
@@ -430,10 +433,10 @@ namespace DAL.Migrations
                             CampusId = "C0001",
                             Capacity = 40,
                             CreatedAt = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
-                            Description = "Phòng học tiêu chuẩn tầng 1",
+                            Description = "Standard classroom on first floor",
                             FloorNumber = "1",
                             MaxConcurrentBookings = 1,
-                            Name = "Phòng 101",
+                            Name = "Room 101",
                             RoomNumber = "101",
                             Status = "Available",
                             TypeId = "FT0001",
@@ -442,46 +445,14 @@ namespace DAL.Migrations
                         new
                         {
                             FacilityId = "F00002",
-                            Amenities = "{\"projector\": true, \"whiteboard\": true, \"airConditioner\": true}",
-                            CampusId = "C0001",
-                            Capacity = 50,
-                            CreatedAt = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
-                            Description = "Phòng học lớn tầng 1",
-                            FloorNumber = "1",
-                            MaxConcurrentBookings = 1,
-                            Name = "Phòng 102",
-                            RoomNumber = "102",
-                            Status = "Available",
-                            TypeId = "FT0001",
-                            UpdatedAt = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc)
-                        },
-                        new
-                        {
-                            FacilityId = "F00003",
-                            Amenities = "{\"projector\": true, \"whiteboard\": true, \"airConditioner\": true}",
-                            CampusId = "C0001",
-                            Capacity = 45,
-                            CreatedAt = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
-                            Description = "Phòng học tầng 2",
-                            FloorNumber = "2",
-                            MaxConcurrentBookings = 1,
-                            Name = "Phòng 201",
-                            RoomNumber = "201",
-                            Status = "Available",
-                            TypeId = "FT0001",
-                            UpdatedAt = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc)
-                        },
-                        new
-                        {
-                            FacilityId = "F00004",
                             Amenities = "{\"projector\": true, \"whiteboard\": true, \"videoConference\": true}",
                             CampusId = "C0001",
                             Capacity = 15,
                             CreatedAt = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
-                            Description = "Phòng họp nhỏ",
+                            Description = "Small meeting room for group discussions",
                             FloorNumber = "2",
                             MaxConcurrentBookings = 1,
-                            Name = "Phòng Họp A",
+                            Name = "Meeting Room A",
                             RoomNumber = "A201",
                             Status = "Available",
                             TypeId = "FT0002",
@@ -489,31 +460,15 @@ namespace DAL.Migrations
                         },
                         new
                         {
-                            FacilityId = "F00005",
-                            Amenities = "{\"projector\": true, \"whiteboard\": true, \"videoConference\": true}",
-                            CampusId = "C0001",
-                            Capacity = 20,
-                            CreatedAt = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
-                            Description = "Phòng họp vừa",
-                            FloorNumber = "2",
-                            MaxConcurrentBookings = 1,
-                            Name = "Phòng Họp B",
-                            RoomNumber = "B201",
-                            Status = "Available",
-                            TypeId = "FT0002",
-                            UpdatedAt = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc)
-                        },
-                        new
-                        {
-                            FacilityId = "F00006",
+                            FacilityId = "F00003",
                             Amenities = "{\"computers\": 30, \"projector\": true, \"airConditioner\": true, \"printers\": 2}",
                             CampusId = "C0001",
                             Capacity = 30,
                             CreatedAt = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
-                            Description = "Phòng thực hành máy tính",
+                            Description = "Computer laboratory with 30 workstations",
                             FloorNumber = "3",
                             MaxConcurrentBookings = 1,
-                            Name = "Phòng Lab 1",
+                            Name = "Computer Lab 1",
                             RoomNumber = "LAB1",
                             Status = "Available",
                             TypeId = "FT0003",
@@ -521,31 +476,15 @@ namespace DAL.Migrations
                         },
                         new
                         {
-                            FacilityId = "F00007",
-                            Amenities = "{\"computers\": 30, \"projector\": true, \"airConditioner\": true}",
-                            CampusId = "C0001",
-                            Capacity = 30,
-                            CreatedAt = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
-                            Description = "Phòng thực hành lập trình",
-                            FloorNumber = "3",
-                            MaxConcurrentBookings = 1,
-                            Name = "Phòng Lab 2",
-                            RoomNumber = "LAB2",
-                            Status = "Available",
-                            TypeId = "FT0003",
-                            UpdatedAt = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc)
-                        },
-                        new
-                        {
-                            FacilityId = "F00008",
+                            FacilityId = "F00004",
                             Amenities = "{\"scoreBoard\": true, \"lighting\": true, \"changeRoom\": true}",
                             CampusId = "C0001",
                             Capacity = 20,
                             CreatedAt = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
-                            Description = "Sân bóng rổ ngoài trời",
+                            Description = "Outdoor basketball court",
                             FloorNumber = "Ground",
                             MaxConcurrentBookings = 1,
-                            Name = "Sân Bóng Rổ",
+                            Name = "Basketball Court",
                             RoomNumber = "COURT-BB1",
                             Status = "Available",
                             TypeId = "FT0004",
@@ -553,34 +492,98 @@ namespace DAL.Migrations
                         },
                         new
                         {
-                            FacilityId = "F00009",
-                            Amenities = "{\"lighting\": true, \"changeRoom\": true}",
+                            FacilityId = "F00005",
+                            Amenities = "{\"projector\": true, \"soundSystem\": true, \"stage\": true, \"airConditioner\": true, \"recording\": true}",
                             CampusId = "C0001",
-                            Capacity = 10,
+                            Capacity = 200,
                             CreatedAt = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
-                            Description = "Sân cầu lông trong nhà",
-                            FloorNumber = "Ground",
+                            Description = "Large auditorium for events and ceremonies",
+                            FloorNumber = "1",
                             MaxConcurrentBookings = 1,
-                            Name = "Sân Cầu Lông",
-                            RoomNumber = "COURT-BD1",
+                            Name = "Main Auditorium",
+                            RoomNumber = "AUD-MAIN",
                             Status = "Available",
-                            TypeId = "FT0004",
+                            TypeId = "FT0005",
+                            UpdatedAt = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc)
+                        },
+                        new
+                        {
+                            FacilityId = "F00006",
+                            Amenities = "{\"projector\": true, \"whiteboard\": true, \"airConditioner\": true}",
+                            CampusId = "C0001",
+                            Capacity = 45,
+                            CreatedAt = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Description = "Standard classroom",
+                            FloorNumber = "1",
+                            MaxConcurrentBookings = 1,
+                            Name = "Room 102",
+                            RoomNumber = "102",
+                            Status = "Available",
+                            TypeId = "FT0001",
+                            UpdatedAt = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc)
+                        },
+                        new
+                        {
+                            FacilityId = "F00007",
+                            Amenities = "{\"projector\": true, \"whiteboard\": true, \"airConditioner\": true}",
+                            CampusId = "C0001",
+                            Capacity = 50,
+                            CreatedAt = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Description = "Large classroom",
+                            FloorNumber = "2",
+                            MaxConcurrentBookings = 1,
+                            Name = "Room 201",
+                            RoomNumber = "201",
+                            Status = "Available",
+                            TypeId = "FT0001",
+                            UpdatedAt = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc)
+                        },
+                        new
+                        {
+                            FacilityId = "F00008",
+                            Amenities = "{\"projector\": true, \"whiteboard\": true, \"videoConference\": true}",
+                            CampusId = "C0001",
+                            Capacity = 20,
+                            CreatedAt = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Description = "Medium meeting room",
+                            FloorNumber = "2",
+                            MaxConcurrentBookings = 1,
+                            Name = "Meeting Room B",
+                            RoomNumber = "B202",
+                            Status = "Available",
+                            TypeId = "FT0002",
+                            UpdatedAt = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc)
+                        },
+                        new
+                        {
+                            FacilityId = "F00009",
+                            Amenities = "{\"computers\": 35, \"projector\": true, \"airConditioner\": true, \"printers\": 2}",
+                            CampusId = "C0001",
+                            Capacity = 35,
+                            CreatedAt = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Description = "Computer lab with software development tools",
+                            FloorNumber = "3",
+                            MaxConcurrentBookings = 1,
+                            Name = "Computer Lab 2",
+                            RoomNumber = "LAB2",
+                            Status = "Available",
+                            TypeId = "FT0003",
                             UpdatedAt = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc)
                         },
                         new
                         {
                             FacilityId = "F00010",
-                            Amenities = "{\"projector\": true, \"soundSystem\": true, \"stage\": true, \"airConditioner\": true, \"recording\": true}",
+                            Amenities = "{\"scoreBoard\": true, \"lighting\": true, \"changeRoom\": true}",
                             CampusId = "C0001",
-                            Capacity = 200,
+                            Capacity = 20,
                             CreatedAt = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
-                            Description = "Hội trường lớn cho sự kiện",
-                            FloorNumber = "1",
+                            Description = "Indoor volleyball court",
+                            FloorNumber = "Ground",
                             MaxConcurrentBookings = 1,
-                            Name = "Hội Trường Chính",
-                            RoomNumber = "AUD-MAIN",
+                            Name = "Volleyball Court",
+                            RoomNumber = "COURT-VB1",
                             Status = "Available",
-                            TypeId = "FT0005",
+                            TypeId = "FT0004",
                             UpdatedAt = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc)
                         },
                         new
@@ -590,11 +593,11 @@ namespace DAL.Migrations
                             CampusId = "C0002",
                             Capacity = 40,
                             CreatedAt = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
-                            Description = "Phòng học tầng 1 - QN",
+                            Description = "Standard classroom",
                             FloorNumber = "1",
                             MaxConcurrentBookings = 1,
-                            Name = "Phòng QN-101",
-                            RoomNumber = "QN-101",
+                            Name = "Room QN-101",
+                            RoomNumber = "101",
                             Status = "Available",
                             TypeId = "FT0001",
                             UpdatedAt = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc)
@@ -602,15 +605,15 @@ namespace DAL.Migrations
                         new
                         {
                             FacilityId = "F00012",
-                            Amenities = "{\"projector\": true, \"whiteboard\": true, \"airConditioner\": true}",
+                            Amenities = "{\"projector\": true, \"whiteboard\": true, \"airConditioner\": true, \"speakers\": true}",
                             CampusId = "C0002",
-                            Capacity = 35,
+                            Capacity = 50,
                             CreatedAt = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
-                            Description = "Phòng học tầng 1 - QN",
+                            Description = "Large classroom",
                             FloorNumber = "1",
                             MaxConcurrentBookings = 1,
-                            Name = "Phòng QN-102",
-                            RoomNumber = "QN-102",
+                            Name = "Room QN-102",
+                            RoomNumber = "102",
                             Status = "Available",
                             TypeId = "FT0001",
                             UpdatedAt = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc)
@@ -618,15 +621,15 @@ namespace DAL.Migrations
                         new
                         {
                             FacilityId = "F00013",
-                            Amenities = "{\"projector\": true, \"whiteboard\": true, \"airConditioner\": true}",
+                            Amenities = "{\"projector\": true, \"whiteboard\": true, \"airConditioner\": true, \"smartTV\": true}",
                             CampusId = "C0002",
-                            Capacity = 40,
+                            Capacity = 45,
                             CreatedAt = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
-                            Description = "Phòng học tầng 2 - QN",
+                            Description = "Multimedia classroom",
                             FloorNumber = "2",
                             MaxConcurrentBookings = 1,
-                            Name = "Phòng QN-201",
-                            RoomNumber = "QN-201",
+                            Name = "Room QN-201",
+                            RoomNumber = "201",
                             Status = "Available",
                             TypeId = "FT0001",
                             UpdatedAt = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc)
@@ -634,31 +637,31 @@ namespace DAL.Migrations
                         new
                         {
                             FacilityId = "F00014",
-                            Amenities = "{\"projector\": true, \"whiteboard\": true, \"airConditioner\": true}",
+                            Amenities = "{\"projector\": true, \"whiteboard\": true, \"videoConference\": true}",
                             CampusId = "C0002",
-                            Capacity = 45,
+                            Capacity = 15,
                             CreatedAt = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
-                            Description = "Phòng học tầng 2 - QN",
-                            FloorNumber = "2",
+                            Description = "Meeting room for group discussions",
+                            FloorNumber = "3",
                             MaxConcurrentBookings = 1,
-                            Name = "Phòng QN-202",
-                            RoomNumber = "QN-202",
+                            Name = "Meeting Room QN-A",
+                            RoomNumber = "A301",
                             Status = "Available",
-                            TypeId = "FT0001",
+                            TypeId = "FT0002",
                             UpdatedAt = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc)
                         },
                         new
                         {
                             FacilityId = "F00015",
-                            Amenities = "{\"projector\": true, \"whiteboard\": true, \"videoConference\": true}",
+                            Amenities = "{\"projector\": true, \"whiteboard\": true}",
                             CampusId = "C0002",
-                            Capacity = 12,
+                            Capacity = 10,
                             CreatedAt = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
-                            Description = "Phòng họp nhóm",
+                            Description = "Small meeting room",
                             FloorNumber = "3",
                             MaxConcurrentBookings = 1,
-                            Name = "Phòng Họp QN-A",
-                            RoomNumber = "QN-A301",
+                            Name = "Meeting Room QN-B",
+                            RoomNumber = "B301",
                             Status = "Available",
                             TypeId = "FT0002",
                             UpdatedAt = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc)
@@ -666,31 +669,31 @@ namespace DAL.Migrations
                         new
                         {
                             FacilityId = "F00016",
-                            Amenities = "{\"projector\": true, \"whiteboard\": true, \"videoConference\": true}",
+                            Amenities = "{\"computers\": 30, \"projector\": true, \"airConditioner\": true, \"printers\": 2}",
                             CampusId = "C0002",
-                            Capacity = 20,
+                            Capacity = 30,
                             CreatedAt = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
-                            Description = "Phòng họp lớn",
-                            FloorNumber = "3",
+                            Description = "Modern computer laboratory",
+                            FloorNumber = "4",
                             MaxConcurrentBookings = 1,
-                            Name = "Phòng Họp QN-B",
-                            RoomNumber = "QN-B301",
+                            Name = "Computer Lab QN-1",
+                            RoomNumber = "LAB1",
                             Status = "Available",
-                            TypeId = "FT0002",
+                            TypeId = "FT0003",
                             UpdatedAt = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc)
                         },
                         new
                         {
                             FacilityId = "F00017",
-                            Amenities = "{\"computers\": 35, \"projector\": true, \"airConditioner\": true, \"printers\": 2}",
+                            Amenities = "{\"computers\": 28, \"projector\": true, \"airConditioner\": true, \"graphicsTablets\": 5}",
                             CampusId = "C0002",
-                            Capacity = 35,
+                            Capacity = 28,
                             CreatedAt = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
-                            Description = "Phòng thực hành IT",
+                            Description = "Computer lab with design software",
                             FloorNumber = "4",
                             MaxConcurrentBookings = 1,
-                            Name = "Lab QN-1",
-                            RoomNumber = "QN-LAB1",
+                            Name = "Computer Lab QN-2",
+                            RoomNumber = "LAB2",
                             Status = "Available",
                             TypeId = "FT0003",
                             UpdatedAt = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc)
@@ -698,31 +701,31 @@ namespace DAL.Migrations
                         new
                         {
                             FacilityId = "F00018",
-                            Amenities = "{\"computers\": 30, \"projector\": true, \"airConditioner\": true}",
+                            Amenities = "{\"scoreBoard\": true, \"lighting\": true, \"changeRoom\": true}",
                             CampusId = "C0002",
-                            Capacity = 30,
+                            Capacity = 20,
                             CreatedAt = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
-                            Description = "Phòng thực hành software",
-                            FloorNumber = "4",
+                            Description = "Outdoor basketball court",
+                            FloorNumber = "Ground",
                             MaxConcurrentBookings = 1,
-                            Name = "Lab QN-2",
-                            RoomNumber = "QN-LAB2",
+                            Name = "Basketball Court QN",
+                            RoomNumber = "COURT-BB1",
                             Status = "Available",
-                            TypeId = "FT0003",
+                            TypeId = "FT0004",
                             UpdatedAt = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc)
                         },
                         new
                         {
                             FacilityId = "F00019",
-                            Amenities = "{\"lighting\": true, \"scoreBoard\": true}",
+                            Amenities = "{\"scoreBoard\": true, \"lighting\": true, \"changeRoom\": true}",
                             CampusId = "C0002",
-                            Capacity = 14,
+                            Capacity = 16,
                             CreatedAt = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
-                            Description = "Sân bóng đá mini ngoài trời",
+                            Description = "Indoor badminton court",
                             FloorNumber = "Ground",
                             MaxConcurrentBookings = 1,
-                            Name = "Sân Bóng Đá Mini",
-                            RoomNumber = "QN-COURT-F1",
+                            Name = "Badminton Court QN",
+                            RoomNumber = "COURT-BD1",
                             Status = "Available",
                             TypeId = "FT0004",
                             UpdatedAt = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc)
@@ -734,11 +737,11 @@ namespace DAL.Migrations
                             CampusId = "C0002",
                             Capacity = 150,
                             CreatedAt = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
-                            Description = "Hội trường campus Quy Nhơn",
+                            Description = "Main auditorium for events",
                             FloorNumber = "1",
                             MaxConcurrentBookings = 1,
-                            Name = "Hội Trường QN",
-                            RoomNumber = "QN-AUD",
+                            Name = "Auditorium QN",
+                            RoomNumber = "AUD-QN",
                             Status = "Available",
                             TypeId = "FT0005",
                             UpdatedAt = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc)
@@ -1343,7 +1346,7 @@ namespace DAL.Migrations
                             Email = "admin@fpt.edu.vn",
                             FullName = "System Administrator",
                             IsVerify = "Verified",
-                            Password = "$2a$11$yUewVhi38UGe9Hv.pCe1b.PCg4hGj4TPi1zHG7QBlUazl06dN1mp.",
+                            Password = "$2a$11$RTYYMnbA4u4AsFjrJ0icJuGFK2HIQz2Bvm3DsGuIgSuVQ0f8Dkqxq",
                             RoleId = "RL0003",
                             Status = "Active",
                             UpdatedAt = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc)
@@ -1356,7 +1359,7 @@ namespace DAL.Migrations
                             Email = "lecturer@fpt.edu.vn",
                             FullName = "John Lecturer",
                             IsVerify = "Verified",
-                            Password = "$2a$11$LL1zVLOKE5ObIxp4VHb8guUI.nOJSpiT1uxS8thUrKpdA/YvsSOj.",
+                            Password = "$2a$11$VF3bBOD5oWzoYJ9q1b621eczagjaTb9kTVqGwcKM3XSplZzMV8jTe",
                             RoleId = "RL0002",
                             Status = "Active",
                             UpdatedAt = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc)
@@ -1369,7 +1372,7 @@ namespace DAL.Migrations
                             Email = "student@fpt.edu.vn",
                             FullName = "Jane Student",
                             IsVerify = "Verified",
-                            Password = "$2a$11$Scj24gjHsoxFPCE7X6/eUuvNTZHdUNOjoumu3GeK8KfktIohCW8Dm",
+                            Password = "$2a$11$OVIelNQuFNCk1yUZyNjEsOX4IVLLVlYE.L6nezbcnCCGWrTSi.XDS",
                             RoleId = "RL0001",
                             Status = "Active",
                             UpdatedAt = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc)

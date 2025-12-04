@@ -1,5 +1,6 @@
 using Applications.DTOs.Request;
 using Applications.DTOs.Response;
+using Applications.Helpers;
 using BLL.Interfaces;
 using DAL.Models;
 using DAL.Models.Enums;
@@ -98,8 +99,8 @@ namespace BLL.Classes
                 Email = dto.Email,
                 FacilityManagerId = dto.FacilityManagerId,
                 Status = CampusStatus.Active,
-                CreatedAt = DateTime.UtcNow,
-                UpdatedAt = DateTime.UtcNow
+                CreatedAt = DateTimeHelper.VietnamNow,
+                UpdatedAt = DateTimeHelper.VietnamNow
             };
 
             await _unitOfWork.CampusRepo.CreateAsync(campus);
@@ -139,7 +140,7 @@ namespace BLL.Classes
             if (dto.FacilityManagerId != null)
                 campus.FacilityManagerId = dto.FacilityManagerId;
 
-            campus.UpdatedAt = DateTime.UtcNow;
+            campus.UpdatedAt = DateTimeHelper.VietnamNow;
 
             await _unitOfWork.CampusRepo.UpdateAsync(campus);
 
@@ -169,7 +170,7 @@ namespace BLL.Classes
 
             // Soft delete
             campus.Status = CampusStatus.Inactive;
-            campus.UpdatedAt = DateTime.UtcNow;
+            campus.UpdatedAt = DateTimeHelper.VietnamNow;
 
             await _unitOfWork.CampusRepo.UpdateAsync(campus);
 
