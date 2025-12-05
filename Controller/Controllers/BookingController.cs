@@ -1,8 +1,11 @@
 using Applications.DTOs.Request;
 using Applications.DTOs.Response;
 using BLL.Interfaces;
+using DAL.Models.Enums;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
 
 namespace Controller.Controllers
 {
@@ -45,6 +48,51 @@ namespace Controller.Controllers
         {
             try
             {
+                var result = await _bookingService.GetAllAsync(filter);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ApiResponse.Fail(500, ex.Message));
+            }
+        }
+
+        
+        [HttpGet("me")]
+        [ProducesResponseType(typeof(ApiResponseWithPagination<List<BookingResponseDto>>), 200)]
+        [ProducesResponseType(typeof(ApiResponse), 401)]
+        public async Task<IActionResult> GetMyBookings([FromQuery] string? status, [FromQuery] int page = 1, [FromQuery] int limit = 10)
+        {
+            try
+            {
+                // Lấy userId từ JWT token
+                var userId = User.FindFirstValue(JwtRegisteredClaimNames.Sub) ??
+                            User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+                if (string.IsNullOrEmpty(userId))
+                {
+                    return Unauthorized(ApiResponse.Fail(401, "Không tìm thấy user id trong token."));
+                }
+
+                // Parse status string to enum
+                BookingStatus? statusEnum = null;
+                if (!string.IsNullOrEmpty(status))
+                {
+                    if (Enum.TryParse<BookingStatus>(status, true, out var parsedStatus))
+                    {
+                        statusEnum = parsedStatus;
+                    }
+                }
+
+                // Tạo filter với userId từ token
+                var filter = new BookingFilterDto
+                {
+                    UserId = userId,
+                    Status = statusEnum,
+                    Page = page,
+                    Limit = limit
+                };
+
                 var result = await _bookingService.GetAllAsync(filter);
                 return Ok(result);
             }
@@ -99,7 +147,7 @@ namespace Controller.Controllers
         /// 
         /// Hệ thống tự động:
         /// - Kiểm tra conflict thời gian
-        /// - Tạo booking với status = Draft
+        /// - Tạo booking với status = Pending_Approval (chờ admin duyệt)
         /// </remarks>
         [HttpPost]
         [ProducesResponseType(typeof(ApiResponse<BookingResponseDto>), 200)]
