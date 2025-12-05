@@ -240,5 +240,28 @@ namespace Controller.Controllers
                 return StatusCode(500, ApiResponse.Fail(500, ex.Message));
             }
         }
+
+        
+        [HttpDelete("{id}")]
+        [Authorize(Roles = "RL0003")]
+        [ProducesResponseType(typeof(ApiResponse), 200)]
+        [ProducesResponseType(403)]
+        [ProducesResponseType(typeof(ApiResponse), 404)]
+        public async Task<IActionResult> Delete(string id)
+        {
+            try
+            {
+                var result = await _userService.DeleteAsync(id);
+                if (!result.Success)
+                {
+                    return NotFound(result);
+                }
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ApiResponse.Fail(500, ex.Message));
+            }
+        }
     }
 }
