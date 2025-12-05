@@ -1,0 +1,250 @@
+using Applications.DTOs.Request;
+using Applications.DTOs.Response;
+using BLL.Interfaces;
+using DAL.Models.Enums;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+
+namespace Controller.Controllers
+{
+    /// <summary>
+    /// API quản lý đặt phòng/cơ sở (Bookings)
+    /// </summary>
+    [ApiController]
+    [Route("api/bookings")]
+    [Authorize]
+    public class BookingController : ControllerBase
+    {
+        private readonly IBookingService _bookingService;
+
+        public BookingController(IBookingService bookingService)
+        {
+            _bookingService = bookingService;
+        }
+
+        /// <summary>
+        /// Lấy danh sách bookings với filtering
+        /// </summary>
+        /// <param name="filter">Bộ lọc (userId, facilityId, status, page, limit)</param>
+        /// <returns>Danh sách bookings</returns>
+        /// <response code="200">Trả về danh sách thành công</response>
+        /// <response code="401">Chưa đăng nhập</response>
+        /// <remarks>
+        /// **Roles:** Tất cả user đã đăng nhập (Student, Lecturer, Admin)
+        /// 
+        /// **Filters:**
+        /// - userId: Lọc theo người đặt
+        /// - facilityId: Lọc theo cơ sở
+        /// - status: Draft | Pending_Approval | Approved | Rejected | Cancelled | Completed | No_Show
+        /// - page: Trang (default: 1)
+        /// - limit: Số items/trang (default: 10)
+        /// </remarks>
+        [HttpGet]
+        [ProducesResponseType(typeof(ApiResponseWithPagination<List<BookingResponseDto>>), 200)]
+        [ProducesResponseType(401)]
+        public async Task<IActionResult> GetAll([FromQuery] BookingFilterDto filter)
+        {
+            try
+            {
+                var result = await _bookingService.GetAllAsync(filter);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ApiResponse.Fail(500, ex.Message));
+            }
+        }
+
+        
+        [HttpGet("me")]
+        [ProducesResponseType(typeof(ApiResponseWithPagination<List<BookingResponseDto>>), 200)]
+        [ProducesResponseType(typeof(ApiResponse), 401)]
+        public async Task<IActionResult> GetMyBookings([FromQuery] string? status, [FromQuery] int page = 1, [FromQuery] int limit = 10)
+        {
+            try
+            {
+                // Lấy userId từ JWT token
+                var userId = User.FindFirstValue(JwtRegisteredClaimNames.Sub) ??
+                            User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+                if (string.IsNullOrEmpty(userId))
+                {
+                    return Unauthorized(ApiResponse.Fail(401, "Không tìm thấy user id trong token."));
+                }
+
+                // Parse status string to enum
+                BookingStatus? statusEnum = null;
+                if (!string.IsNullOrEmpty(status))
+                {
+                    if (Enum.TryParse<BookingStatus>(status, true, out var parsedStatus))
+                    {
+                        statusEnum = parsedStatus;
+                    }
+                }
+
+                // Tạo filter với userId từ token
+                var filter = new BookingFilterDto
+                {
+                    UserId = userId,
+                    Status = statusEnum,
+                    Page = page,
+                    Limit = limit
+                };
+
+                var result = await _bookingService.GetAllAsync(filter);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ApiResponse.Fail(500, ex.Message));
+            }
+        }
+
+        /// <summary>
+        /// Lấy chi tiết booking
+        /// </summary>
+        /// <param name="id">Booking ID</param>
+        /// <returns>Thông tin chi tiết booking</returns>
+        /// <response code="200">Trả về thông tin thành công</response>
+        /// <response code="404">Không tìm thấy booking</response>
+        /// <remarks>
+        /// **Roles:** Tất cả user đã đăng nhập
+        /// </remarks>
+        [HttpGet("{id}")]
+        [ProducesResponseType(typeof(ApiResponse<BookingResponseDto>), 200)]
+        [ProducesResponseType(typeof(ApiResponse), 404)]
+        public async Task<IActionResult> GetById(string id)
+        {
+            try
+            {
+                var result = await _bookingService.GetByIdAsync(id);
+                if (!result.Success)
+                {
+                    return NotFound(result);
+                }
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ApiResponse.Fail(500, ex.Message));
+            }
+        }
+
+        /// <summary>
+        /// Tạo booking mới (tự động kiểm tra conflict thời gian)
+        /// </summary>
+        /// <param name="dto">Thông tin booking</param>
+        /// <returns>Booking đã tạo</returns>
+        /// <response code="200">Tạo thành công</response>
+        /// <response code="400">Dữ liệu không hợp lệ</response>
+        /// <response code="409">Khung giờ đã được đặt trước</response>
+        /// <remarks>
+        /// **Roles:** Tất cả user đã đăng nhập
+        /// 
+        /// **Mục đích:** Tạo lượt đặt cơ sở vật chất mới
+        /// 
+        /// Hệ thống tự động:
+        /// - Kiểm tra conflict thời gian
+        /// - Tạo booking với status = Pending_Approval (chờ admin duyệt)
+        /// </remarks>
+        [HttpPost]
+        [ProducesResponseType(typeof(ApiResponse<BookingResponseDto>), 200)]
+        [ProducesResponseType(typeof(ApiResponse), 400)]
+        [ProducesResponseType(typeof(ApiResponse), 409)]
+        public async Task<IActionResult> Create([FromBody] CreateBookingDto dto)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ApiResponse.Fail(400, "Dữ liệu không hợp lệ."));
+            }
+
+            try
+            {
+                var result = await _bookingService.CreateAsync(dto);
+                if (!result.Success)
+                {
+                    return Conflict(result);
+                }
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ApiResponse.Fail(500, ex.Message));
+            }
+        }
+
+        /// <summary>
+        /// Cập nhật thông tin booking
+        /// </summary>
+        /// <param name="id">Booking ID</param>
+        /// <param name="dto">Thông tin cập nhật</param>
+        /// <returns>Booking đã cập nhật</returns>
+        /// <response code="200">Cập nhật thành công</response>
+        /// <response code="404">Không tìm thấy booking</response>
+        /// <response code="409">Khung giờ mới bị conflict</response>
+        /// <remarks>
+        /// **Roles:** Tất cả user đã đăng nhập
+        /// 
+        /// **Mục đích:** Cập nhật thông tin booking (thời gian, mục đích, trạng thái, etc.)
+        /// 
+        /// Nếu thay đổi thời gian, hệ thống tự động kiểm tra conflict
+        /// </remarks>
+        [HttpPut("{id}")]
+        [ProducesResponseType(typeof(ApiResponse<BookingResponseDto>), 200)]
+        [ProducesResponseType(typeof(ApiResponse), 404)]
+        [ProducesResponseType(typeof(ApiResponse), 409)]
+        public async Task<IActionResult> Update(string id, [FromBody] UpdateBookingDto dto)
+        {
+            try
+            {
+                var result = await _bookingService.UpdateAsync(id, dto);
+                if (!result.Success)
+                {
+                    if (result.Error?.Code == 409)
+                        return Conflict(result);
+                    return NotFound(result);
+                }
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ApiResponse.Fail(500, ex.Message));
+            }
+        }
+
+        /// <summary>
+        /// Hủy booking (set status = Cancelled)
+        /// </summary>
+        /// <param name="id">Booking ID</param>
+        /// <param name="reason">Lý do hủy</param>
+        /// <returns>Kết quả hủy</returns>
+        /// <response code="200">Hủy thành công</response>
+        /// <response code="404">Không tìm thấy booking</response>
+        /// <remarks>
+        /// **Roles:** Tất cả user đã đăng nhập
+        /// 
+        /// **Mục đích:** Hủy lượt đặt với lý do
+        /// </remarks>
+        [HttpDelete("{id}")]
+        [ProducesResponseType(typeof(ApiResponse), 200)]
+        [ProducesResponseType(typeof(ApiResponse), 404)]
+        public async Task<IActionResult> Cancel(string id, [FromQuery] string reason)
+        {
+            try
+            {
+                var result = await _bookingService.CancelAsync(id, reason);
+                if (!result.Success)
+                {
+                    return NotFound(result);
+                }
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ApiResponse.Fail(500, ex.Message));
+            }
+        }
+    }
+}

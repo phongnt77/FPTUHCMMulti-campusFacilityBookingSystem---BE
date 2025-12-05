@@ -47,3 +47,5 @@ TestResults/
 *.trx
 coverage.json
 *.cobertura.xml
+Controller/appsettings.json
+*.md
