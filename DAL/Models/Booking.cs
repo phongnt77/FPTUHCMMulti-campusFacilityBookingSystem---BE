@@ -29,5 +29,6 @@ namespace DAL.Models
         public User User { get; set; } = null!;
         public Facility Facility { get; set; } = null!;
         public User? Approver { get; set; }
+        public BookingFeedback? Feedback { get; set; } // 1 Booking chỉ có 1 Feedback
     }
 }

@@ -128,6 +128,29 @@ namespace Applications.Mappers
             CreateMap<UpdateBookingDto, Booking>()
                 .ForMember(dest => dest.UpdatedAt, opt => opt.MapFrom(_ => DateTime.UtcNow))
                 .ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
+
+            // Booking → BookingSlot (for availability check)
+            CreateMap<Booking, BookingSlot>()
+                .ForMember(dest => dest.Status, opt => opt.MapFrom(src => src.Status.ToString()));
+
+            // ==================
+            // BOOKING FEEDBACK MAPPINGS
+            // ==================
+            
+            // CreateBookingFeedbackDto → BookingFeedback
+            CreateMap<CreateBookingFeedbackDto, BookingFeedback>()
+                .ForMember(dest => dest.FeedbackId, opt => opt.Ignore())
+                .ForMember(dest => dest.UserId, opt => opt.Ignore())
+                .ForMember(dest => dest.CreatedAt, opt => opt.Ignore());
+
+            // BookingFeedback → BookingFeedbackResponseDto
+            CreateMap<BookingFeedback, BookingFeedbackResponseDto>()
+                .ForMember(dest => dest.UserName, opt => opt.MapFrom(src => src.User.FullName))
+                .ForMember(dest => dest.FacilityName, opt => opt.MapFrom(src => src.Booking.Facility.Name));
+
+            // UpdateBookingFeedbackDto → BookingFeedback (partial)
+            CreateMap<UpdateBookingFeedbackDto, BookingFeedback>()
+                .ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
         }
     }
 }

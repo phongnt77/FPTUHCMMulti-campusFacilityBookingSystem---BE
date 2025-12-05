@@ -18,6 +18,7 @@ namespace DAL.Dbcontext
         public DbSet<User> Users { get; set; }
         public DbSet<Facility> Facilities { get; set; }
         public DbSet<Booking> Bookings { get; set; }
+        public DbSet<BookingFeedback> BookingFeedbacks { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -463,6 +464,58 @@ namespace DAL.Dbcontext
                     .WithMany(u => u.ApprovedBookings)
                     .HasForeignKey(b => b.ApprovedBy)
                     .OnDelete(DeleteBehavior.Restrict);
+            });
+
+            // ====================
+            // BOOKING FEEDBACK CONFIGURATION
+            // ====================
+            modelBuilder.Entity<BookingFeedback>(entity =>
+            {
+                entity.ToTable("booking_feedback");
+                entity.HasKey(e => e.FeedbackId);
+                entity.Property(e => e.FeedbackId)
+                    .HasColumnName("feedback_id")
+                    .HasMaxLength(6)
+                    .IsRequired();
+                entity.Property(e => e.BookingId)
+                    .HasColumnName("booking_id")
+                    .HasMaxLength(6)
+                    .IsRequired();
+                entity.Property(e => e.UserId)
+                    .HasColumnName("user_id")
+                    .HasMaxLength(6)
+                    .IsRequired();
+                entity.Property(e => e.Rating)
+                    .HasColumnName("rating")
+                    .IsRequired();
+                entity.Property(e => e.Comments)
+                    .HasColumnName("comments")
+                    .HasColumnType("nvarchar(MAX)");
+                entity.Property(e => e.ReportIssue)
+                    .HasColumnName("report_issue")
+                    .HasDefaultValue(false);
+                entity.Property(e => e.IssueDescription)
+                    .HasColumnName("issue_description")
+                    .HasColumnType("nvarchar(MAX)");
+                entity.Property(e => e.CreatedAt)
+                    .HasColumnName("created_at")
+                    .HasDefaultValueSql("GETUTCDATE()");
+                entity.Property(e => e.ResolvedAt)
+                    .HasColumnName("resolved_at");
+
+                // Foreign Keys
+                entity.HasOne(f => f.Booking)
+                    .WithOne(b => b.Feedback) // 1-to-1 relationship
+                    .HasForeignKey<BookingFeedback>(f => f.BookingId)
+                    .OnDelete(DeleteBehavior.Cascade);
+
+                entity.HasOne(f => f.User)
+                    .WithMany()
+                    .HasForeignKey(f => f.UserId)
+                    .OnDelete(DeleteBehavior.Restrict);
+
+                // Unique constraint: One feedback per booking (bookingId is unique)
+                entity.HasIndex(e => e.BookingId).IsUnique();
             });
         }
     }

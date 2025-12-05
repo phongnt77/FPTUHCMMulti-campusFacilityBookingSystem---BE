@@ -241,7 +241,24 @@ namespace Controller.Controllers
             }
         }
 
-        
+        /// <summary>
+        /// Xóa user (soft delete - set status = Inactive)
+        /// </summary>
+        /// <param name="id">User ID</param>
+        /// <returns>Kết quả xóa</returns>
+        /// <response code="200">Xóa thành công</response>
+        /// <response code="403">Không có quyền</response>
+        /// <response code="404">Không tìm thấy user</response>
+        /// <remarks>
+        /// **Roles:** Chỉ Facility_Admin (RL0003)
+        /// 
+        /// **Mục đích:** Vô hiệu hóa user account (soft delete)
+        /// 
+        /// **Lưu ý:** 
+        /// - Không xóa hẳn khỏi database
+        /// - Chỉ set status = Inactive
+        /// - User không thể đăng nhập sau khi bị xóa
+        /// </remarks>
         [HttpDelete("{id}")]
         [Authorize(Roles = "RL0003")]
         [ProducesResponseType(typeof(ApiResponse), 200)]

@@ -57,7 +57,29 @@ namespace Controller.Controllers
             }
         }
 
-        
+        /// <summary>
+        /// Lấy tất cả bookings của user hiện tại
+        /// </summary>
+        /// <param name="status">Filter theo status (Draft, Pending_Approval, Approved, Rejected, Cancelled, Completed, No_Show)</param>
+        /// <param name="page">Trang hiện tại (default: 1)</param>
+        /// <param name="limit">Số item per page (default: 10)</param>
+        /// <returns>Danh sách bookings của user</returns>
+        /// <response code="200">Trả về danh sách bookings</response>
+        /// <response code="401">Không xác thực được user</response>
+        /// <remarks>
+        /// **Roles:** Tất cả user đã đăng nhập
+        /// 
+        /// **Mục đích:** User xem lại tất cả bookings của mình với filter theo status và phân trang
+        /// 
+        /// **Status Values:**
+        /// - Draft: Booking đang soạn thảo
+        /// - Pending_Approval: Đang chờ duyệt
+        /// - Approved: Đã được duyệt
+        /// - Rejected: Bị từ chối
+        /// - Cancelled: Đã hủy
+        /// - Completed: Đã hoàn thành
+        /// - No_Show: User không tới
+        /// </remarks>
         [HttpGet("me")]
         [ProducesResponseType(typeof(ApiResponseWithPagination<List<BookingResponseDto>>), 200)]
         [ProducesResponseType(typeof(ApiResponse), 401)]
