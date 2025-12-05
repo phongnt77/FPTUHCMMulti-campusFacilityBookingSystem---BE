@@ -54,7 +54,6 @@ namespace DAL.Repositories.Classes
             return await _context.Set<Facility>()
                 .Include(f => f.Campus)
                 .Include(f => f.FacilityType)
-                .Include(f => f.FacilityImages.OrderBy(img => img.ImageOrder))
                 .Include(f => f.Bookings.Where(b => b.StartTime >= DateTime.UtcNow))
                 .FirstOrDefaultAsync(f => f.FacilityId == id);
         }

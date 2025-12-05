@@ -63,13 +63,14 @@ builder.Services.AddControllers()
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
+
 builder.Services.AddSwaggerGen(c =>
 {
     c.SwaggerDoc("v1", new OpenApiInfo
     {
         Title = "FPTU Facility Booking API",
         Version = "v1",
-        Description = "API cho Hệ thống Đặt Cơ Sở Vật Chất FPTU"
+        Description = "API cho Hệ thống Đặt Cơ Sở Vật Chất FPTU - 6 Models Cốt Lõi với AutoMapper"
     });
 
     // Enable XML comments
@@ -109,6 +110,9 @@ builder.Services.AddSwaggerGen(c =>
     });
 });
 
+// Configure AutoMapper
+builder.Services.AddAutoMapper(typeof(Applications.Mappers.MappingProfile));
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -117,7 +121,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI(c =>
     {
-        c.SwaggerEndpoint("/swagger/v1/swagger.json", "Facility Booking API v1");
+        c.SwaggerEndpoint("/swagger/v1/swagger.json", "FPTU Facility Booking API v1");
         c.RoutePrefix = "swagger";
     });
 }

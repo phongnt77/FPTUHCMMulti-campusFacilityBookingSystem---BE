@@ -15,10 +15,9 @@ namespace Applications.DTOs.Response
         public string Status { get; set; } = string.Empty;
         public string? Amenities { get; set; }
         public string? FacilityManagerId { get; set; }
+        public string? FacilityManagerName { get; set; }
         public int MaxConcurrentBookings { get; set; }
         public DateTime CreatedAt { get; set; }
         public DateTime UpdatedAt { get; set; }
     }
 }
-
-

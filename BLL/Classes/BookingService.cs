@@ -1,6 +1,7 @@
 using Applications.DTOs.Request;
 using Applications.DTOs.Response;
 using Applications.Helpers;
+using AutoMapper;
 using BLL.Interfaces;
 using DAL.Models;
 using DAL.Models.Enums;
@@ -11,10 +12,12 @@ namespace BLL.Classes
     public class BookingService : IBookingService
     {
         private readonly IUnitOfWork _unitOfWork;
+        private readonly IMapper _mapper;
 
-        public BookingService(IUnitOfWork unitOfWork)
+        public BookingService(IUnitOfWork unitOfWork, IMapper mapper)
         {
             _unitOfWork = unitOfWork;
+            _mapper = mapper;
         }
 
         public async Task<ApiResponseWithPagination<List<BookingResponseDto>>> GetAllAsync(BookingFilterDto filter)
@@ -27,29 +30,7 @@ namespace BLL.Classes
                 filter.Limit
             );
 
-            var responseDtos = items.Select(b => new BookingResponseDto
-            {
-                BookingId = b.BookingId,
-                UserId = b.UserId,
-                UserName = b.User?.FullName ?? string.Empty,
-                FacilityId = b.FacilityId,
-                FacilityName = b.Facility?.Name ?? string.Empty,
-                StartTime = b.StartTime,
-                EndTime = b.EndTime,
-                Purpose = b.Purpose,
-                Category = b.Category,
-                EstimatedAttendees = b.EstimatedAttendees,
-                SpecialRequirements = b.SpecialRequirements,
-                Status = b.Status.ToString(),
-                ApprovedBy = b.ApprovedBy,
-                ApprovedAt = b.ApprovedAt,
-                RejectionReason = b.RejectionReason,
-                CheckInTime = b.CheckInTime,
-                CheckOutTime = b.CheckOutTime,
-                IsUsed = b.IsUsed,
-                CreatedAt = b.CreatedAt,
-                UpdatedAt = b.UpdatedAt
-            }).ToList();
+            var responseDtos = _mapper.Map<List<BookingResponseDto>>(items);
 
             return ApiResponseWithPagination<List<BookingResponseDto>>.Ok(
                 responseDtos,
@@ -67,78 +48,24 @@ namespace BLL.Classes
                 return ApiResponse<BookingResponseDto>.Fail(404, "Không tìm thấy lượt đặt.");
             }
 
-            var responseDto = new BookingResponseDto
-            {
-                BookingId = booking.BookingId,
-                UserId = booking.UserId,
-                UserName = booking.User?.FullName ?? string.Empty,
-                FacilityId = booking.FacilityId,
-                FacilityName = booking.Facility?.Name ?? string.Empty,
-                StartTime = booking.StartTime,
-                EndTime = booking.EndTime,
-                Purpose = booking.Purpose,
-                Category = booking.Category,
-                EstimatedAttendees = booking.EstimatedAttendees,
-                SpecialRequirements = booking.SpecialRequirements,
-                Status = booking.Status.ToString(),
-                ApprovedBy = booking.ApprovedBy,
-                ApprovedAt = booking.ApprovedAt,
-                RejectionReason = booking.RejectionReason,
-                CheckInTime = booking.CheckInTime,
-                CheckOutTime = booking.CheckOutTime,
-                IsUsed = booking.IsUsed,
-                CreatedAt = booking.CreatedAt,
-                UpdatedAt = booking.UpdatedAt
-            };
-
+            var responseDto = _mapper.Map<BookingResponseDto>(booking);
             return ApiResponse<BookingResponseDto>.Ok(responseDto);
         }
 
         public async Task<ApiResponse<BookingResponseDto>> CreateAsync(CreateBookingDto dto)
         {
-            // Check for time conflicts
-            var hasConflict = await _unitOfWork.BookingRepo.HasConflictAsync(dto.FacilityId, dto.StartTime, dto.EndTime);
-            if (hasConflict)
-            {
-                return ApiResponse<BookingResponseDto>.Fail(409, "Khung giờ này đã được đặt trước.");
-            }
-
             var bookingId = await GenerateBookingIdAsync();
-
-            var booking = new Booking
-            {
-                BookingId = bookingId,
-                UserId = dto.UserId,
-                FacilityId = dto.FacilityId,
-                StartTime = dto.StartTime,
-                EndTime = dto.EndTime,
-                Purpose = dto.Purpose,
-                Category = dto.Category,
-                EstimatedAttendees = dto.EstimatedAttendees,
-                SpecialRequirements = dto.SpecialRequirements,
-                Status = BookingStatus.Pending_Approval, // booking sẽ ở pending để chờ admin duyệt
-                CreatedAt = DateTimeHelper.VietnamNow,
-                UpdatedAt = DateTimeHelper.VietnamNow
-            };
+            
+            var booking = _mapper.Map<Booking>(dto);
+            booking.BookingId = bookingId;
+            booking.Status = BookingStatus.Draft;
+            booking.CreatedAt = DateTimeHelper.VietnamNow;
+            booking.UpdatedAt = DateTimeHelper.VietnamNow;
 
             await _unitOfWork.BookingRepo.CreateAsync(booking);
+            await _unitOfWork.SaveChangesAsync();
 
-            var responseDto = new BookingResponseDto
-            {
-                BookingId = booking.BookingId,
-                UserId = booking.UserId,
-                FacilityId = booking.FacilityId,
-                StartTime = booking.StartTime,
-                EndTime = booking.EndTime,
-                Purpose = booking.Purpose,
-                Category = booking.Category,
-                EstimatedAttendees = booking.EstimatedAttendees,
-                SpecialRequirements = booking.SpecialRequirements,
-                Status = booking.Status.ToString(),
-                CreatedAt = booking.CreatedAt,
-                UpdatedAt = booking.UpdatedAt
-            };
-
+            var responseDto = _mapper.Map<BookingResponseDto>(booking);
             return ApiResponse<BookingResponseDto>.Ok(responseDto);
         }
 
@@ -150,28 +77,10 @@ namespace BLL.Classes
                 return ApiResponse<BookingResponseDto>.Fail(404, "Không tìm thấy lượt đặt.");
             }
 
-            // Check for time conflicts if time is being updated
-            if (dto.StartTime.HasValue || dto.EndTime.HasValue)
-            {
-                var newStartTime = dto.StartTime ?? booking.StartTime;
-                var newEndTime = dto.EndTime ?? booking.EndTime;
-                
-                var hasConflict = await _unitOfWork.BookingRepo.HasConflictAsync(
-                    booking.FacilityId, 
-                    newStartTime, 
-                    newEndTime, 
-                    id
-                );
-                
-                if (hasConflict)
-                {
-                    return ApiResponse<BookingResponseDto>.Fail(409, "Khung giờ này đã được đặt trước.");
-                }
-
-                booking.StartTime = newStartTime;
-                booking.EndTime = newEndTime;
-            }
-
+            if (dto.StartTime.HasValue)
+                booking.StartTime = dto.StartTime.Value;
+            if (dto.EndTime.HasValue)
+                booking.EndTime = dto.EndTime.Value;
             if (dto.Purpose != null)
                 booking.Purpose = dto.Purpose;
             if (dto.Category != null)
@@ -180,35 +89,17 @@ namespace BLL.Classes
                 booking.EstimatedAttendees = dto.EstimatedAttendees;
             if (dto.SpecialRequirements != null)
                 booking.SpecialRequirements = dto.SpecialRequirements;
-            if (!string.IsNullOrEmpty(dto.Status))
-                booking.Status = Enum.Parse<BookingStatus>(dto.Status);
 
             booking.UpdatedAt = DateTimeHelper.VietnamNow;
 
             await _unitOfWork.BookingRepo.UpdateAsync(booking);
+            await _unitOfWork.SaveChangesAsync();
 
-            var responseDto = new BookingResponseDto
-            {
-                BookingId = booking.BookingId,
-                UserId = booking.UserId,
-                FacilityId = booking.FacilityId,
-                StartTime = booking.StartTime,
-                EndTime = booking.EndTime,
-                Purpose = booking.Purpose,
-                Category = booking.Category,
-                EstimatedAttendees = booking.EstimatedAttendees,
-                SpecialRequirements = booking.SpecialRequirements,
-                Status = booking.Status.ToString(),
-                ApprovedBy = booking.ApprovedBy,
-                ApprovedAt = booking.ApprovedAt,
-                CreatedAt = booking.CreatedAt,
-                UpdatedAt = booking.UpdatedAt
-            };
-
+            var responseDto = _mapper.Map<BookingResponseDto>(booking);
             return ApiResponse<BookingResponseDto>.Ok(responseDto);
         }
 
-        public async Task<ApiResponse> CancelAsync(string id, string reason)
+        public async Task<ApiResponse> DeleteAsync(string id)
         {
             var booking = await _unitOfWork.BookingRepo.GetByIdAsync(id);
             if (booking == null)
@@ -218,10 +109,126 @@ namespace BLL.Classes
 
             booking.Status = BookingStatus.Cancelled;
             booking.CancelledAt = DateTimeHelper.VietnamNow;
-            booking.CancellationReason = reason;
             booking.UpdatedAt = DateTimeHelper.VietnamNow;
 
             await _unitOfWork.BookingRepo.UpdateAsync(booking);
+            await _unitOfWork.SaveChangesAsync();
+
+            return ApiResponse.Ok();
+        }
+
+        public async Task<ApiResponse<BookingResponseDto>> ApproveBookingAsync(string bookingId, string approverId)
+        {
+            var booking = await _unitOfWork.BookingRepo.GetByIdAsync(bookingId);
+            if (booking == null)
+            {
+                return ApiResponse<BookingResponseDto>.Fail(404, "Không tìm thấy booking.");
+            }
+
+            if (booking.Status != BookingStatus.Pending_Approval)
+            {
+                return ApiResponse<BookingResponseDto>.Fail(400, "Chỉ có thể duyệt booking ở trạng thái Pending_Approval.");
+            }
+
+            var hasConflict = await _unitOfWork.BookingRepo.HasConflictAsync(
+                booking.FacilityId,
+                booking.StartTime,
+                booking.EndTime,
+                bookingId
+            );
+
+            if (hasConflict)
+            {
+                return ApiResponse<BookingResponseDto>.Fail(409, "Facility đã được đặt trong khoảng thời gian này.");
+            }
+
+            booking.Status = BookingStatus.Approved;
+            booking.ApprovedBy = approverId;
+            booking.ApprovedAt = DateTimeHelper.VietnamNow;
+            booking.UpdatedAt = DateTimeHelper.VietnamNow;
+
+            await _unitOfWork.BookingRepo.UpdateAsync(booking);
+            await _unitOfWork.SaveChangesAsync();
+
+            var responseDto = _mapper.Map<BookingResponseDto>(booking);
+            return ApiResponse<BookingResponseDto>.Ok(responseDto);
+        }
+
+        public async Task<ApiResponse<BookingResponseDto>> RejectBookingAsync(string bookingId, string approverId, string? reason)
+        {
+            var booking = await _unitOfWork.BookingRepo.GetByIdAsync(bookingId);
+            if (booking == null)
+            {
+                return ApiResponse<BookingResponseDto>.Fail(404, "Không tìm thấy booking.");
+            }
+
+            if (booking.Status != BookingStatus.Pending_Approval)
+            {
+                return ApiResponse<BookingResponseDto>.Fail(400, "Chỉ có thể từ chối booking ở trạng thái Pending_Approval.");
+            }
+
+            booking.Status = BookingStatus.Rejected;
+            booking.ApprovedBy = approverId;
+            booking.ApprovedAt = DateTimeHelper.VietnamNow;
+            booking.RejectionReason = reason;
+            booking.UpdatedAt = DateTimeHelper.VietnamNow;
+
+            await _unitOfWork.BookingRepo.UpdateAsync(booking);
+            await _unitOfWork.SaveChangesAsync();
+
+            var responseDto = _mapper.Map<BookingResponseDto>(booking);
+            return ApiResponse<BookingResponseDto>.Ok(responseDto);
+        }
+
+        public async Task<ApiResponse<BookingResponseDto>> SubmitBookingAsync(string bookingId)
+        {
+            var booking = await _unitOfWork.BookingRepo.GetByIdAsync(bookingId);
+            if (booking == null)
+            {
+                return ApiResponse<BookingResponseDto>.Fail(404, "Không tìm thấy booking.");
+            }
+
+            if (booking.Status != BookingStatus.Draft)
+            {
+                return ApiResponse<BookingResponseDto>.Fail(400, "Chỉ có thể submit booking ở trạng thái Draft.");
+            }
+
+            booking.Status = BookingStatus.Pending_Approval;
+            booking.UpdatedAt = DateTimeHelper.VietnamNow;
+
+            await _unitOfWork.BookingRepo.UpdateAsync(booking);
+            await _unitOfWork.SaveChangesAsync();
+
+            var responseDto = _mapper.Map<BookingResponseDto>(booking);
+            return ApiResponse<BookingResponseDto>.Ok(responseDto);
+        }
+
+
+        public async Task<ApiResponse> CancelAsync(string bookingId, string userId)
+        {
+            var booking = await _unitOfWork.BookingRepo.GetByIdAsync(bookingId);
+            if (booking == null)
+            {
+                return ApiResponse.Fail(404, "Không tìm thấy booking.");
+            }
+
+            if (booking.UserId != userId)
+            {
+                return ApiResponse.Fail(403, "Bạn không có quyền hủy booking này.");
+            }
+
+            if (booking.Status != BookingStatus.Draft && booking.Status != BookingStatus.Pending_Approval && booking.Status != BookingStatus.Approved)
+            {
+                return ApiResponse.Fail(400, "Chỉ có thể hủy booking ở trạng thái Draft, Pending_Approval hoặc Approved.");
+            }
+
+            booking.Status = BookingStatus.Cancelled;
+            booking.CancelledAt = DateTimeHelper.VietnamNow;
+            booking.CancellationReason = "Hủy bởi người dùng";
+            booking.UpdatedAt = DateTimeHelper.VietnamNow;
+
+            await _unitOfWork.BookingRepo.UpdateAsync(booking);
+            await _unitOfWork.SaveChangesAsync();
 
             return ApiResponse.Ok();
         }
@@ -245,119 +252,5 @@ namespace BLL.Classes
 
             return $"B{(maxId + 1):D5}";
         }
-
-        public async Task<ApiResponse<BookingResponseDto>> ApproveBookingAsync(string bookingId, string approverId)
-        {
-            var booking = await _unitOfWork.BookingRepo.GetByIdAsync(bookingId);
-            if (booking == null)
-            {
-                return ApiResponse<BookingResponseDto>.Fail(404, "Không tìm thấy lượt đặt.");
-            }
-
-            // Check if booking is in draft or pending status (can be approved)
-            if (booking.Status != BookingStatus.Draft && booking.Status != BookingStatus.Pending_Approval)
-            {
-                return ApiResponse<BookingResponseDto>.Fail(400, $"Booking cannot be approved. Current status: {booking.Status}");
-            }
-
-            // check nếu thời gian không hợp lệ trước khi phê duyệt
-            var hasConflict = await _unitOfWork.BookingRepo.HasConflictAsync(
-                booking.FacilityId,
-                booking.StartTime,
-                booking.EndTime,
-                bookingId
-            );
-
-            if (hasConflict)
-            {
-                return ApiResponse<BookingResponseDto>.Fail(409, "Cannot approve booking. Time slot conflict detected.");
-            }
-
-            // phê duyệt booking
-            booking.Status = BookingStatus.Approved;
-            booking.ApprovedBy = approverId;
-            booking.ApprovedAt = DateTimeHelper.VietnamNow;
-            booking.RejectionReason = null;
-            booking.UpdatedAt = DateTimeHelper.VietnamNow;
-
-            await _unitOfWork.BookingRepo.UpdateAsync(booking);
-
-            var responseDto = new BookingResponseDto
-            {
-                BookingId = booking.BookingId,
-                UserId = booking.UserId,
-                UserName = booking.User?.FullName ?? string.Empty,
-                FacilityId = booking.FacilityId,
-                FacilityName = booking.Facility?.Name ?? string.Empty,
-                StartTime = booking.StartTime,
-                EndTime = booking.EndTime,
-                Purpose = booking.Purpose,
-                Category = booking.Category,
-                EstimatedAttendees = booking.EstimatedAttendees,
-                SpecialRequirements = booking.SpecialRequirements,
-                Status = booking.Status.ToString(),
-                ApprovedBy = booking.ApprovedBy,
-                ApprovedAt = booking.ApprovedAt,
-                RejectionReason = booking.RejectionReason,
-                CheckInTime = booking.CheckInTime,
-                CheckOutTime = booking.CheckOutTime,
-                IsUsed = booking.IsUsed,
-                CreatedAt = booking.CreatedAt,
-                UpdatedAt = booking.UpdatedAt
-            };
-
-            return ApiResponse<BookingResponseDto>.Ok(responseDto);
-        }
-
-        public async Task<ApiResponse<BookingResponseDto>> RejectBookingAsync(string bookingId, string approverId, string? reason)
-        {
-            var booking = await _unitOfWork.BookingRepo.GetByIdAsync(bookingId);
-            if (booking == null)
-            {
-                return ApiResponse<BookingResponseDto>.Fail(404, "Không tìm thấy lượt đặt.");
-            }
-
-            // check nếu booking đang draft hoặc pending approval thì có thể bị từ chối
-            if (booking.Status != BookingStatus.Draft && booking.Status != BookingStatus.Pending_Approval)
-            {
-                return ApiResponse<BookingResponseDto>.Fail(400, $"Booking cannot be rejected. Current status: {booking.Status}");
-            }
-
-            // từ chối booking
-            booking.Status = BookingStatus.Rejected;
-            booking.ApprovedBy = approverId;
-            booking.ApprovedAt = DateTimeHelper.VietnamNow;
-            booking.RejectionReason = reason;
-            booking.UpdatedAt = DateTimeHelper.VietnamNow;
-
-            await _unitOfWork.BookingRepo.UpdateAsync(booking);
-
-            var responseDto = new BookingResponseDto
-            {
-                BookingId = booking.BookingId,
-                UserId = booking.UserId,
-                UserName = booking.User?.FullName ?? string.Empty,
-                FacilityId = booking.FacilityId,
-                FacilityName = booking.Facility?.Name ?? string.Empty,
-                StartTime = booking.StartTime,
-                EndTime = booking.EndTime,
-                Purpose = booking.Purpose,
-                Category = booking.Category,
-                EstimatedAttendees = booking.EstimatedAttendees,
-                SpecialRequirements = booking.SpecialRequirements,
-                Status = booking.Status.ToString(),
-                ApprovedBy = booking.ApprovedBy,
-                ApprovedAt = booking.ApprovedAt,
-                RejectionReason = booking.RejectionReason,
-                CheckInTime = booking.CheckInTime,
-                CheckOutTime = booking.CheckOutTime,
-                IsUsed = booking.IsUsed,
-                CreatedAt = booking.CreatedAt,
-                UpdatedAt = booking.UpdatedAt
-            };
-
-            return ApiResponse<BookingResponseDto>.Ok(responseDto);
-        }
     }
 }
-

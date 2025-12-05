@@ -29,8 +29,5 @@ namespace DAL.Models
         public User User { get; set; } = null!;
         public Facility Facility { get; set; } = null!;
         public User? Approver { get; set; }
-        public ICollection<BookingHistory> BookingHistories { get; set; } = new List<BookingHistory>();
-        public ICollection<BookingFeedback> BookingFeedbacks { get; set; } = new List<BookingFeedback>();
     }
 }
-

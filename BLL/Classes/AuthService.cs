@@ -289,7 +289,6 @@ namespace BLL.Classes
                 FullName = payload.Name,
                 Password = DefaultGooglePasswordHash,
                 RoleId = roleId,
-                CampusId = "C0001", // Default campus
                 Status = UserStatus.Active,
                 IsVerify = VerificationStatus.Unverified,
                 AvatarUrl = null, // Leave avatar blank

@@ -1,6 +1,7 @@
 using Applications.DTOs.Request;
 using Applications.DTOs.Response;
 using Applications.Helpers;
+using AutoMapper;
 using BLL.Interfaces;
 using DAL.Models;
 using DAL.Models.Enums;
@@ -11,10 +12,12 @@ namespace BLL.Classes
     public class FacilityService : IFacilityService
     {
         private readonly IUnitOfWork _unitOfWork;
+        private readonly IMapper _mapper;
 
-        public FacilityService(IUnitOfWork unitOfWork)
+        public FacilityService(IUnitOfWork unitOfWork, IMapper mapper)
         {
             _unitOfWork = unitOfWork;
+            _mapper = mapper;
         }
 
         public async Task<ApiResponseWithPagination<List<FacilityResponseDto>>> GetAllAsync(FacilityFilterDto filter)
@@ -28,25 +31,7 @@ namespace BLL.Classes
                 filter.Limit
             );
 
-            var responseDtos = items.Select(f => new FacilityResponseDto
-            {
-                FacilityId = f.FacilityId,
-                Name = f.Name,
-                Description = f.Description,
-                Capacity = f.Capacity,
-                RoomNumber = f.RoomNumber,
-                FloorNumber = f.FloorNumber,
-                CampusId = f.CampusId,
-                CampusName = f.Campus?.Name ?? string.Empty,
-                TypeId = f.TypeId,
-                TypeName = f.FacilityType?.Name ?? string.Empty,
-                Status = f.Status.ToString(),
-                Amenities = f.Amenities,
-                FacilityManagerId = f.FacilityManagerId,
-                MaxConcurrentBookings = f.MaxConcurrentBookings,
-                CreatedAt = f.CreatedAt,
-                UpdatedAt = f.UpdatedAt
-            }).ToList();
+            var responseDtos = _mapper.Map<List<FacilityResponseDto>>(items);
 
             return ApiResponseWithPagination<List<FacilityResponseDto>>.Ok(
                 responseDtos,
@@ -64,26 +49,7 @@ namespace BLL.Classes
                 return ApiResponse<FacilityResponseDto>.Fail(404, "Không tìm thấy cơ sở vật chất.");
             }
 
-            var responseDto = new FacilityResponseDto
-            {
-                FacilityId = facility.FacilityId,
-                Name = facility.Name,
-                Description = facility.Description,
-                Capacity = facility.Capacity,
-                RoomNumber = facility.RoomNumber,
-                FloorNumber = facility.FloorNumber,
-                CampusId = facility.CampusId,
-                CampusName = facility.Campus?.Name ?? string.Empty,
-                TypeId = facility.TypeId,
-                TypeName = facility.FacilityType?.Name ?? string.Empty,
-                Status = facility.Status.ToString(),
-                Amenities = facility.Amenities,
-                FacilityManagerId = facility.FacilityManagerId,
-                MaxConcurrentBookings = facility.MaxConcurrentBookings,
-                CreatedAt = facility.CreatedAt,
-                UpdatedAt = facility.UpdatedAt
-            };
-
+            var responseDto = _mapper.Map<FacilityResponseDto>(facility);
             return ApiResponse<FacilityResponseDto>.Ok(responseDto);
         }
 
@@ -112,7 +78,7 @@ namespace BLL.Classes
             return ApiResponse<List<FacilityAvailabilityDto>>.Ok(responseDtos);
         }
 
-        public async Task<ApiResponse<FacilityResponseDto>> GetFacilityDetailAsync(string id)
+        public async Task<ApiResponse<FacilityResponseDto>> GetByIdWithDetailsAsync(string id)
         {
             var facility = await _unitOfWork.FacilityRepo.GetByIdWithDetailsAsync(id);
             if (facility == null)
@@ -120,71 +86,28 @@ namespace BLL.Classes
                 return ApiResponse<FacilityResponseDto>.Fail(404, "Không tìm thấy cơ sở vật chất.");
             }
 
-            var responseDto = new FacilityResponseDto
-            {
-                FacilityId = facility.FacilityId,
-                Name = facility.Name,
-                Description = facility.Description,
-                Capacity = facility.Capacity,
-                RoomNumber = facility.RoomNumber,
-                FloorNumber = facility.FloorNumber,
-                CampusId = facility.CampusId,
-                CampusName = facility.Campus?.Name ?? string.Empty,
-                TypeId = facility.TypeId,
-                TypeName = facility.FacilityType?.Name ?? string.Empty,
-                Status = facility.Status.ToString(),
-                Amenities = facility.Amenities,
-                FacilityManagerId = facility.FacilityManagerId,
-                MaxConcurrentBookings = facility.MaxConcurrentBookings,
-                CreatedAt = facility.CreatedAt,
-                UpdatedAt = facility.UpdatedAt
-            };
-
+            var responseDto = _mapper.Map<FacilityResponseDto>(facility);
             return ApiResponse<FacilityResponseDto>.Ok(responseDto);
+        }
+
+        public async Task<ApiResponse<FacilityResponseDto>> GetFacilityDetailAsync(string id)
+        {
+            return await GetByIdWithDetailsAsync(id);
         }
 
         public async Task<ApiResponse<FacilityResponseDto>> CreateAsync(CreateFacilityDto dto)
         {
-            var facilityId = await GenerateFacilityIdAsync();
+            var facilityId = await GenerateNewFacilityIdAsync();
 
-            var facility = new Facility
-            {
-                FacilityId = facilityId,
-                Name = dto.Name,
-                Description = dto.Description,
-                Capacity = dto.Capacity,
-                RoomNumber = dto.RoomNumber,
-                FloorNumber = dto.FloorNumber,
-                CampusId = dto.CampusId,
-                TypeId = dto.TypeId,
-                Status = Enum.Parse<FacilityStatus>(dto.Status),
-                Amenities = dto.Amenities,
-                FacilityManagerId = dto.FacilityManagerId,
-                MaxConcurrentBookings = dto.MaxConcurrentBookings,
-                CreatedAt = DateTimeHelper.VietnamNow,
-                UpdatedAt = DateTimeHelper.VietnamNow
-            };
+            var facility = _mapper.Map<Facility>(dto);
+            facility.FacilityId = facilityId;
+            facility.CreatedAt = DateTimeHelper.VietnamNow;
+            facility.UpdatedAt = DateTimeHelper.VietnamNow;
 
             await _unitOfWork.FacilityRepo.CreateAsync(facility);
+            await _unitOfWork.SaveChangesAsync();
 
-            var responseDto = new FacilityResponseDto
-            {
-                FacilityId = facility.FacilityId,
-                Name = facility.Name,
-                Description = facility.Description,
-                Capacity = facility.Capacity,
-                RoomNumber = facility.RoomNumber,
-                FloorNumber = facility.FloorNumber,
-                CampusId = facility.CampusId,
-                TypeId = facility.TypeId,
-                Status = facility.Status.ToString(),
-                Amenities = facility.Amenities,
-                FacilityManagerId = facility.FacilityManagerId,
-                MaxConcurrentBookings = facility.MaxConcurrentBookings,
-                CreatedAt = facility.CreatedAt,
-                UpdatedAt = facility.UpdatedAt
-            };
-
+            var responseDto = _mapper.Map<FacilityResponseDto>(facility);
             return ApiResponse<FacilityResponseDto>.Ok(responseDto);
         }
 
@@ -206,37 +129,19 @@ namespace BLL.Classes
                 facility.RoomNumber = dto.RoomNumber;
             if (dto.FloorNumber != null)
                 facility.FloorNumber = dto.FloorNumber;
-            if (!string.IsNullOrEmpty(dto.Status))
-                facility.Status = Enum.Parse<FacilityStatus>(dto.Status);
+            if (dto.Status.HasValue)
+                facility.Status = dto.Status.Value;
             if (dto.Amenities != null)
                 facility.Amenities = dto.Amenities;
-            if (dto.FacilityManagerId != null)
-                facility.FacilityManagerId = dto.FacilityManagerId;
             if (dto.MaxConcurrentBookings.HasValue)
                 facility.MaxConcurrentBookings = dto.MaxConcurrentBookings.Value;
 
             facility.UpdatedAt = DateTimeHelper.VietnamNow;
 
             await _unitOfWork.FacilityRepo.UpdateAsync(facility);
+            await _unitOfWork.SaveChangesAsync();
 
-            var responseDto = new FacilityResponseDto
-            {
-                FacilityId = facility.FacilityId,
-                Name = facility.Name,
-                Description = facility.Description,
-                Capacity = facility.Capacity,
-                RoomNumber = facility.RoomNumber,
-                FloorNumber = facility.FloorNumber,
-                CampusId = facility.CampusId,
-                TypeId = facility.TypeId,
-                Status = facility.Status.ToString(),
-                Amenities = facility.Amenities,
-                FacilityManagerId = facility.FacilityManagerId,
-                MaxConcurrentBookings = facility.MaxConcurrentBookings,
-                CreatedAt = facility.CreatedAt,
-                UpdatedAt = facility.UpdatedAt
-            };
-
+            var responseDto = _mapper.Map<FacilityResponseDto>(facility);
             return ApiResponse<FacilityResponseDto>.Ok(responseDto);
         }
 
@@ -245,19 +150,19 @@ namespace BLL.Classes
             var facility = await _unitOfWork.FacilityRepo.GetByIdAsync(id);
             if (facility == null)
             {
-                return ApiResponse.Fail(404, "Facility not found");
+                return ApiResponse.Fail(404, "Không tìm thấy cơ sở vật chất.");
             }
 
-            // Soft delete: set status to Under_Maintenance (inactive)
             facility.Status = FacilityStatus.Under_Maintenance;
             facility.UpdatedAt = DateTimeHelper.VietnamNow;
 
             await _unitOfWork.FacilityRepo.UpdateAsync(facility);
+            await _unitOfWork.SaveChangesAsync();
 
             return ApiResponse.Ok();
         }
 
-        private async Task<string> GenerateFacilityIdAsync()
+        private async Task<string> GenerateNewFacilityIdAsync()
         {
             var facilities = await _unitOfWork.FacilityRepo.GetAllAsync();
             var maxId = 0;
@@ -278,5 +183,3 @@ namespace BLL.Classes
         }
     }
 }
-
-

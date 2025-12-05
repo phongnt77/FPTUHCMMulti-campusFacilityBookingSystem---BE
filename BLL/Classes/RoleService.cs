@@ -1,9 +1,9 @@
 using Applications.DTOs.Request;
 using Applications.DTOs.Response;
 using Applications.Helpers;
+using AutoMapper;
 using BLL.Interfaces;
 using DAL.Models;
-using DAL.Models.Enums;
 using DAL.Repositories;
 
 namespace BLL.Classes
@@ -11,23 +11,18 @@ namespace BLL.Classes
     public class RoleService : IRoleService
     {
         private readonly IUnitOfWork _unitOfWork;
+        private readonly IMapper _mapper;
 
-        public RoleService(IUnitOfWork unitOfWork)
+        public RoleService(IUnitOfWork unitOfWork, IMapper mapper)
         {
             _unitOfWork = unitOfWork;
+            _mapper = mapper;
         }
 
         public async Task<ApiResponseWithPagination<List<RoleResponseDto>>> GetAllAsync(PagedRequestDto request)
         {
             var (items, total) = await _unitOfWork.RoleRepo.GetPagedAsync(request.Page, request.Limit);
-
-            var responseDtos = items.Select(r => new RoleResponseDto
-            {
-                RoleId = r.RoleId,
-                RoleName = r.RoleName,
-                CreatedAt = r.CreatedAt,
-                UpdatedAt = r.UpdatedAt
-            }).ToList();
+            var responseDtos = _mapper.Map<List<RoleResponseDto>>(items);
 
             return ApiResponseWithPagination<List<RoleResponseDto>>.Ok(
                 responseDtos,
@@ -45,14 +40,7 @@ namespace BLL.Classes
                 return ApiResponse<RoleResponseDto>.Fail(404, "Không tìm thấy vai trò.");
             }
 
-            var responseDto = new RoleResponseDto
-            {
-                RoleId = role.RoleId,
-                RoleName = role.RoleName,
-                CreatedAt = role.CreatedAt,
-                UpdatedAt = role.UpdatedAt
-            };
-
+            var responseDto = _mapper.Map<RoleResponseDto>(role);
             return ApiResponse<RoleResponseDto>.Ok(responseDto);
         }
 
@@ -60,24 +48,14 @@ namespace BLL.Classes
         {
             var roleId = await GenerateRoleIdAsync();
 
-            var role = new Role
-            {
-                RoleId = roleId,
-                RoleName = dto.RoleName,
-                CreatedAt = DateTimeHelper.VietnamNow,
-                UpdatedAt = DateTimeHelper.VietnamNow
-            };
+            var role = _mapper.Map<Role>(dto);
+            role.RoleId = roleId;
+            role.CreatedAt = DateTimeHelper.VietnamNow;
+            role.UpdatedAt = DateTimeHelper.VietnamNow;
 
             await _unitOfWork.RoleRepo.CreateAsync(role);
 
-            var responseDto = new RoleResponseDto
-            {
-                RoleId = role.RoleId,
-                RoleName = role.RoleName,
-                CreatedAt = role.CreatedAt,
-                UpdatedAt = role.UpdatedAt
-            };
-
+            var responseDto = _mapper.Map<RoleResponseDto>(role);
             return ApiResponse<RoleResponseDto>.Ok(responseDto);
         }
 
@@ -96,14 +74,7 @@ namespace BLL.Classes
 
             await _unitOfWork.RoleRepo.UpdateAsync(role);
 
-            var responseDto = new RoleResponseDto
-            {
-                RoleId = role.RoleId,
-                RoleName = role.RoleName,
-                CreatedAt = role.CreatedAt,
-                UpdatedAt = role.UpdatedAt
-            };
-
+            var responseDto = _mapper.Map<RoleResponseDto>(role);
             return ApiResponse<RoleResponseDto>.Ok(responseDto);
         }
 
@@ -133,4 +104,3 @@ namespace BLL.Classes
         }
     }
 }
-

@@ -1,7 +1,9 @@
 using Applications.DTOs.Request;
 using Applications.DTOs.Response;
 using Applications.Helpers;
+using AutoMapper;
 using BLL.Interfaces;
+using DAL.Models;
 using DAL.Models.Enums;
 using DAL.Repositories;
 
@@ -10,45 +12,28 @@ namespace BLL.Classes
     public class UserService : IUserService
     {
         private readonly IUnitOfWork _unitOfWork;
+        private readonly IMapper _mapper;
 
-        public UserService(IUnitOfWork unitOfWork)
+        public UserService(IUnitOfWork unitOfWork, IMapper mapper)
         {
             _unitOfWork = unitOfWork;
+            _mapper = mapper;
         }
 
         public async Task<UserResponseDto?> GetProfileAsync(string userId)
         {
             var user = await _unitOfWork.UserRepo.GetByIdAsync(userId);
-
             if (user == null)
             {
                 return null;
             }
 
-            return new UserResponseDto
-            {
-                UserId = user.UserId,
-                Email = user.Email,
-                FullName = user.FullName,
-                PhoneNumber = user.PhoneNumber,
-                UserName = user.UserName,
-                RoleId = user.RoleId,
-                RoleName = user.Role.RoleName,
-                CampusId = user.CampusId,
-                CampusName = user.Campus.Name,
-                Status = user.Status.ToString(),
-                IsVerify = user.IsVerify.ToString(),
-                AvatarUrl = user.AvatarUrl,
-                LastLogin = user.LastLogin,
-                CreatedAt = user.CreatedAt,
-                UpdatedAt = user.UpdatedAt
-            };
+            return _mapper.Map<UserResponseDto>(user);
         }
 
         public async Task<UserResponseDto?> UpdateProfileAsync(string userId, UpdateUserProfileDto dto)
         {
             var user = await _unitOfWork.UserRepo.GetByIdAsync(userId);
-
             if (user == null)
             {
                 return null;
@@ -61,24 +46,7 @@ namespace BLL.Classes
             await _unitOfWork.UserRepo.UpdateAsync(user);
             await _unitOfWork.SaveChangesAsync();
 
-            return new UserResponseDto
-            {
-                UserId = user.UserId,
-                Email = user.Email,
-                FullName = user.FullName,
-                PhoneNumber = user.PhoneNumber,
-                UserName = user.UserName,
-                RoleId = user.RoleId,
-                RoleName = user.Role.RoleName,
-                CampusId = user.CampusId,
-                CampusName = user.Campus.Name,
-                Status = user.Status.ToString(),
-                IsVerify = user.IsVerify.ToString(),
-                AvatarUrl = user.AvatarUrl,
-                LastLogin = user.LastLogin,
-                CreatedAt = user.CreatedAt,
-                UpdatedAt = user.UpdatedAt
-            };
+            return _mapper.Map<UserResponseDto>(user);
         }
 
         public async Task<bool> ChangePasswordAsync(string userId, ChangePasswordDto dto)
@@ -87,17 +55,15 @@ namespace BLL.Classes
 
             if (user == null)
             {
-                throw new ArgumentException("User not found.");
+                throw new ArgumentException("Không tìm thấy người dùng.");
             }
 
-            // check nếu user login với google 
             const string DefaultGooglePasswordHash = "Li9EQojtoWXDlQqOM55n0hFRn76PmCiheTGGM7zblAv5cFMyICasjdabsjdnouiwh1uidasoiu";
             if (user.Password == DefaultGooglePasswordHash || string.IsNullOrEmpty(user.Password))
             {
-                throw new InvalidOperationException("This account uses Google login. Password cannot be changed.");
+                throw new InvalidOperationException("Tài khoản này sử dụng đăng nhập Google. Không thể thay đổi mật khẩu.");
             }
 
-            // Verify old password
             bool isOldPasswordValid = false;
             try
             {
@@ -110,16 +76,14 @@ namespace BLL.Classes
 
             if (!isOldPasswordValid)
             {
-                throw new UnauthorizedAccessException("Current password is incorrect.");
+                throw new UnauthorizedAccessException("Mật khẩu hiện tại không đúng.");
             }
 
-            // check nếu password mới trùng với password cũ
             if (dto.OldPassword == dto.NewPassword)
             {
-                throw new ArgumentException("New password must be different from current password.");
+                throw new ArgumentException("Mật khẩu mới phải khác mật khẩu hiện tại.");
             }
 
-            // update password mới 
             user.Password = BCrypt.Net.BCrypt.HashPassword(dto.NewPassword);
             user.UpdatedAt = DateTimeHelper.VietnamNow;
 
@@ -128,36 +92,19 @@ namespace BLL.Classes
 
             return true;
         }
+
         public async Task<ApiResponseWithPagination<List<UserResponseDto>>> GetAllAsync(UserFilterDto filter)
         {
             var (items, total) = await _unitOfWork.UserRepo.GetFilteredAsync(
                 filter.Name,
                 filter.Email,
                 filter.RoleId,
-                filter.CampusId,
                 filter.Status?.ToString(),
                 filter.Page,
                 filter.Limit
             );
 
-            var responseDtos = items.Select(u => new UserResponseDto
-            {
-                UserId = u.UserId,
-                Email = u.Email,
-                FullName = u.FullName,
-                PhoneNumber = u.PhoneNumber,
-                UserName = u.UserName,
-                RoleId = u.RoleId,
-                RoleName = u.Role?.RoleName ?? string.Empty,
-                CampusId = u.CampusId,
-                CampusName = u.Campus?.Name ?? string.Empty,
-                Status = u.Status.ToString(),
-                IsVerify = u.IsVerify.ToString(),
-                AvatarUrl = u.AvatarUrl,
-                LastLogin = u.LastLogin,
-                CreatedAt = u.CreatedAt,
-                UpdatedAt = u.UpdatedAt
-            }).ToList();
+            var responseDtos = _mapper.Map<List<UserResponseDto>>(items);
 
             return ApiResponseWithPagination<List<UserResponseDto>>.Ok(
                 responseDtos,
@@ -172,26 +119,10 @@ namespace BLL.Classes
             var user = await _unitOfWork.UserRepo.GetByIdAsync(id);
             if (user == null)
             {
-                return ApiResponse<UserResponseDto>.Fail(404, "User not found");
+                return ApiResponse<UserResponseDto>.Fail(404, "Không tìm thấy người dùng.");
             }
 
-            var responseDto = new UserResponseDto
-            {
-                UserId = user.UserId,
-                Email = user.Email,
-                FullName = user.FullName,
-                PhoneNumber = user.PhoneNumber,
-                UserName = user.UserName,
-                RoleId = user.RoleId,
-                CampusId = user.CampusId,
-                Status = user.Status.ToString(),
-                IsVerify = user.IsVerify.ToString(),
-                AvatarUrl = user.AvatarUrl,
-                LastLogin = user.LastLogin,
-                CreatedAt = user.CreatedAt,
-                UpdatedAt = user.UpdatedAt
-            };
-
+            var responseDto = _mapper.Map<UserResponseDto>(user);
             return ApiResponse<UserResponseDto>.Ok(responseDto);
         }
 
@@ -214,6 +145,3 @@ namespace BLL.Classes
         }
     }
 }
-
-
-

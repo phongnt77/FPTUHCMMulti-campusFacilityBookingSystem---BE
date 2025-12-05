@@ -23,10 +23,6 @@ namespace DAL.Models
         public Campus Campus { get; set; } = null!;
         public FacilityType FacilityType { get; set; } = null!;
         public User? FacilityManager { get; set; }
-        public ICollection<FacilityImage> FacilityImages { get; set; } = new List<FacilityImage>();
         public ICollection<Booking> Bookings { get; set; } = new List<Booking>();
-        public ICollection<FacilityMaintenance> Maintenances { get; set; } = new List<FacilityMaintenance>();
-        public ICollection<Report> Reports { get; set; } = new List<Report>();
     }
 }
-

@@ -1,6 +1,7 @@
 using Applications.DTOs.Request;
 using Applications.DTOs.Response;
 using BLL.Interfaces;
+using DAL.Models.Enums;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -185,20 +186,26 @@ namespace Controller.Controllers
         /// </summary>
         /// <param name="id">Campus ID</param>
         /// <param name="dto">Thông tin cập nhật</param>
+        /// <param name="status">Trạng thái campus (dropdown)</param>
         /// <returns>Campus đã cập nhật</returns>
         /// <response code="200">Cập nhật thành công</response>
         /// <response code="404">Không tìm thấy campus</response>
         /// <remarks>
         /// **Roles:** Chỉ Facility_Admin (RL0003)
+        /// 
+        /// **Status Options:** Active | Inactive
         /// </remarks>
         [HttpPut("{id}")]
         [Authorize(Roles = "RL0003")]
         [ProducesResponseType(typeof(ApiResponse<CampusResponseDto>), 200)]
         [ProducesResponseType(typeof(ApiResponse), 404)]
-        public async Task<IActionResult> Update(string id, [FromBody] UpdateCampusDto dto)
+        public async Task<IActionResult> Update(string id, [FromBody] UpdateCampusDto dto, [FromQuery] CampusStatus? status)
         {
             try
             {
+                if (status.HasValue)
+                    dto.Status = status.Value;
+                    
                 var result = await _campusService.UpdateAsync(id, dto);
                 if (!result.Success)
                 {
