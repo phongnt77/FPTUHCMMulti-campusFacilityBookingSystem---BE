@@ -21,6 +21,7 @@ namespace BLL
             services.AddScoped<IFacilityMaintenanceService, FacilityMaintenanceService>();
             services.AddScoped<IFacilityImageService, FacilityImageService>();
             services.AddScoped<IUserService, UserService>();
+            services.AddScoped<IReportService, ReportService>();
         }
     }
 }

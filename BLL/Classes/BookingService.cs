@@ -116,7 +116,7 @@ namespace BLL.Classes
                 Category = dto.Category,
                 EstimatedAttendees = dto.EstimatedAttendees,
                 SpecialRequirements = dto.SpecialRequirements,
-                Status = BookingStatus.Draft,
+                Status = BookingStatus.Pending_Approval, // booking sẽ ở pending để chờ admin duyệt
                 CreatedAt = DateTimeHelper.VietnamNow,
                 UpdatedAt = DateTimeHelper.VietnamNow
             };

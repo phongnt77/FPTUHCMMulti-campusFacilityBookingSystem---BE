@@ -194,6 +194,24 @@ namespace BLL.Classes
 
             return ApiResponse<UserResponseDto>.Ok(responseDto);
         }
+
+        public async Task<ApiResponse> DeleteAsync(string userId)
+        {
+            var user = await _unitOfWork.UserRepo.GetByIdAsync(userId);
+            if (user == null)
+            {
+                return ApiResponse.Fail(404, "Không tìm thấy user.");
+            }
+
+            // Soft delete: set status to Inactive (user cannot login anymore)
+            user.Status = UserStatus.Inactive;
+            user.UpdatedAt = DateTimeHelper.VietnamNow;
+
+            await _unitOfWork.UserRepo.UpdateAsync(user);
+            await _unitOfWork.SaveChangesAsync();
+
+            return ApiResponse.Ok();
+        }
     }
 }
 

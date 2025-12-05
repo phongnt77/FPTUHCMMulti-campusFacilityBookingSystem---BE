@@ -10,6 +10,7 @@ namespace BLL.Interfaces
         Task<bool> ChangePasswordAsync(string userId, ChangePasswordDto dto);
         Task<ApiResponseWithPagination<List<UserResponseDto>>> GetAllAsync(UserFilterDto filter);
         Task<ApiResponse<UserResponseDto>> GetByIdAsync(string id);
+        Task<ApiResponse> DeleteAsync(string userId);
     }
 }
 
