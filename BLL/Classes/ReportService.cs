@@ -39,17 +39,10 @@ namespace BLL.Classes
             }
 
             // Load các data liên quan
-            bookingsQuery = bookingsQuery
+            var bookings = await bookingsQuery
                 .Include(b => b.Facility)
                     .ThenInclude(f => f!.Campus)
                 .Include(b => b.User)
-                .Include(b => b.BookingFeedbacks);
-
-            var bookings = await bookingsQuery
-                .Include(b => b.Facility)
-                .ThenInclude(f => f!.Campus)
-                .Include(b => b.User)
-                .Include(b => b.BookingFeedbacks)
                 .ToListAsync();
 
             var totalBookings = bookings.Count;
@@ -64,13 +57,9 @@ namespace BLL.Classes
                 : 0;
 
             // Tính điểm trung bình từ feedbacks
-            var feedbacks = bookings
-                .SelectMany(b => b.BookingFeedbacks)
-                .Where(f => f.Rating > 0)
-                .ToList();
-            var avgRating = feedbacks.Any() 
-                ? (decimal)feedbacks.Average(f => f.Rating) 
-                : 0;
+            // Note: BookingFeedback model không tồn tại trong project hiện tại
+            // Set default avgRating = 0
+            decimal avgRating = 0;
 
             // Count unique users
             var uniqueUsers = bookings
