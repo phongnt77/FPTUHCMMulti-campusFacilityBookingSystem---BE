@@ -4,6 +4,7 @@ using Applications.Helpers;
 using AutoMapper;
 using BLL.Interfaces;
 using DAL.Models;
+using DAL.Models.Enums;
 using DAL.Repositories;
 
 namespace BLL.Classes
@@ -86,6 +87,36 @@ namespace BLL.Classes
 
             var responseDto = _mapper.Map<FacilityTypeResponseDto>(facilityType);
             return ApiResponse<FacilityTypeResponseDto>.Ok(responseDto);
+        }
+
+        public async Task<ApiResponse> DeleteAsync(string id)
+        {
+            var facilityType = await _unitOfWork.FacilityTypeRepo.GetByIdAsync(id);
+            if (facilityType == null)
+            {
+                return ApiResponse.Fail(404, "Không tìm thấy loại cơ sở vật chất.");
+            }
+
+            // Lấy danh sách facilities đang sử dụng type này và xóa 
+            var facilities = await _unitOfWork.FacilityRepo.GetAllAsync();
+            var facilitiesUsingType = facilities.Where(f => f.TypeId == id).ToList();
+            
+            if (facilitiesUsingType.Any())
+            {
+                // Xóa tất cả facilities đang sử dụng type này 
+                foreach (var facility in facilitiesUsingType)
+                {
+                    facility.Status = FacilityStatus.Under_Maintenance;
+                    facility.UpdatedAt = DateTimeHelper.VietnamNow;
+                    await _unitOfWork.FacilityRepo.UpdateAsync(facility);
+                }
+                await _unitOfWork.SaveChangesAsync();
+            }
+
+            // Xóa cứng FacilityType vì không có status field
+            await _unitOfWork.FacilityTypeRepo.DeleteAsync(facilityType);
+
+            return ApiResponse.Ok();
         }
 
         private async Task<string> GenerateTypeIdAsync()

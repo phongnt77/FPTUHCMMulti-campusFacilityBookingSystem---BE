@@ -148,5 +148,42 @@ namespace Controller.Controllers
                 return StatusCode(500, ApiResponse.Fail(500, ex.Message));
             }
         }
+
+        /// <summary>
+        /// Xóa loại cơ sở vật chất
+        /// </summary>
+        /// <param name="id">Facility Type ID</param>
+        /// <returns>Kết quả xóa</returns>
+        /// <response code="200">Xóa thành công</response>
+        /// <response code="404">Không tìm thấy loại cơ sở</response>
+        /// <remarks>
+        /// **Roles:** Chỉ Facility_Admin (RL0003)
+        /// 
+        /// **Mục đích:** Xóa loại cơ sở vật chất khỏi hệ thống
+        /// 
+        /// **Lưu ý:** 
+        /// - Khi xóa facility type, tất cả facilities đang sử dụng type này sẽ bị xóa (soft delete - set status = Under_Maintenance)
+        /// - Facility type sẽ bị xóa vĩnh viễn (hard delete)
+        /// </remarks>
+        [HttpDelete("{id}")]
+        [Authorize(Roles = "RL0003")]
+        [ProducesResponseType(typeof(ApiResponse), 200)]
+        [ProducesResponseType(typeof(ApiResponse), 404)]
+        public async Task<IActionResult> Delete(string id)
+        {
+            try
+            {
+                var result = await _facilityTypeService.DeleteAsync(id);
+                if (!result.Success)
+                {
+                    return NotFound(result);
+                }
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ApiResponse.Fail(500, ex.Message));
+            }
+        }
     }
 }

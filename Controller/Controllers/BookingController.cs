@@ -237,6 +237,49 @@ namespace Controller.Controllers
         }
 
         /// <summary>
+        /// Submit booking để chuyển từ Draft → Pending_Approval
+        /// </summary>
+        /// <param name="id">Booking ID</param>
+        /// <returns>Booking đã submit</returns>
+        /// <response code="200">Submit thành công</response>
+        /// <response code="400">Booking không ở trạng thái Draft</response>
+        /// <response code="404">Không tìm thấy booking</response>
+        /// <remarks>
+        /// **Roles:** Tất cả user đã đăng nhập
+        /// 
+        /// **Mục đích:** Submit booking để gửi yêu cầu duyệt
+        /// 
+        /// **Workflow:**
+        /// - Tạo booking → Status = Draft
+        /// - Submit booking → Status = Pending_Approval (chờ admin duyệt)
+        /// - Admin approve/reject → Status = Approved/Rejected
+        /// 
+        /// **Lưu ý:** Chỉ có thể submit booking ở trạng thái Draft
+        /// </remarks>
+        [HttpPost("{id}/submit")]
+        [ProducesResponseType(typeof(ApiResponse<BookingResponseDto>), 200)]
+        [ProducesResponseType(typeof(ApiResponse), 400)]
+        [ProducesResponseType(typeof(ApiResponse), 404)]
+        public async Task<IActionResult> Submit(string id)
+        {
+            try
+            {
+                var result = await _bookingService.SubmitBookingAsync(id);
+                if (!result.Success)
+                {
+                    if (result.Error?.Code == 400)
+                        return BadRequest(result);
+                    return NotFound(result);
+                }
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ApiResponse.Fail(500, ex.Message));
+            }
+        }
+
+        /// <summary>
         /// Hủy booking (set status = Cancelled)
         /// </summary>
         /// <param name="id">Booking ID</param>

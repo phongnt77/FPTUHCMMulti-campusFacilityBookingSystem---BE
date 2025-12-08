@@ -24,6 +24,12 @@ namespace DAL.Repositories.Classes
 
             return (items, total);
         }
+
+        public async Task<int> DeleteAsync(FacilityType entity)
+        {
+            PrepareRemove(entity);
+            return await SaveAsync();
+        }
     }
 }
 
