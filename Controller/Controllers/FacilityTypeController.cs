@@ -156,21 +156,19 @@ namespace Controller.Controllers
         /// <returns>Kết quả xóa</returns>
         /// <response code="200">Xóa thành công</response>
         /// <response code="404">Không tìm thấy loại cơ sở</response>
-        /// <response code="409">Không thể xóa vì có facilities đang sử dụng</response>
         /// <remarks>
         /// **Roles:** Chỉ Facility_Admin (RL0003)
         /// 
         /// **Mục đích:** Xóa loại cơ sở vật chất khỏi hệ thống
         /// 
         /// **Lưu ý:** 
-        /// - Không thể xóa nếu có facilities đang sử dụng type này
-        /// - Xóa vĩnh viễn (hard delete)
+        /// - Khi xóa facility type, tất cả facilities đang sử dụng type này sẽ bị xóa (soft delete - set status = Under_Maintenance)
+        /// - Facility type sẽ bị xóa vĩnh viễn (hard delete)
         /// </remarks>
         [HttpDelete("{id}")]
         [Authorize(Roles = "RL0003")]
         [ProducesResponseType(typeof(ApiResponse), 200)]
         [ProducesResponseType(typeof(ApiResponse), 404)]
-        [ProducesResponseType(typeof(ApiResponse), 409)]
         public async Task<IActionResult> Delete(string id)
         {
             try
@@ -178,8 +176,6 @@ namespace Controller.Controllers
                 var result = await _facilityTypeService.DeleteAsync(id);
                 if (!result.Success)
                 {
-                    if (result.Error?.Code == 409)
-                        return Conflict(result);
                     return NotFound(result);
                 }
                 return Ok(result);
