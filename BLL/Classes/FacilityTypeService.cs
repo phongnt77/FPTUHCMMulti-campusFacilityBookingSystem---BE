@@ -88,6 +88,29 @@ namespace BLL.Classes
             return ApiResponse<FacilityTypeResponseDto>.Ok(responseDto);
         }
 
+        public async Task<ApiResponse> DeleteAsync(string id)
+        {
+            var facilityType = await _unitOfWork.FacilityTypeRepo.GetByIdAsync(id);
+            if (facilityType == null)
+            {
+                return ApiResponse.Fail(404, "Không tìm thấy loại cơ sở vật chất.");
+            }
+
+            // check xem có facilities nào đang sử dụng type này không
+            var facilities = await _unitOfWork.FacilityRepo.GetAllAsync();
+            var facilitiesUsingType = facilities.Where(f => f.TypeId == id).ToList();
+            
+            if (facilitiesUsingType.Any())
+            {
+                return ApiResponse.Fail(409, $"Không thể xóa loại cơ sở vật chất này vì có {facilitiesUsingType.Count} cơ sở đang sử dụng.");
+            }
+
+            // xóa cứng vì FacilityType không có status
+            await _unitOfWork.FacilityTypeRepo.DeleteAsync(facilityType);
+
+            return ApiResponse.Ok();
+        }
+
         private async Task<string> GenerateTypeIdAsync()
         {
             var types = await _unitOfWork.FacilityTypeRepo.GetAllAsync();

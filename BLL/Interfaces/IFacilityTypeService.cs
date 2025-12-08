@@ -9,6 +9,7 @@ namespace BLL.Interfaces
         Task<ApiResponse<FacilityTypeResponseDto>> GetByIdAsync(string id);
         Task<ApiResponse<FacilityTypeResponseDto>> CreateAsync(CreateFacilityTypeDto dto);
         Task<ApiResponse<FacilityTypeResponseDto>> UpdateAsync(string id, UpdateFacilityTypeDto dto);
+        Task<ApiResponse> DeleteAsync(string id);
     }
 }
 
