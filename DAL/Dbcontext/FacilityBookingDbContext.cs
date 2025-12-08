@@ -145,14 +145,20 @@ namespace DAL.Dbcontext
                 entity.Property(e => e.UpdatedAt)
                     .HasColumnName("updated_at")
                     .HasDefaultValueSql("GETUTCDATE()");
+                entity.Property(e => e.Status)
+                    .HasColumnName("status")
+                    .HasConversion<string>()
+                    .HasMaxLength(20)
+                    .IsRequired()
+                    .HasDefaultValue(DAL.Models.Enums.FacilityTypeStatus.Active);
 
                 // Seed data: 5 loại cơ sở
                 entity.HasData(
-                    new FacilityType { TypeId = "FT0001", Name = "Classroom", Description = "Phòng học lý thuyết", CreatedAt = DateTime.UtcNow, UpdatedAt = DateTime.UtcNow },
-                    new FacilityType { TypeId = "FT0002", Name = "Meeting Room", Description = "Phòng họp", CreatedAt = DateTime.UtcNow, UpdatedAt = DateTime.UtcNow },
-                    new FacilityType { TypeId = "FT0003", Name = "Computer Lab", Description = "Phòng máy tính", CreatedAt = DateTime.UtcNow, UpdatedAt = DateTime.UtcNow },
-                    new FacilityType { TypeId = "FT0004", Name = "Sports Court", Description = "Sân thể thao", CreatedAt = DateTime.UtcNow, UpdatedAt = DateTime.UtcNow },
-                    new FacilityType { TypeId = "FT0005", Name = "Auditorium", Description = "Hội trường", CreatedAt = DateTime.UtcNow, UpdatedAt = DateTime.UtcNow }
+                    new FacilityType { TypeId = "FT0001", Name = "Classroom", Description = "Phòng học lý thuyết", Status = DAL.Models.Enums.FacilityTypeStatus.Active, CreatedAt = DateTime.UtcNow, UpdatedAt = DateTime.UtcNow },
+                    new FacilityType { TypeId = "FT0002", Name = "Meeting Room", Description = "Phòng họp", Status = DAL.Models.Enums.FacilityTypeStatus.Active, CreatedAt = DateTime.UtcNow, UpdatedAt = DateTime.UtcNow },
+                    new FacilityType { TypeId = "FT0003", Name = "Computer Lab", Description = "Phòng máy tính", Status = DAL.Models.Enums.FacilityTypeStatus.Active, CreatedAt = DateTime.UtcNow, UpdatedAt = DateTime.UtcNow },
+                    new FacilityType { TypeId = "FT0004", Name = "Sports Court", Description = "Sân thể thao", Status = DAL.Models.Enums.FacilityTypeStatus.Active, CreatedAt = DateTime.UtcNow, UpdatedAt = DateTime.UtcNow },
+                    new FacilityType { TypeId = "FT0005", Name = "Auditorium", Description = "Hội trường", Status = DAL.Models.Enums.FacilityTypeStatus.Active, CreatedAt = DateTime.UtcNow, UpdatedAt = DateTime.UtcNow }
                 );
             });
 

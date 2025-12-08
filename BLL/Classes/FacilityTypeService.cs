@@ -51,6 +51,7 @@ namespace BLL.Classes
 
             var facilityType = _mapper.Map<FacilityType>(dto);
             facilityType.TypeId = typeId;
+            facilityType.Status = FacilityTypeStatus.Active;
             facilityType.CreatedAt = DateTimeHelper.VietnamNow;
             facilityType.UpdatedAt = DateTimeHelper.VietnamNow;
 
@@ -113,8 +114,11 @@ namespace BLL.Classes
                 await _unitOfWork.SaveChangesAsync();
             }
 
-            // Xóa cứng FacilityType vì không có status field
-            await _unitOfWork.FacilityTypeRepo.DeleteAsync(facilityType);
+            // Soft delete: set status = Inactive
+            facilityType.Status = FacilityTypeStatus.Inactive;
+            facilityType.UpdatedAt = DateTimeHelper.VietnamNow;
+            await _unitOfWork.FacilityTypeRepo.UpdateAsync(facilityType);
+            await _unitOfWork.SaveChangesAsync();
 
             return ApiResponse.Ok();
         }
