@@ -6,22 +6,20 @@ namespace BLL
 {
     public static class ServiceProviders
     {
-        public static void RegisterServices(this IServiceCollection services)
+        public static void RegisterServices(IServiceCollection services)
         {
-            // Register all services here
+            // Auth & User Services
             services.AddScoped<IAuthService, AuthService>();
+            services.AddScoped<IUserService, UserService>();
             services.AddScoped<IEmailService, EmailService>();
-            services.AddScoped<IFacilityService, FacilityService>();
+
+            // Core Business Services
             services.AddScoped<ICampusService, CampusService>();
             services.AddScoped<IRoleService, RoleService>();
             services.AddScoped<IFacilityTypeService, FacilityTypeService>();
+            services.AddScoped<IFacilityService, FacilityService>();
             services.AddScoped<IBookingService, BookingService>();
-            services.AddScoped<INotificationService, NotificationService>();
             services.AddScoped<IBookingFeedbackService, BookingFeedbackService>();
-            services.AddScoped<IFacilityMaintenanceService, FacilityMaintenanceService>();
-            services.AddScoped<IFacilityImageService, FacilityImageService>();
-            services.AddScoped<IUserService, UserService>();
-            services.AddScoped<IReportService, ReportService>();
         }
     }
 }

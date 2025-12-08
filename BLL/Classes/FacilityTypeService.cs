@@ -1,8 +1,10 @@
 using Applications.DTOs.Request;
 using Applications.DTOs.Response;
 using Applications.Helpers;
+using AutoMapper;
 using BLL.Interfaces;
 using DAL.Models;
+using DAL.Models.Enums;
 using DAL.Repositories;
 
 namespace BLL.Classes
@@ -10,28 +12,18 @@ namespace BLL.Classes
     public class FacilityTypeService : IFacilityTypeService
     {
         private readonly IUnitOfWork _unitOfWork;
+        private readonly IMapper _mapper;
 
-        public FacilityTypeService(IUnitOfWork unitOfWork)
+        public FacilityTypeService(IUnitOfWork unitOfWork, IMapper mapper)
         {
             _unitOfWork = unitOfWork;
+            _mapper = mapper;
         }
 
         public async Task<ApiResponseWithPagination<List<FacilityTypeResponseDto>>> GetAllAsync(PagedRequestDto request)
         {
             var (items, total) = await _unitOfWork.FacilityTypeRepo.GetPagedAsync(request.Page, request.Limit);
-
-            var responseDtos = items.Select(ft => new FacilityTypeResponseDto
-            {
-                TypeId = ft.TypeId,
-                Name = ft.Name,
-                Description = ft.Description,
-                DefaultAmenities = ft.DefaultAmenities,
-                DefaultCapacity = ft.DefaultCapacity,
-                TypicalDurationHours = ft.TypicalDurationHours,
-                IconUrl = ft.IconUrl,
-                CreatedAt = ft.CreatedAt,
-                UpdatedAt = ft.UpdatedAt
-            }).ToList();
+            var responseDtos = _mapper.Map<List<FacilityTypeResponseDto>>(items);
 
             return ApiResponseWithPagination<List<FacilityTypeResponseDto>>.Ok(
                 responseDtos,
@@ -49,19 +41,7 @@ namespace BLL.Classes
                 return ApiResponse<FacilityTypeResponseDto>.Fail(404, "Không tìm thấy loại cơ sở vật chất.");
             }
 
-            var responseDto = new FacilityTypeResponseDto
-            {
-                TypeId = facilityType.TypeId,
-                Name = facilityType.Name,
-                Description = facilityType.Description,
-                DefaultAmenities = facilityType.DefaultAmenities,
-                DefaultCapacity = facilityType.DefaultCapacity,
-                TypicalDurationHours = facilityType.TypicalDurationHours,
-                IconUrl = facilityType.IconUrl,
-                CreatedAt = facilityType.CreatedAt,
-                UpdatedAt = facilityType.UpdatedAt
-            };
-
+            var responseDto = _mapper.Map<FacilityTypeResponseDto>(facilityType);
             return ApiResponse<FacilityTypeResponseDto>.Ok(responseDto);
         }
 
@@ -69,34 +49,14 @@ namespace BLL.Classes
         {
             var typeId = await GenerateTypeIdAsync();
 
-            var facilityType = new FacilityType
-            {
-                TypeId = typeId,
-                Name = dto.Name,
-                Description = dto.Description,
-                DefaultAmenities = dto.DefaultAmenities,
-                DefaultCapacity = dto.DefaultCapacity,
-                TypicalDurationHours = dto.TypicalDurationHours,
-                IconUrl = dto.IconUrl,
-                CreatedAt = DateTimeHelper.VietnamNow,
-                UpdatedAt = DateTimeHelper.VietnamNow
-            };
+            var facilityType = _mapper.Map<FacilityType>(dto);
+            facilityType.TypeId = typeId;
+            facilityType.CreatedAt = DateTimeHelper.VietnamNow;
+            facilityType.UpdatedAt = DateTimeHelper.VietnamNow;
 
             await _unitOfWork.FacilityTypeRepo.CreateAsync(facilityType);
 
-            var responseDto = new FacilityTypeResponseDto
-            {
-                TypeId = facilityType.TypeId,
-                Name = facilityType.Name,
-                Description = facilityType.Description,
-                DefaultAmenities = facilityType.DefaultAmenities,
-                DefaultCapacity = facilityType.DefaultCapacity,
-                TypicalDurationHours = facilityType.TypicalDurationHours,
-                IconUrl = facilityType.IconUrl,
-                CreatedAt = facilityType.CreatedAt,
-                UpdatedAt = facilityType.UpdatedAt
-            };
-
+            var responseDto = _mapper.Map<FacilityTypeResponseDto>(facilityType);
             return ApiResponse<FacilityTypeResponseDto>.Ok(responseDto);
         }
 
@@ -125,20 +85,38 @@ namespace BLL.Classes
 
             await _unitOfWork.FacilityTypeRepo.UpdateAsync(facilityType);
 
-            var responseDto = new FacilityTypeResponseDto
-            {
-                TypeId = facilityType.TypeId,
-                Name = facilityType.Name,
-                Description = facilityType.Description,
-                DefaultAmenities = facilityType.DefaultAmenities,
-                DefaultCapacity = facilityType.DefaultCapacity,
-                TypicalDurationHours = facilityType.TypicalDurationHours,
-                IconUrl = facilityType.IconUrl,
-                CreatedAt = facilityType.CreatedAt,
-                UpdatedAt = facilityType.UpdatedAt
-            };
-
+            var responseDto = _mapper.Map<FacilityTypeResponseDto>(facilityType);
             return ApiResponse<FacilityTypeResponseDto>.Ok(responseDto);
+        }
+
+        public async Task<ApiResponse> DeleteAsync(string id)
+        {
+            var facilityType = await _unitOfWork.FacilityTypeRepo.GetByIdAsync(id);
+            if (facilityType == null)
+            {
+                return ApiResponse.Fail(404, "Không tìm thấy loại cơ sở vật chất.");
+            }
+
+            // Lấy danh sách facilities đang sử dụng type này và xóa 
+            var facilities = await _unitOfWork.FacilityRepo.GetAllAsync();
+            var facilitiesUsingType = facilities.Where(f => f.TypeId == id).ToList();
+            
+            if (facilitiesUsingType.Any())
+            {
+                // Xóa tất cả facilities đang sử dụng type này 
+                foreach (var facility in facilitiesUsingType)
+                {
+                    facility.Status = FacilityStatus.Under_Maintenance;
+                    facility.UpdatedAt = DateTimeHelper.VietnamNow;
+                    await _unitOfWork.FacilityRepo.UpdateAsync(facility);
+                }
+                await _unitOfWork.SaveChangesAsync();
+            }
+
+            // Xóa cứng FacilityType vì không có status field
+            await _unitOfWork.FacilityTypeRepo.DeleteAsync(facilityType);
+
+            return ApiResponse.Ok();
         }
 
         private async Task<string> GenerateTypeIdAsync()
@@ -162,5 +140,3 @@ namespace BLL.Classes
         }
     }
 }
-
-

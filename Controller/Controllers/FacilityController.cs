@@ -1,6 +1,7 @@
 using Applications.DTOs.Request;
 using Applications.DTOs.Response;
 using BLL.Interfaces;
+using DAL.Models.Enums;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -136,6 +137,7 @@ namespace Controller.Controllers
         /// </summary>
         /// <param name="id">Facility ID</param>
         /// <param name="dto">Thông tin cập nhật</param>
+        /// <param name="status">Trạng thái facility (dropdown)</param>
         /// <returns>Facility đã cập nhật</returns>
         /// <response code="200">Cập nhật thành công</response>
         /// <response code="404">Không tìm thấy facility</response>
@@ -143,15 +145,22 @@ namespace Controller.Controllers
         /// **Roles:** Chỉ Facility_Admin (RL0003)
         /// 
         /// **Mục đích:** Cập nhật thông tin hoặc thay đổi trạng thái facility
+        /// 
+        /// **Status Options:**
+        /// - Available: Facility sẵn sàng để đặt
+        /// - Under_Maintenance: Facility đang bảo trì, không cho đặt
         /// </remarks>
         [HttpPut("{id}")]
         [Authorize(Roles = "RL0003")]
         [ProducesResponseType(typeof(ApiResponse<FacilityResponseDto>), 200)]
         [ProducesResponseType(typeof(ApiResponse), 404)]
-        public async Task<IActionResult> Update(string id, [FromBody] UpdateFacilityDto dto)
+        public async Task<IActionResult> Update(string id, [FromBody] UpdateFacilityDto dto, [FromQuery] FacilityStatus? status)
         {
             try
             {
+                if (status.HasValue)
+                    dto.Status = status.Value;
+                    
                 var result = await _facilityService.UpdateAsync(id, dto);
                 if (!result.Success)
                 {

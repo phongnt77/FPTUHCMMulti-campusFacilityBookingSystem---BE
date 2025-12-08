@@ -9,6 +9,7 @@ namespace DAL.Repositories.Interfaces
         Task<int> CreateAsync(FacilityType entity);
         Task<int> UpdateAsync(FacilityType entity);
         Task<List<FacilityType>> GetAllAsync();
+        Task<int> DeleteAsync(FacilityType entity);
     }
 }
 

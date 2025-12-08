@@ -1,6 +1,7 @@
 using Applications.DTOs.Request;
 using Applications.DTOs.Response;
 using Applications.Helpers;
+using AutoMapper;
 using BLL.Interfaces;
 using DAL.Models;
 using DAL.Models.Enums;
@@ -11,28 +12,19 @@ namespace BLL.Classes
     public class CampusService : ICampusService
     {
         private readonly IUnitOfWork _unitOfWork;
+        private readonly IMapper _mapper;
 
-        public CampusService(IUnitOfWork unitOfWork)
+        public CampusService(IUnitOfWork unitOfWork, IMapper mapper)
         {
             _unitOfWork = unitOfWork;
+            _mapper = mapper;
         }
 
         public async Task<ApiResponseWithPagination<List<CampusResponseDto>>> GetAllAsync(PagedRequestDto request)
         {
             var (items, total) = await _unitOfWork.CampusRepo.GetPagedAsync(request.Page, request.Limit);
 
-            var responseDtos = items.Select(c => new CampusResponseDto
-            {
-                CampusId = c.CampusId,
-                Name = c.Name,
-                Address = c.Address,
-                PhoneNumber = c.PhoneNumber,
-                Email = c.Email,
-                FacilityManagerId = c.FacilityManagerId,
-                Status = c.Status.ToString(),
-                CreatedAt = c.CreatedAt,
-                UpdatedAt = c.UpdatedAt
-            }).ToList();
+            var responseDtos = _mapper.Map<List<CampusResponseDto>>(items);
 
             return ApiResponseWithPagination<List<CampusResponseDto>>.Ok(
                 responseDtos,
@@ -45,20 +37,7 @@ namespace BLL.Classes
         public async Task<ApiResponse<List<CampusResponseDto>>> GetAllCampusesAsync()
         {
             var campuses = await _unitOfWork.CampusRepo.GetAllCampusesAsync();
-
-            var responseDtos = campuses.Select(c => new CampusResponseDto
-            {
-                CampusId = c.CampusId,
-                Name = c.Name,
-                Address = c.Address,
-                PhoneNumber = c.PhoneNumber,
-                Email = c.Email,
-                FacilityManagerId = c.FacilityManagerId,
-                Status = c.Status.ToString(),
-                CreatedAt = c.CreatedAt,
-                UpdatedAt = c.UpdatedAt
-            }).ToList();
-
+            var responseDtos = _mapper.Map<List<CampusResponseDto>>(campuses);
             return ApiResponse<List<CampusResponseDto>>.Ok(responseDtos);
         }
 
@@ -70,19 +49,7 @@ namespace BLL.Classes
                 return ApiResponse<CampusResponseDto>.Fail(404, "Không tìm thấy cơ sở.");
             }
 
-            var responseDto = new CampusResponseDto
-            {
-                CampusId = campus.CampusId,
-                Name = campus.Name,
-                Address = campus.Address,
-                PhoneNumber = campus.PhoneNumber,
-                Email = campus.Email,
-                FacilityManagerId = campus.FacilityManagerId,
-                Status = campus.Status.ToString(),
-                CreatedAt = campus.CreatedAt,
-                UpdatedAt = campus.UpdatedAt
-            };
-
+            var responseDto = _mapper.Map<CampusResponseDto>(campus);
             return ApiResponse<CampusResponseDto>.Ok(responseDto);
         }
 
@@ -90,34 +57,14 @@ namespace BLL.Classes
         {
             var campusId = await GenerateCampusIdAsync();
 
-            var campus = new Campus
-            {
-                CampusId = campusId,
-                Name = dto.Name,
-                Address = dto.Address,
-                PhoneNumber = dto.PhoneNumber,
-                Email = dto.Email,
-                FacilityManagerId = dto.FacilityManagerId,
-                Status = CampusStatus.Active,
-                CreatedAt = DateTimeHelper.VietnamNow,
-                UpdatedAt = DateTimeHelper.VietnamNow
-            };
+            var campus = _mapper.Map<Campus>(dto);
+            campus.CampusId = campusId;
+            campus.CreatedAt = DateTimeHelper.VietnamNow;
+            campus.UpdatedAt = DateTimeHelper.VietnamNow;
 
             await _unitOfWork.CampusRepo.CreateAsync(campus);
 
-            var responseDto = new CampusResponseDto
-            {
-                CampusId = campus.CampusId,
-                Name = campus.Name,
-                Address = campus.Address,
-                PhoneNumber = campus.PhoneNumber,
-                Email = campus.Email,
-                FacilityManagerId = campus.FacilityManagerId,
-                Status = campus.Status.ToString(),
-                CreatedAt = campus.CreatedAt,
-                UpdatedAt = campus.UpdatedAt
-            };
-
+            var responseDto = _mapper.Map<CampusResponseDto>(campus);
             return ApiResponse<CampusResponseDto>.Ok(responseDto);
         }
 
@@ -135,28 +82,14 @@ namespace BLL.Classes
                 campus.Address = dto.Address;
             if (dto.PhoneNumber != null)
                 campus.PhoneNumber = dto.PhoneNumber;
-            if (dto.Email != null)
-                campus.Email = dto.Email;
-            if (dto.FacilityManagerId != null)
-                campus.FacilityManagerId = dto.FacilityManagerId;
+            if (dto.Status.HasValue)
+                campus.Status = dto.Status.Value;
 
             campus.UpdatedAt = DateTimeHelper.VietnamNow;
 
             await _unitOfWork.CampusRepo.UpdateAsync(campus);
 
-            var responseDto = new CampusResponseDto
-            {
-                CampusId = campus.CampusId,
-                Name = campus.Name,
-                Address = campus.Address,
-                PhoneNumber = campus.PhoneNumber,
-                Email = campus.Email,
-                FacilityManagerId = campus.FacilityManagerId,
-                Status = campus.Status.ToString(),
-                CreatedAt = campus.CreatedAt,
-                UpdatedAt = campus.UpdatedAt
-            };
-
+            var responseDto = _mapper.Map<CampusResponseDto>(campus);
             return ApiResponse<CampusResponseDto>.Ok(responseDto);
         }
 
@@ -198,5 +131,3 @@ namespace BLL.Classes
         }
     }
 }
-
-

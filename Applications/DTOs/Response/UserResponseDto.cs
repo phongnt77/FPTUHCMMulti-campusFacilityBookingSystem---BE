@@ -9,8 +9,6 @@ namespace Applications.DTOs.Response
         public string? UserName { get; set; }
         public string RoleId { get; set; } = string.Empty;
         public string RoleName { get; set; } = string.Empty;
-        public string CampusId { get; set; } = string.Empty;
-        public string CampusName { get; set; } = string.Empty;
         public string Status { get; set; } = string.Empty;
         public string IsVerify { get; set; } = string.Empty;
         public string? AvatarUrl { get; set; }
@@ -19,5 +17,3 @@ namespace Applications.DTOs.Response
         public DateTime UpdatedAt { get; set; }
     }
 }
-
-

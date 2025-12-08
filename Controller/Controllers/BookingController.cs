@@ -57,7 +57,29 @@ namespace Controller.Controllers
             }
         }
 
-        
+        /// <summary>
+        /// Lấy tất cả bookings của user hiện tại
+        /// </summary>
+        /// <param name="status">Filter theo status (Draft, Pending_Approval, Approved, Rejected, Cancelled, Completed, No_Show)</param>
+        /// <param name="page">Trang hiện tại (default: 1)</param>
+        /// <param name="limit">Số item per page (default: 10)</param>
+        /// <returns>Danh sách bookings của user</returns>
+        /// <response code="200">Trả về danh sách bookings</response>
+        /// <response code="401">Không xác thực được user</response>
+        /// <remarks>
+        /// **Roles:** Tất cả user đã đăng nhập
+        /// 
+        /// **Mục đích:** User xem lại tất cả bookings của mình với filter theo status và phân trang
+        /// 
+        /// **Status Values:**
+        /// - Draft: Booking đang soạn thảo
+        /// - Pending_Approval: Đang chờ duyệt
+        /// - Approved: Đã được duyệt
+        /// - Rejected: Bị từ chối
+        /// - Cancelled: Đã hủy
+        /// - Completed: Đã hoàn thành
+        /// - No_Show: User không tới
+        /// </remarks>
         [HttpGet("me")]
         [ProducesResponseType(typeof(ApiResponseWithPagination<List<BookingResponseDto>>), 200)]
         [ProducesResponseType(typeof(ApiResponse), 401)]
@@ -204,6 +226,49 @@ namespace Controller.Controllers
                 {
                     if (result.Error?.Code == 409)
                         return Conflict(result);
+                    return NotFound(result);
+                }
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ApiResponse.Fail(500, ex.Message));
+            }
+        }
+
+        /// <summary>
+        /// Submit booking để chuyển từ Draft → Pending_Approval
+        /// </summary>
+        /// <param name="id">Booking ID</param>
+        /// <returns>Booking đã submit</returns>
+        /// <response code="200">Submit thành công</response>
+        /// <response code="400">Booking không ở trạng thái Draft</response>
+        /// <response code="404">Không tìm thấy booking</response>
+        /// <remarks>
+        /// **Roles:** Tất cả user đã đăng nhập
+        /// 
+        /// **Mục đích:** Submit booking để gửi yêu cầu duyệt
+        /// 
+        /// **Workflow:**
+        /// - Tạo booking → Status = Draft
+        /// - Submit booking → Status = Pending_Approval (chờ admin duyệt)
+        /// - Admin approve/reject → Status = Approved/Rejected
+        /// 
+        /// **Lưu ý:** Chỉ có thể submit booking ở trạng thái Draft
+        /// </remarks>
+        [HttpPost("{id}/submit")]
+        [ProducesResponseType(typeof(ApiResponse<BookingResponseDto>), 200)]
+        [ProducesResponseType(typeof(ApiResponse), 400)]
+        [ProducesResponseType(typeof(ApiResponse), 404)]
+        public async Task<IActionResult> Submit(string id)
+        {
+            try
+            {
+                var result = await _bookingService.SubmitBookingAsync(id);
+                if (!result.Success)
+                {
+                    if (result.Error?.Code == 400)
+                        return BadRequest(result);
                     return NotFound(result);
                 }
                 return Ok(result);

@@ -44,11 +44,10 @@ namespace DAL.Repositories.Classes
             return await CreateAsync(entity);
         }
 
-        public async Task<(List<User> items, int total)> GetFilteredAsync(string? name, string? email, string? roleId, string? campusId, string? status, int page, int limit)
+        public async Task<(List<User> items, int total)> GetFilteredAsync(string? name, string? email, string? roleId, string? status, int page, int limit)
         {
             var query = _context.Set<User>()
                 .Include(u => u.Role)
-                .Include(u => u.Campus)
                 .AsQueryable();
 
             if (!string.IsNullOrEmpty(name))
@@ -66,10 +65,6 @@ namespace DAL.Repositories.Classes
                 query = query.Where(u => u.RoleId == roleId);
             }
 
-            if (!string.IsNullOrEmpty(campusId))
-            {
-                query = query.Where(u => u.CampusId == campusId);
-            }
 
             if (!string.IsNullOrEmpty(status))
             {

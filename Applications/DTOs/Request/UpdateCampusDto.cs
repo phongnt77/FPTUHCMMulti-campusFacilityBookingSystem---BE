@@ -1,3 +1,5 @@
+using DAL.Models.Enums;
+
 namespace Applications.DTOs.Request
 {
     public class UpdateCampusDto
@@ -6,8 +8,6 @@ namespace Applications.DTOs.Request
         public string? Address { get; set; }
         public string? PhoneNumber { get; set; }
         public string? Email { get; set; }
-        public string? FacilityManagerId { get; set; }
+        public CampusStatus? Status { get; set; }
     }
 }
-
-
