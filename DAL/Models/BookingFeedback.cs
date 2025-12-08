@@ -33,4 +33,3 @@ namespace DAL.Models
         public User User { get; set; } = null!;
     }
 }
-

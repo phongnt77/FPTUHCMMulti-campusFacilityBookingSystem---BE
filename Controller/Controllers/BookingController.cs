@@ -268,5 +268,96 @@ namespace Controller.Controllers
                 return StatusCode(500, ApiResponse.Fail(500, ex.Message));
             }
         }
+
+        /// <summary>
+        /// Kiểm tra availability của facility trước khi đặt
+        /// </summary>
+        /// <param name="dto">Thông tin facility và thời gian</param>
+        /// <returns>Kết quả kiểm tra availability và danh sách facility thay thế</returns>
+        /// <response code="200">Trả về kết quả kiểm tra</response>
+        /// <response code="404">Không tìm thấy facility</response>
+        /// <remarks>
+        /// **Roles:** Tất cả user đã đăng nhập
+        /// 
+        /// **Mục đích:** Kiểm tra real-time xem facility có available không trước khi đặt
+        /// 
+        /// **Response:**
+        /// - isAvailable: true nếu facility sẵn sàng
+        /// - conflictReason: Lý do nếu không available (trùng lịch, phòng hỏng)
+        /// - alternativeFacilities: Danh sách facility thay thế nếu không available
+        /// 
+        /// **Use Cases:**
+        /// - User đang đặt phòng nhưng phòng bị trùng lịch → Suggest alternatives
+        /// - Phòng hỏng (Under_Maintenance) → Suggest alternatives hoặc next available time
+        /// </remarks>
+        [HttpPost("check-availability")]
+        [ProducesResponseType(typeof(ApiResponse<AvailabilityCheckResponseDto>), 200)]
+        [ProducesResponseType(typeof(ApiResponse), 404)]
+        public async Task<IActionResult> CheckAvailability([FromBody] CheckAvailabilityDto dto)
+        {
+            try
+            {
+                var result = await _bookingService.CheckAvailabilityAsync(dto);
+                if (!result.Success)
+                {
+                    return NotFound(result);
+                }
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ApiResponse.Fail(500, ex.Message));
+            }
+        }
+
+        /// <summary>
+        /// Lấy danh sách facility thay thế khi facility không available
+        /// </summary>
+        /// <param name="facilityId">Facility ID không available</param>
+        /// <param name="startTime">Thời gian bắt đầu</param>
+        /// <param name="endTime">Thời gian kết thúc</param>
+        /// <param name="capacity">Sức chứa tối thiểu</param>
+        /// <returns>Danh sách facility thay thế</returns>
+        /// <response code="200">Trả về danh sách alternatives</response>
+        /// <response code="404">Không tìm thấy facility</response>
+        /// <remarks>
+        /// **Roles:** Tất cả user đã đăng nhập
+        /// 
+        /// **Mục đích:** Tìm facility thay thế trong cùng campus, cùng type, capacity >= yêu cầu
+        /// 
+        /// **Logic:**
+        /// - Tìm facilities cùng campus, cùng type
+        /// - Capacity >= yêu cầu
+        /// - Available trong khoảng thời gian
+        /// - Nếu không available, suggest next available time
+        /// </remarks>
+        [HttpGet("alternatives")]
+        [ProducesResponseType(typeof(ApiResponse<List<AlternativeFacilityDto>>), 200)]
+        [ProducesResponseType(typeof(ApiResponse), 404)]
+        public async Task<IActionResult> GetAlternatives(
+            [FromQuery] string facilityId,
+            [FromQuery] DateTime startTime,
+            [FromQuery] DateTime endTime,
+            [FromQuery] int capacity = 1)
+        {
+            try
+            {
+                var result = await _bookingService.GetAlternativeFacilitiesAsync(
+                    facilityId,
+                    startTime,
+                    endTime,
+                    capacity
+                );
+                if (!result.Success)
+                {
+                    return NotFound(result);
+                }
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ApiResponse.Fail(500, ex.Message));
+            }
+        }
     }
 }

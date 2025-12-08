@@ -54,6 +54,31 @@ namespace BLL.Classes
 
         public async Task<ApiResponse<BookingResponseDto>> CreateAsync(CreateBookingDto dto)
         {
+            // Validate facility exists and is available
+            var facility = await _unitOfWork.FacilityRepo.GetByIdAsync(dto.FacilityId);
+            if (facility == null)
+            {
+                return ApiResponse<BookingResponseDto>.Fail(404, "Không tìm thấy facility");
+            }
+
+            // Check facility status
+            if (facility.Status != FacilityStatus.Available)
+            {
+                return ApiResponse<BookingResponseDto>.Fail(400, $"Facility đang ở trạng thái {facility.Status}. Vui lòng chọn facility khác hoặc đợi facility sẵn sàng.");
+            }
+
+            // Real-time conflict check
+            var hasConflict = await _unitOfWork.BookingRepo.HasConflictAsync(
+                dto.FacilityId,
+                dto.StartTime,
+                dto.EndTime
+            );
+
+            if (hasConflict)
+            {
+                return ApiResponse<BookingResponseDto>.Fail(409, "Facility đã được đặt trong khoảng thời gian này. Vui lòng chọn thời gian khác hoặc facility khác.");
+            }
+
             var bookingId = await GenerateBookingIdAsync();
             
             var booking = _mapper.Map<Booking>(dto);
@@ -251,6 +276,164 @@ namespace BLL.Classes
             }
 
             return $"B{(maxId + 1):D5}";
+        }
+
+        public async Task<ApiResponse<AvailabilityCheckResponseDto>> CheckAvailabilityAsync(CheckAvailabilityDto dto)
+        {
+            var facility = await _unitOfWork.FacilityRepo.GetByIdWithDetailsAsync(dto.FacilityId);
+            if (facility == null)
+            {
+                return ApiResponse<AvailabilityCheckResponseDto>.Fail(404, "Không tìm thấy facility");
+            }
+
+            var response = new AvailabilityCheckResponseDto
+            {
+                FacilityStatus = facility.Status.ToString()
+            };
+
+            // Check facility status
+            if (facility.Status != FacilityStatus.Available)
+            {
+                response.IsAvailable = false;
+                response.ConflictReason = $"Facility đang ở trạng thái {facility.Status}";
+                
+                // Get alternative facilities
+                var alternatives = await GetAlternativeFacilitiesAsync(
+                    dto.FacilityId,
+                    dto.StartTime,
+                    dto.EndTime,
+                    facility.Capacity
+                );
+                response.AlternativeFacilities = alternatives.Data ?? new List<AlternativeFacilityDto>();
+                
+                return ApiResponse<AvailabilityCheckResponseDto>.Ok(response);
+            }
+
+            // Check time conflict
+            var hasConflict = await _unitOfWork.BookingRepo.HasConflictAsync(
+                dto.FacilityId,
+                dto.StartTime,
+                dto.EndTime,
+                dto.ExcludeBookingId
+            );
+
+            if (hasConflict)
+            {
+                response.IsAvailable = false;
+                response.ConflictReason = "Facility đã được đặt trong khoảng thời gian này";
+                
+                // Get alternative facilities
+                var alternatives = await GetAlternativeFacilitiesAsync(
+                    dto.FacilityId,
+                    dto.StartTime,
+                    dto.EndTime,
+                    facility.Capacity
+                );
+                response.AlternativeFacilities = alternatives.Data ?? new List<AlternativeFacilityDto>();
+                
+                return ApiResponse<AvailabilityCheckResponseDto>.Ok(response);
+            }
+
+            response.IsAvailable = true;
+            return ApiResponse<AvailabilityCheckResponseDto>.Ok(response);
+        }
+
+        public async Task<ApiResponse<List<AlternativeFacilityDto>>> GetAlternativeFacilitiesAsync(
+            string facilityId,
+            DateTime startTime,
+            DateTime endTime,
+            int capacity)
+        {
+            var originalFacility = await _unitOfWork.FacilityRepo.GetByIdWithDetailsAsync(facilityId);
+            if (originalFacility == null)
+            {
+                return ApiResponse<List<AlternativeFacilityDto>>.Fail(404, "Không tìm thấy facility");
+            }
+
+            // Get facilities in same campus with similar capacity
+            var facilities = await _unitOfWork.FacilityRepo.GetFilteredAsync(
+                null,
+                FacilityStatus.Available.ToString(),
+                originalFacility.TypeId,
+                originalFacility.CampusId,
+                1,
+                20
+            );
+
+            var alternatives = new List<AlternativeFacilityDto>();
+
+            foreach (var facility in facilities.items.Where(f => f.FacilityId != facilityId && f.Capacity >= capacity))
+            {
+                var hasConflict = await _unitOfWork.BookingRepo.HasConflictAsync(
+                    facility.FacilityId,
+                    startTime,
+                    endTime
+                );
+
+                if (!hasConflict)
+                {
+                    alternatives.Add(new AlternativeFacilityDto
+                    {
+                        FacilityId = facility.FacilityId,
+                        Name = facility.Name,
+                        CampusName = facility.Campus.Name,
+                        Capacity = facility.Capacity,
+                        RoomNumber = facility.RoomNumber,
+                        FloorNumber = facility.FloorNumber,
+                        IsAvailable = true,
+                        NextAvailableTime = null
+                    });
+                }
+                else
+                {
+                    // Find next available time
+                    var nextAvailable = await FindNextAvailableTimeAsync(
+                        facility.FacilityId,
+                        startTime,
+                        endTime
+                    );
+
+                    alternatives.Add(new AlternativeFacilityDto
+                    {
+                        FacilityId = facility.FacilityId,
+                        Name = facility.Name,
+                        CampusName = facility.Campus.Name,
+                        Capacity = facility.Capacity,
+                        RoomNumber = facility.RoomNumber,
+                        FloorNumber = facility.FloorNumber,
+                        IsAvailable = false,
+                        NextAvailableTime = nextAvailable
+                    });
+                }
+            }
+
+            return ApiResponse<List<AlternativeFacilityDto>>.Ok(alternatives.OrderBy(a => a.IsAvailable ? 0 : 1).ToList());
+        }
+
+        private async Task<DateTime?> FindNextAvailableTimeAsync(string facilityId, DateTime startTime, DateTime endTime)
+        {
+            var duration = endTime - startTime;
+            var checkTime = endTime;
+
+            // Check next 7 days
+            for (int i = 0; i < 7; i++)
+            {
+                var nextStart = checkTime.AddDays(i);
+                var nextEnd = nextStart.Add(duration);
+
+                var hasConflict = await _unitOfWork.BookingRepo.HasConflictAsync(
+                    facilityId,
+                    nextStart,
+                    nextEnd
+                );
+
+                if (!hasConflict)
+                {
+                    return nextStart;
+                }
+            }
+
+            return null;
         }
     }
 }
