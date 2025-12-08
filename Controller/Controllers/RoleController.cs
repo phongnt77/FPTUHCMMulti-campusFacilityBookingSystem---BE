@@ -148,7 +148,7 @@ namespace Controller.Controllers
         }
 
         /// <summary>
-        /// Xóa role (không được phép - chỉ 3 roles cố định)
+        /// Xóa role (không được phép)
         /// </summary>
         /// <param name="id">Role ID</param>
         /// <returns>Error 403</returns>

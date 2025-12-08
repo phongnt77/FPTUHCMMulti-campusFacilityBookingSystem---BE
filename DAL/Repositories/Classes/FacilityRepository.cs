@@ -1,6 +1,7 @@
 using DAL.Basic;
 using DAL.Dbcontext;
 using DAL.Models;
+using DAL.Models.Enums;
 using DAL.Repositories.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
@@ -26,7 +27,10 @@ namespace DAL.Repositories.Classes
 
             if (!string.IsNullOrEmpty(status))
             {
-                query = query.Where(f => f.Status.ToString() == status);
+                if (Enum.TryParse<FacilityStatus>(status, true, out var statusEnum))
+                {
+                    query = query.Where(f => f.Status == statusEnum);
+                }
             }
 
             if (!string.IsNullOrEmpty(typeId))

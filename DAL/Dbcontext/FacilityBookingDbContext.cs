@@ -48,9 +48,9 @@ namespace DAL.Dbcontext
 
                 // Seed data: 3 roles cố định
                 entity.HasData(
-                    new Role { RoleId = "RL0001", RoleName = "Student", CreatedAt = DateTime.UtcNow, UpdatedAt = DateTime.UtcNow },
-                    new Role { RoleId = "RL0002", RoleName = "Lecturer", CreatedAt = DateTime.UtcNow, UpdatedAt = DateTime.UtcNow },
-                    new Role { RoleId = "RL0003", RoleName = "Facility_Admin", CreatedAt = DateTime.UtcNow, UpdatedAt = DateTime.UtcNow }
+                    new Role { RoleId = "RL0001", RoleName = "Sinh viên", CreatedAt = DateTime.UtcNow, UpdatedAt = DateTime.UtcNow },
+                    new Role { RoleId = "RL0002", RoleName = "Giảng viên", CreatedAt = DateTime.UtcNow, UpdatedAt = DateTime.UtcNow },
+                    new Role { RoleId = "RL0003", RoleName = "Quản trị viên cơ sở vật chất", CreatedAt = DateTime.UtcNow, UpdatedAt = DateTime.UtcNow }
                 );
             });
 
@@ -154,11 +154,13 @@ namespace DAL.Dbcontext
 
                 // Seed data: 5 loại cơ sở
                 entity.HasData(
-                    new FacilityType { TypeId = "FT0001", Name = "Classroom", Description = "Phòng học lý thuyết", Status = DAL.Models.Enums.FacilityTypeStatus.Active, CreatedAt = DateTime.UtcNow, UpdatedAt = DateTime.UtcNow },
-                    new FacilityType { TypeId = "FT0002", Name = "Meeting Room", Description = "Phòng họp", Status = DAL.Models.Enums.FacilityTypeStatus.Active, CreatedAt = DateTime.UtcNow, UpdatedAt = DateTime.UtcNow },
-                    new FacilityType { TypeId = "FT0003", Name = "Computer Lab", Description = "Phòng máy tính", Status = DAL.Models.Enums.FacilityTypeStatus.Active, CreatedAt = DateTime.UtcNow, UpdatedAt = DateTime.UtcNow },
-                    new FacilityType { TypeId = "FT0004", Name = "Sports Court", Description = "Sân thể thao", Status = DAL.Models.Enums.FacilityTypeStatus.Active, CreatedAt = DateTime.UtcNow, UpdatedAt = DateTime.UtcNow },
-                    new FacilityType { TypeId = "FT0005", Name = "Auditorium", Description = "Hội trường", Status = DAL.Models.Enums.FacilityTypeStatus.Active, CreatedAt = DateTime.UtcNow, UpdatedAt = DateTime.UtcNow }
+
+                    new FacilityType { TypeId = "FT0001", Name = "Phòng học", Description = "Phòng học lý thuyết", CreatedAt = DateTime.UtcNow, UpdatedAt = DateTime.UtcNow },
+                    new FacilityType { TypeId = "FT0002", Name = "Phòng họp", Description = "Phòng họp", CreatedAt = DateTime.UtcNow, UpdatedAt = DateTime.UtcNow },
+                    new FacilityType { TypeId = "FT0003", Name = "Phòng máy tính", Description = "Phòng máy tính", CreatedAt = DateTime.UtcNow, UpdatedAt = DateTime.UtcNow },
+                    new FacilityType { TypeId = "FT0004", Name = "Sân thể thao", Description = "Sân thể thao", CreatedAt = DateTime.UtcNow, UpdatedAt = DateTime.UtcNow },
+                    new FacilityType { TypeId = "FT0005", Name = "Hội trường", Description = "Hội trường", CreatedAt = DateTime.UtcNow, UpdatedAt = DateTime.UtcNow }
+
                 );
             });
 
@@ -267,7 +269,7 @@ namespace DAL.Dbcontext
                     {
                         UserId = "U00003",
                         Email = "admin@fpt.edu.vn",
-                        FullName = "Admin System",
+                        FullName = "Quản trị viên hệ thống",
                         UserName = "admin",
                         Password = BCrypt.Net.BCrypt.HashPassword("admin123"),
                         RoleId = "RL0003",
