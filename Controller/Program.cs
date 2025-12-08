@@ -70,7 +70,7 @@ builder.Services.AddSwaggerGen(c =>
     {
         Title = "FPTU Facility Booking API",
         Version = "v1",
-        Description = "API cho Hệ thống Đặt Cơ Sở Vật Chất FPTU - 6 Models Cốt Lõi với AutoMapper"
+        Description = "API cho Hệ thống Đặt Cơ Sở Vật Chất FPTU"
     });
 
     // Enable XML comments

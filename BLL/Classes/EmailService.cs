@@ -17,13 +17,13 @@ namespace BLL.Classes
         public async Task SendVerificationCodeAsync(string email, string code)
         {
             var emailBody = GetVerificationEmailTemplate(code);
-            await SendEmailAsync(email, "Mã Xác Thực Email - Hệ Thống Đặt Cơ Sở FPTU", emailBody);
+            await SendEmailAsync(email, "Xác Thực Email - FPTU Facility Booking", emailBody);
         }
 
         public async Task SendPasswordResetCodeAsync(string email, string code)
         {
             var emailBody = GetPasswordResetEmailTemplate(code);
-            await SendEmailAsync(email, "Mã Đặt Lại Mật Khẩu - Hệ Thống Đặt Cơ Sở FPTU", emailBody);
+            await SendEmailAsync(email, "Đặt Lại Mật Khẩu - FPTU Facility Booking", emailBody);
         }
 
         private async Task SendEmailAsync(string email, string subject, string body)
