@@ -19,6 +19,7 @@ namespace DAL.Dbcontext
         public DbSet<Facility> Facilities { get; set; }
         public DbSet<Booking> Bookings { get; set; }
         public DbSet<BookingFeedback> BookingFeedbacks { get; set; }
+        public DbSet<Notification> Notifications { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -524,6 +525,73 @@ namespace DAL.Dbcontext
 
                 // Unique constraint: One feedback per booking (bookingId is unique)
                 entity.HasIndex(e => e.BookingId).IsUnique();
+            });
+
+            // ====================
+            // NOTIFICATION CONFIGURATION
+            // ====================
+            modelBuilder.Entity<Notification>(entity =>
+            {
+                entity.ToTable("notification");
+                entity.HasKey(e => e.NotificationId);
+                entity.Property(e => e.NotificationId)
+                    .HasColumnName("notification_id")
+                    .HasMaxLength(6)
+                    .IsRequired();
+                entity.Property(e => e.UserId)
+                    .HasColumnName("user_id")
+                    .HasMaxLength(6)
+                    .IsRequired();
+                entity.Property(e => e.Type)
+                    .HasColumnName("type")
+                    .HasMaxLength(50)
+                    .HasConversion<string>()
+                    .IsRequired();
+                entity.Property(e => e.Title)
+                    .HasColumnName("title")
+                    .HasMaxLength(255)
+                    .IsRequired();
+                entity.Property(e => e.Message)
+                    .HasColumnName("message")
+                    .HasColumnType("nvarchar(MAX)")
+                    .IsRequired();
+                entity.Property(e => e.Status)
+                    .HasColumnName("status")
+                    .HasMaxLength(50)
+                    .HasConversion<string>()
+                    .HasDefaultValue(NotificationStatus.Unread);
+                entity.Property(e => e.BookingId)
+                    .HasColumnName("booking_id")
+                    .HasMaxLength(6);
+                entity.Property(e => e.FeedbackId)
+                    .HasColumnName("feedback_id")
+                    .HasMaxLength(6);
+                entity.Property(e => e.CreatedAt)
+                    .HasColumnName("created_at")
+                    .HasDefaultValueSql("GETUTCDATE()");
+                entity.Property(e => e.ReadAt)
+                    .HasColumnName("read_at");
+
+                // Foreign Keys
+                entity.HasOne(n => n.User)
+                    .WithMany()
+                    .HasForeignKey(n => n.UserId)
+                    .OnDelete(DeleteBehavior.Cascade);
+
+                entity.HasOne(n => n.Booking)
+                    .WithMany()
+                    .HasForeignKey(n => n.BookingId)
+                    .OnDelete(DeleteBehavior.SetNull);
+
+                entity.HasOne(n => n.Feedback)
+                    .WithMany()
+                    .HasForeignKey(n => n.FeedbackId)
+                    .OnDelete(DeleteBehavior.SetNull);
+
+                // Indexes
+                entity.HasIndex(e => e.UserId);
+                entity.HasIndex(e => e.Status);
+                entity.HasIndex(e => e.CreatedAt);
             });
         }
     }

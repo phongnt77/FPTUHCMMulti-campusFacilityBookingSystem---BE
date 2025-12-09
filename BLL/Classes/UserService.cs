@@ -39,6 +39,16 @@ namespace BLL.Classes
                 return null;
             }
 
+            // validate sđt
+            if (!string.IsNullOrWhiteSpace(dto.PhoneNumber))
+            {
+                var phoneValidation = ValidatePhoneNumber(dto.PhoneNumber);
+                if (!phoneValidation.IsValid)
+                {
+                    throw new ArgumentException(phoneValidation.ErrorMessage);
+                }
+            }
+
             user.PhoneNumber = dto.PhoneNumber;
             user.AvatarUrl = dto.AvatarUrl;
             user.UpdatedAt = DateTimeHelper.VietnamNow;
@@ -47,6 +57,34 @@ namespace BLL.Classes
             await _unitOfWork.SaveChangesAsync();
 
             return _mapper.Map<UserResponseDto>(user);
+        }
+
+        private (bool IsValid, string ErrorMessage) ValidatePhoneNumber(string phoneNumber)
+        {
+            if (string.IsNullOrWhiteSpace(phoneNumber))
+            {
+                return (true, string.Empty); // Cho phép null/empty
+            }
+
+            // Chỉ chứa số
+            if (!phoneNumber.All(char.IsDigit))
+            {
+                return (false, "Số điện thoại chỉ được chứa các chữ số.");
+            }
+
+            // Phải có đúng 10 số
+            if (phoneNumber.Length != 10)
+            {
+                return (false, "Số điện thoại phải có đúng 10 chữ số.");
+            }
+
+            // Bắt đầu bằng 0
+            if (!phoneNumber.StartsWith("0"))
+            {
+                return (false, "Số điện thoại phải bắt đầu bằng số 0.");
+            }
+
+            return (true, string.Empty);
         }
 
         public async Task<bool> ChangePasswordAsync(string userId, ChangePasswordDto dto)

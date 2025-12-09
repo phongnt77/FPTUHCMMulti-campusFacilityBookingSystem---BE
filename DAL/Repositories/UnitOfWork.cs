@@ -13,6 +13,7 @@ namespace DAL.Repositories
         IFacilityTypeRepository FacilityTypeRepo { get; }
         IBookingRepository BookingRepo { get; }
         IBookingFeedbackRepository BookingFeedbackRepo { get; }
+        INotificationRepository NotificationRepo { get; }
         Task<int> SaveChangesAsync();
     }
 
@@ -26,6 +27,7 @@ namespace DAL.Repositories
         private IFacilityTypeRepository? _facilityTypeRepo;
         private IBookingRepository? _bookingRepo;
         private IBookingFeedbackRepository? _bookingFeedbackRepo;
+        private INotificationRepository? _notificationRepo;
 
         public UnitOfWork(FacilityBookingDbContext context)
         {
@@ -39,6 +41,7 @@ namespace DAL.Repositories
         public IFacilityTypeRepository FacilityTypeRepo => _facilityTypeRepo ??= new FacilityTypeRepository(_context);
         public IBookingRepository BookingRepo => _bookingRepo ??= new BookingRepository(_context);
         public IBookingFeedbackRepository BookingFeedbackRepo => _bookingFeedbackRepo ??= new BookingFeedbackRepository(_context);
+        public INotificationRepository NotificationRepo => _notificationRepo ??= new NotificationRepository(_context);
 
         public async Task<int> SaveChangesAsync()
         {

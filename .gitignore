@@ -24,14 +24,12 @@ project.fragment.lock.json
 artifacts/
 
 ## --- ASP.NET Core & Environment ---
-# File chứa biến môi trường nhạy cảm (Connection strings, API Keys)
-# appsettings.json: NÊN commit (để làm mẫu cấu trúc)
-# appsettings.Development.json: THƯỜNG ignore (để mỗi dev có config local riêng)
-appsettings.Development.json
-appsettings.Local.json
-secrets.json
+# ĐÃ SỬA: Cho phép push tất cả file appsettings (kể cả Development và Local)
+# appsettings.Development.json (Đã xóa dòng chặn này)
+# appsettings.Local.json (Đã xóa dòng chặn này)
+# secrets.json (Đã xóa dòng chặn này)
 
-# File biến môi trường (nếu dùng thư viện DotEnv)
+# File biến môi trường (nếu dùng thư viện DotEnv) - Nếu muốn push cả .env thì xóa nốt dòng dưới
 .env
 
 ## --- Logs & Diagnostics ---
@@ -47,5 +45,5 @@ TestResults/
 *.trx
 coverage.json
 *.cobertura.xml
-Controller/appsettings.json
 *.md
+
