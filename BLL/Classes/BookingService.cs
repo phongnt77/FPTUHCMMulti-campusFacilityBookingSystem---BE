@@ -102,6 +102,50 @@ namespace BLL.Classes
                 return ApiResponse<BookingResponseDto>.Fail(404, "Không tìm thấy lượt đặt.");
             }
 
+            // validate facility tồn tại và có sẵn
+            var facility = await _unitOfWork.FacilityRepo.GetByIdAsync(booking.FacilityId);
+            if (facility == null)
+            {
+                return ApiResponse<BookingResponseDto>.Fail(404, "Không tìm thấy facility.");
+            }
+
+            // check trạng thái của facility
+            if (facility.Status != FacilityStatus.Available)
+            {
+                return ApiResponse<BookingResponseDto>.Fail(400, $"Facility đang ở trạng thái {facility.Status}. Không thể cập nhật booking cho facility đang bảo trì.");
+            }
+
+            // check nếu giờ bắt đầu hoặc giờ kết thúc thay đổi
+            bool timeChanged = (dto.StartTime.HasValue && dto.StartTime.Value != booking.StartTime) ||
+                              (dto.EndTime.HasValue && dto.EndTime.Value != booking.EndTime);
+
+            // nếu giờ bắt đầu hoặc giờ kết thúc thay đổi, check conflict
+            if (timeChanged)
+            {
+                var newStartTime = dto.StartTime ?? booking.StartTime;
+                var newEndTime = dto.EndTime ?? booking.EndTime;
+
+                // validate khoảng thời gian
+                if (newEndTime <= newStartTime)
+                {
+                    return ApiResponse<BookingResponseDto>.Fail(400, "Thời gian kết thúc phải sau thời gian bắt đầu.");
+                }
+
+                // check conflict thực tế (loại trừ booking hiện tại)
+                var hasConflict = await _unitOfWork.BookingRepo.HasConflictAsync(
+                    booking.FacilityId,
+                    newStartTime,
+                    newEndTime,
+                    id 
+                );
+
+                if (hasConflict)
+                {
+                    return ApiResponse<BookingResponseDto>.Fail(409, "Facility đã được đặt trong khoảng thời gian này. Vui lòng chọn thời gian khác hoặc facility khác.");
+                }
+            }
+
+            // update booking fields
             if (dto.StartTime.HasValue)
                 booking.StartTime = dto.StartTime.Value;
             if (dto.EndTime.HasValue)
