@@ -108,19 +108,70 @@ namespace Controller.Controllers
         }
 
         /// <summary>
-        /// Đổi mật khẩu
+        /// Đổi mật khẩu cho tài khoản hiện tại
         /// </summary>
-        /// <param name="dto">Mật khẩu cũ và mới</param>
+        /// <param name="dto">
+        /// Thông tin đổi mật khẩu bao gồm:
+        /// - OldPassword: Mật khẩu hiện tại (bắt buộc)
+        /// - NewPassword: Mật khẩu mới (bắt buộc, phải đáp ứng các yêu cầu bên dưới)
+        /// - ConfirmPassword: Xác nhận mật khẩu mới (bắt buộc, phải khớp với NewPassword)
+        /// </param>
         /// <returns>Kết quả đổi mật khẩu</returns>
         /// <response code="200">Đổi mật khẩu thành công</response>
-        /// <response code="400">Mật khẩu cũ không đúng hoặc dữ liệu không hợp lệ</response>
-        /// <response code="401">Chưa đăng nhập</response>
+        /// <response code="400">Mật khẩu cũ không đúng, mật khẩu mới không đáp ứng yêu cầu, hoặc dữ liệu không hợp lệ</response>
+        /// <response code="401">Chưa đăng nhập hoặc mật khẩu hiện tại không đúng</response>
         /// <remarks>
         /// **Roles:** Tất cả user đã đăng nhập
         /// 
-        /// **Mục đích:** Đổi mật khẩu (yêu cầu nhập mật khẩu cũ)
+        /// **Mục đích:** Đổi mật khẩu cho tài khoản (yêu cầu nhập mật khẩu cũ để xác thực)
         /// 
-        /// **Lưu ý:** Chỉ áp dụng cho user đăng nhập bằng email/password (không áp dụng cho Google login)
+        /// **Yêu Cầu Mật Khẩu Mới:**
+        /// 
+        /// Mật khẩu mới phải đáp ứng **TẤT CẢ** các điều kiện sau:
+        /// 
+        /// 1. **Độ dài tối thiểu:** Ít nhất 8 ký tự
+        /// 2. **Chữ cái viết hoa:** Phải có ít nhất 1 chữ cái viết hoa (A-Z)
+        /// 3. **Chữ cái viết thường:** Phải có ít nhất 1 chữ cái viết thường (a-z)
+        /// 4. **Chữ số:** Phải có ít nhất 1 chữ số (0-9)
+        /// 5. **Ký tự đặc biệt:** Phải có ít nhất 1 ký tự đặc biệt trong danh sách: `!@#$%^&amp;*()_+-=[]{}|;:,.<>?`
+        /// 6. **Khác mật khẩu cũ:** Mật khẩu mới phải khác mật khẩu hiện tại
+        /// 7. **Xác nhận khớp:** ConfirmPassword phải khớp với NewPassword
+        /// 
+        /// **Ví dụ mật khẩu hợp lệ:**
+        /// - `Password123!`
+        /// - `MyP@ssw0rd`
+        /// - `Secure#Pass2024`
+        /// 
+        /// **Ví dụ mật khẩu không hợp lệ:**
+        /// - `password` (thiếu chữ hoa, số, ký tự đặc biệt)
+        /// - `PASSWORD123!` (thiếu chữ thường)
+        /// - `Password!` (thiếu chữ số)
+        /// - `Password123` (thiếu ký tự đặc biệt)
+        /// - `Pass1!` (chỉ có 6 ký tự, cần ít nhất 8)
+        /// 
+        /// **Lưu Ý Quan Trọng:**
+        /// 
+        /// - ⚠️ **Chỉ áp dụng cho tài khoản đăng nhập bằng email/password**
+        /// - ❌ **KHÔNG áp dụng cho tài khoản đăng nhập bằng Google** (sẽ trả về lỗi 400)
+        /// - 🔒 Mật khẩu cũ phải chính xác để xác thực
+        /// - ✅ Sau khi đổi mật khẩu thành công, user cần đăng nhập lại với mật khẩu mới
+        /// 
+        /// **Các Lỗi Có Thể Xảy Ra:**
+        /// 
+        /// - `400`: Mật khẩu hiện tại không đúng
+        /// - `400`: Mật khẩu mới phải khác mật khẩu hiện tại
+        /// - `400`: Mật khẩu không đáp ứng yêu cầu (sẽ có thông báo cụ thể)
+        /// - `400`: Tài khoản này sử dụng đăng nhập Google (không thể đổi mật khẩu)
+        /// - `401`: Chưa đăng nhập hoặc token không hợp lệ
+        /// 
+        /// **Request Body Example:**
+        /// ```json
+        /// {
+        ///   "oldPassword": "OldPass123!",
+        ///   "newPassword": "NewSecurePass2024!",
+        ///   "confirmPassword": "NewSecurePass2024!"
+        /// }
+        /// ```
         /// </remarks>
         [HttpPut("change-password")]
         [ProducesResponseType(typeof(ApiResponse), 200)]
