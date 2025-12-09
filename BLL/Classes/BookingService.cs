@@ -56,6 +56,13 @@ namespace BLL.Classes
 
         public async Task<ApiResponse<BookingResponseDto>> CreateAsync(CreateBookingDto dto)
         {
+            // Validate thời gian hợp lý
+            var timeValidation = ValidateBookingTime(dto.StartTime, dto.EndTime);
+            if (!timeValidation.IsValid)
+            {
+                return ApiResponse<BookingResponseDto>.Fail(400, timeValidation.ErrorMessage);
+            }
+
             // Validate facility exists and is available
             var facility = await _unitOfWork.FacilityRepo.GetByIdAsync(dto.FacilityId);
             if (facility == null)
@@ -127,10 +134,11 @@ namespace BLL.Classes
                 var newStartTime = dto.StartTime ?? booking.StartTime;
                 var newEndTime = dto.EndTime ?? booking.EndTime;
 
-                // validate khoảng thời gian
-                if (newEndTime <= newStartTime)
+                // Validate thời gian 
+                var timeValidation = ValidateBookingTime(newStartTime, newEndTime);
+                if (!timeValidation.IsValid)
                 {
-                    return ApiResponse<BookingResponseDto>.Fail(400, "Thời gian kết thúc phải sau thời gian bắt đầu.");
+                    return ApiResponse<BookingResponseDto>.Fail(400, timeValidation.ErrorMessage);
                 }
 
                 // check conflict thực tế (loại trừ booking hiện tại)
@@ -589,6 +597,56 @@ namespace BLL.Classes
 
             var responseDto = _mapper.Map<BookingResponseDto>(booking);
             return ApiResponse<BookingResponseDto>.Ok(responseDto);
+        }
+
+        /// <summary>
+        /// Validate thời gian booking hợp lý
+        /// </summary>
+        private (bool IsValid, string ErrorMessage) ValidateBookingTime(DateTime startTime, DateTime endTime)
+        {
+            var now = DateTimeHelper.VietnamNow;
+
+            // 1. EndTime phải sau StartTime
+            if (endTime <= startTime)
+            {
+                return (false, "Thời gian kết thúc phải sau thời gian bắt đầu.");
+            }
+
+            // 2. Thời gian tối thiểu: 1 giờ
+            var duration = endTime - startTime;
+            if (duration.TotalHours < 1)
+            {
+                return (false, "Thời gian booking phải tối thiểu 1 giờ.");
+            }
+
+            // 3. Thời gian tối đa: 3 giờ
+            if (duration.TotalHours > 3)
+            {
+                return (false, "Thời gian booking không được vượt quá 3 giờ.");
+            }
+
+            // 4. StartTime không được trong quá khứ (cho phép đặt từ 1 giờ trước để linh hoạt)
+            var minStartTime = now.AddHours(-1);
+            if (startTime < minStartTime)
+            {
+                return (false, "Không thể đặt booking trong quá khứ. Thời gian bắt đầu phải từ 1 giờ trước trở đi.");
+            }
+
+            // 5. Không được đặt quá xa trong tương lai: 3 tháng
+            var maxStartTime = now.AddMonths(3);
+            if (startTime > maxStartTime)
+            {
+                return (false, "Không thể đặt booking quá 3 tháng trong tương lai.");
+            }
+
+            // 6. EndTime không được quá xa trong tương lai
+            var maxEndTime = now.AddMonths(3).AddDays(1);
+            if (endTime > maxEndTime)
+            {
+                return (false, "Thời gian kết thúc không được vượt quá 3 tháng trong tương lai.");
+            }
+
+            return (true, string.Empty);
         }
     }
 }
