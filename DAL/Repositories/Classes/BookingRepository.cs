@@ -54,7 +54,7 @@ namespace DAL.Repositories.Classes
                 .Where(b => b.FacilityId == facilityId
                     && b.Status != BookingStatus.Cancelled
                     && b.Status != BookingStatus.Rejected
-                    && b.Status != BookingStatus.Approved
+                    && (b.Status == BookingStatus.Approved || b.Status == BookingStatus.Pending_Approval || b.Status == BookingStatus.Draft)
                     && ((b.StartTime < endTime && b.EndTime > startTime)));
 
             if (!string.IsNullOrEmpty(excludeBookingId))

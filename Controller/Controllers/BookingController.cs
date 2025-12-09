@@ -402,5 +402,123 @@ namespace Controller.Controllers
                 return StatusCode(500, ApiResponse.Fail(500, ex.Message));
             }
         }
+
+        /// <summary>
+        /// Check-in booking (ghi nhận thời gian đến sử dụng)
+        /// </summary>
+        /// <param name="id">Booking ID</param>
+        /// <returns>Booking đã check-in</returns>
+        /// <response code="200">Check-in thành công</response>
+        /// <response code="400">Booking không ở trạng thái Approved hoặc đã check-in</response>
+        /// <response code="403">Không có quyền check-in booking này</response>
+        /// <response code="404">Không tìm thấy booking</response>
+        /// <remarks>
+        /// **Roles:** Tất cả user đã đăng nhập
+        /// 
+        /// **Mục đích:** Ghi nhận thời gian user đến sử dụng facility
+        /// 
+        /// **Điều kiện:**
+        /// - Booking phải ở trạng thái Approved
+        /// - Booking chưa được check-in
+        /// - Chỉ có thể check-in từ 15 phút trước StartTime đến EndTime
+        /// - Chỉ chủ booking mới có thể check-in
+        /// 
+        /// **Lưu ý:** 
+        /// - CheckInTime sẽ được set bằng thời gian hiện tại (Vietnam time)
+        /// - Sau khi check-in, có thể check-out để hoàn tất booking
+        /// </remarks>
+        [HttpPost("{id}/check-in")]
+        [ProducesResponseType(typeof(ApiResponse<BookingResponseDto>), 200)]
+        [ProducesResponseType(typeof(ApiResponse), 400)]
+        [ProducesResponseType(typeof(ApiResponse), 403)]
+        [ProducesResponseType(typeof(ApiResponse), 404)]
+        public async Task<IActionResult> CheckIn(string id)
+        {
+            try
+            {
+                // Lấy userId từ JWT token
+                var userId = User.FindFirstValue(JwtRegisteredClaimNames.Sub) ??
+                            User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+                if (string.IsNullOrEmpty(userId))
+                {
+                    return Unauthorized(ApiResponse.Fail(401, "Không tìm thấy user id trong token."));
+                }
+
+                var result = await _bookingService.CheckInAsync(id, userId);
+                if (!result.Success)
+                {
+                    if (result.Error?.Code == 400)
+                        return BadRequest(result);
+                    if (result.Error?.Code == 403)
+                        return StatusCode(403, result);
+                    return NotFound(result);
+                }
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ApiResponse.Fail(500, ex.Message));
+            }
+        }
+
+        /// <summary>
+        /// Check-out booking (ghi nhận thời gian rời đi)
+        /// </summary>
+        /// <param name="id">Booking ID</param>
+        /// <returns>Booking đã check-out</returns>
+        /// <response code="200">Check-out thành công</response>
+        /// <response code="400">Chưa check-in hoặc đã check-out</response>
+        /// <response code="403">Không có quyền check-out booking này</response>
+        /// <response code="404">Không tìm thấy booking</response>
+        /// <remarks>
+        /// **Roles:** Tất cả user đã đăng nhập
+        /// 
+        /// **Mục đích:** Ghi nhận thời gian user rời khỏi facility
+        /// 
+        /// **Điều kiện:**
+        /// - Booking phải đã được check-in
+        /// - Booking chưa được check-out
+        /// - Thời gian check-out phải sau thời gian check-in
+        /// - Chỉ chủ booking mới có thể check-out
+        /// 
+        /// **Lưu ý:** 
+        /// - CheckOutTime sẽ được set bằng thời gian hiện tại (Vietnam time)
+        /// - Nếu check-out sau EndTime, status sẽ tự động chuyển thành Completed
+        /// </remarks>
+        [HttpPost("{id}/check-out")]
+        [ProducesResponseType(typeof(ApiResponse<BookingResponseDto>), 200)]
+        [ProducesResponseType(typeof(ApiResponse), 400)]
+        [ProducesResponseType(typeof(ApiResponse), 403)]
+        [ProducesResponseType(typeof(ApiResponse), 404)]
+        public async Task<IActionResult> CheckOut(string id)
+        {
+            try
+            {
+                // Lấy userId từ JWT token
+                var userId = User.FindFirstValue(JwtRegisteredClaimNames.Sub) ??
+                            User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+                if (string.IsNullOrEmpty(userId))
+                {
+                    return Unauthorized(ApiResponse.Fail(401, "Không tìm thấy user id trong token."));
+                }
+
+                var result = await _bookingService.CheckOutAsync(id, userId);
+                if (!result.Success)
+                {
+                    if (result.Error?.Code == 400)
+                        return BadRequest(result);
+                    if (result.Error?.Code == 403)
+                        return StatusCode(403, result);
+                    return NotFound(result);
+                }
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ApiResponse.Fail(500, ex.Message));
+            }
+        }
     }
 }

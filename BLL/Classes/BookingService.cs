@@ -102,6 +102,50 @@ namespace BLL.Classes
                 return ApiResponse<BookingResponseDto>.Fail(404, "Không tìm thấy lượt đặt.");
             }
 
+            // validate facility tồn tại và có sẵn
+            var facility = await _unitOfWork.FacilityRepo.GetByIdAsync(booking.FacilityId);
+            if (facility == null)
+            {
+                return ApiResponse<BookingResponseDto>.Fail(404, "Không tìm thấy facility.");
+            }
+
+            // check trạng thái của facility
+            if (facility.Status != FacilityStatus.Available)
+            {
+                return ApiResponse<BookingResponseDto>.Fail(400, $"Facility đang ở trạng thái {facility.Status}. Không thể cập nhật booking cho facility đang bảo trì.");
+            }
+
+            // check nếu giờ bắt đầu hoặc giờ kết thúc thay đổi
+            bool timeChanged = (dto.StartTime.HasValue && dto.StartTime.Value != booking.StartTime) ||
+                              (dto.EndTime.HasValue && dto.EndTime.Value != booking.EndTime);
+
+            // nếu giờ bắt đầu hoặc giờ kết thúc thay đổi, check conflict
+            if (timeChanged)
+            {
+                var newStartTime = dto.StartTime ?? booking.StartTime;
+                var newEndTime = dto.EndTime ?? booking.EndTime;
+
+                // validate khoảng thời gian
+                if (newEndTime <= newStartTime)
+                {
+                    return ApiResponse<BookingResponseDto>.Fail(400, "Thời gian kết thúc phải sau thời gian bắt đầu.");
+                }
+
+                // check conflict thực tế (loại trừ booking hiện tại)
+                var hasConflict = await _unitOfWork.BookingRepo.HasConflictAsync(
+                    booking.FacilityId,
+                    newStartTime,
+                    newEndTime,
+                    id 
+                );
+
+                if (hasConflict)
+                {
+                    return ApiResponse<BookingResponseDto>.Fail(409, "Facility đã được đặt trong khoảng thời gian này. Vui lòng chọn thời gian khác hoặc facility khác.");
+                }
+            }
+
+            // update booking fields
             if (dto.StartTime.HasValue)
                 booking.StartTime = dto.StartTime.Value;
             if (dto.EndTime.HasValue)
@@ -434,6 +478,106 @@ namespace BLL.Classes
             }
 
             return null;
+        }
+
+        public async Task<ApiResponse<BookingResponseDto>> CheckInAsync(string bookingId, string userId)
+        {
+            var booking = await _unitOfWork.BookingRepo.GetByIdAsync(bookingId);
+            if (booking == null)
+            {
+                return ApiResponse<BookingResponseDto>.Fail(404, "Không tìm thấy booking.");
+            }
+
+            // validate booking thuộc về user
+            if (booking.UserId != userId)
+            {
+                return ApiResponse<BookingResponseDto>.Fail(403, "Bạn không có quyền check-in booking này.");
+            }
+
+            // validate status phải là Approved
+            if (booking.Status != BookingStatus.Approved)
+            {
+                return ApiResponse<BookingResponseDto>.Fail(400, $"Chỉ có thể check-in booking ở trạng thái Approved. Trạng thái hiện tại: {booking.Status}.");
+            }
+
+            // validate chưa check-in
+            if (booking.CheckInTime.HasValue)
+            {
+                return ApiResponse<BookingResponseDto>.Fail(400, "Booking đã được check-in trước đó.");
+            }
+
+            // validate thời gian check-in (cho phép check-in từ 15 phút trước StartTime đến EndTime)
+            var now = DateTimeHelper.VietnamNow;
+            var allowedCheckInStart = booking.StartTime.AddMinutes(-15);
+            if (now < allowedCheckInStart)
+            {
+                return ApiResponse<BookingResponseDto>.Fail(400, $"Chỉ có thể check-in từ 15 phút trước thời gian bắt đầu ({allowedCheckInStart:dd/MM/yyyy HH:mm}).");
+            }
+
+            if (now > booking.EndTime)
+            {
+                return ApiResponse<BookingResponseDto>.Fail(400, $"Không thể check-in sau thời gian kết thúc ({booking.EndTime:dd/MM/yyyy HH:mm}).");
+            }
+
+            // set check-in time
+            booking.CheckInTime = now;
+            booking.UpdatedAt = now;
+
+            await _unitOfWork.BookingRepo.UpdateAsync(booking);
+            await _unitOfWork.SaveChangesAsync();
+
+            var responseDto = _mapper.Map<BookingResponseDto>(booking);
+            return ApiResponse<BookingResponseDto>.Ok(responseDto);
+        }
+
+        public async Task<ApiResponse<BookingResponseDto>> CheckOutAsync(string bookingId, string userId)
+        {
+            var booking = await _unitOfWork.BookingRepo.GetByIdAsync(bookingId);
+            if (booking == null)
+            {
+                return ApiResponse<BookingResponseDto>.Fail(404, "Không tìm thấy booking.");
+            }
+
+            // validate booking thuộc về user
+            if (booking.UserId != userId)
+            {
+                return ApiResponse<BookingResponseDto>.Fail(403, "Bạn không có quyền check-out booking này.");
+            }
+
+            // validate đã check-in
+            if (!booking.CheckInTime.HasValue)
+            {
+                return ApiResponse<BookingResponseDto>.Fail(400, "Phải check-in trước khi check-out.");
+            }
+
+            // validate chưa check-out
+            if (booking.CheckOutTime.HasValue)
+            {
+                return ApiResponse<BookingResponseDto>.Fail(400, "Booking đã được check-out trước đó.");
+            }
+
+            // validate thời gian check-out phải sau CheckInTime
+            var now = DateTimeHelper.VietnamNow;
+            if (now < booking.CheckInTime.Value)
+            {
+                return ApiResponse<BookingResponseDto>.Fail(400, "Thời gian check-out phải sau thời gian check-in.");
+            }
+
+            // set check-out time
+            booking.CheckOutTime = now;
+            booking.UpdatedAt = now;
+
+            // nếu check-out sau EndTime, set status = Completed
+            if (now >= booking.EndTime)
+            {
+                booking.Status = BookingStatus.Completed;
+            }
+
+            await _unitOfWork.BookingRepo.UpdateAsync(booking);
+            await _unitOfWork.SaveChangesAsync();
+
+            var responseDto = _mapper.Map<BookingResponseDto>(booking);
+            return ApiResponse<BookingResponseDto>.Ok(responseDto);
         }
     }
 }
