@@ -13,6 +13,10 @@ namespace BLL.Interfaces
         Task<ApiResponse<BookingResponseDto>> SubmitBookingAsync(string bookingId);
         Task<ApiResponse<BookingResponseDto>> ApproveBookingAsync(string bookingId, string approverId);
         Task<ApiResponse<BookingResponseDto>> RejectBookingAsync(string bookingId, string approverId, string? reason);
+        Task<ApiResponse<AvailabilityCheckResponseDto>> CheckAvailabilityAsync(CheckAvailabilityDto dto);
+        Task<ApiResponse<List<AlternativeFacilityDto>>> GetAlternativeFacilitiesAsync(string facilityId, DateTime startTime, DateTime endTime, int capacity);
+        Task<ApiResponse<BookingResponseDto>> CheckInAsync(string bookingId, string userId);
+        Task<ApiResponse<BookingResponseDto>> CheckOutAsync(string bookingId, string userId);
     }
 }
 

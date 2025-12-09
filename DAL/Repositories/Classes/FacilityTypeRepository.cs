@@ -14,7 +14,9 @@ namespace DAL.Repositories.Classes
 
         public async Task<(List<FacilityType> items, int total)> GetPagedAsync(int page, int limit)
         {
-            var query = _context.Set<FacilityType>().AsQueryable();
+            var query = _context.Set<FacilityType>()
+                .Where(ft => ft.Status == DAL.Models.Enums.FacilityTypeStatus.Active)
+                .AsQueryable();
             var total = await query.CountAsync();
             var items = await query
                 .OrderByDescending(ft => ft.CreatedAt)

@@ -20,6 +20,7 @@ namespace BLL
             services.AddScoped<IFacilityService, FacilityService>();
             services.AddScoped<IBookingService, BookingService>();
             services.AddScoped<IBookingFeedbackService, BookingFeedbackService>();
+            services.AddScoped<IReportService, ReportService>();
         }
     }
 }

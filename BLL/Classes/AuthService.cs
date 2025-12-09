@@ -256,6 +256,13 @@ namespace BLL.Classes
                 return false;
             }
 
+            // Validate password strength
+            var validationResult = ValidatePasswordStrength(newPassword);
+            if (!validationResult.IsValid)
+            {
+                throw new ArgumentException(validationResult.ErrorMessage);
+            }
+
             // Update password
             user.Password = BCrypt.Net.BCrypt.HashPassword(newPassword);
             user.PasswordResetCode = null;
@@ -266,6 +273,47 @@ namespace BLL.Classes
             await _unitOfWork.SaveChangesAsync();
 
             return true;
+        }
+
+        private (bool IsValid, string ErrorMessage) ValidatePasswordStrength(string password)
+        {
+            if (string.IsNullOrWhiteSpace(password))
+            {
+                return (false, "Mật khẩu không được để trống.");
+            }
+
+            // Check minimum length
+            if (password.Length < 8)
+            {
+                return (false, "Mật khẩu phải có ít nhất 8 ký tự.");
+            }
+
+            // Check for uppercase letter
+            if (!password.Any(char.IsUpper))
+            {
+                return (false, "Mật khẩu phải có ít nhất một chữ cái viết hoa.");
+            }
+
+            // Check for lowercase letter
+            if (!password.Any(char.IsLower))
+            {
+                return (false, "Mật khẩu phải có ít nhất một chữ cái thường.");
+            }
+
+            // Check for digit
+            if (!password.Any(char.IsDigit))
+            {
+                return (false, "Mật khẩu phải có ít nhất một chữ số.");
+            }
+
+            // Check for special character
+            var specialChars = "!@#$%^&*()_+-=[]{}|;:,.<>?";
+            if (!password.Any(c => specialChars.Contains(c)))
+            {
+                return (false, "Mật khẩu phải có ít nhất một ký tự đặc biệt (!@#$%^&*()_+-=[]{}|;:,.<>?).");
+            }
+
+            return (true, string.Empty);
         }
 
         private string GenerateVerificationCode()
@@ -352,7 +400,7 @@ namespace BLL.Classes
                 issuer: _configuration["Jwt:Issuer"],
                 audience: _configuration["Jwt:Audience"],
                 claims: claims,
-                expires: DateTime.UtcNow.AddDays(1),
+                expires: DateTime.UtcNow.AddHours(8),
                 signingCredentials: creds);
 
             return new JwtSecurityTokenHandler().WriteToken(token);

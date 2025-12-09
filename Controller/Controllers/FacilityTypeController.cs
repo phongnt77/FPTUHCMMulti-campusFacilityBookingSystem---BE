@@ -150,20 +150,21 @@ namespace Controller.Controllers
         }
 
         /// <summary>
-        /// Xóa loại cơ sở vật chất
+        /// Vô hiệu hóa loại cơ sở vật chất (soft delete)
         /// </summary>
         /// <param name="id">Facility Type ID</param>
-        /// <returns>Kết quả xóa</returns>
-        /// <response code="200">Xóa thành công</response>
+        /// <returns>Kết quả vô hiệu hóa</returns>
+        /// <response code="200">Vô hiệu hóa thành công</response>
         /// <response code="404">Không tìm thấy loại cơ sở</response>
         /// <remarks>
         /// **Roles:** Chỉ Facility_Admin (RL0003)
         /// 
-        /// **Mục đích:** Xóa loại cơ sở vật chất khỏi hệ thống
+        /// **Mục đích:** Vô hiệu hóa loại cơ sở vật chất (set status = Inactive)
         /// 
         /// **Lưu ý:** 
-        /// - Khi xóa facility type, tất cả facilities đang sử dụng type này sẽ bị xóa (soft delete - set status = Under_Maintenance)
-        /// - Facility type sẽ bị xóa vĩnh viễn (hard delete)
+        /// - Khi vô hiệu hóa facility type, tất cả facilities đang sử dụng type này sẽ bị xóa (soft delete - set status = Under_Maintenance)
+        /// - Facility type sẽ bị vô hiệu hóa (soft delete - set status = Inactive), không bị xóa vĩnh viễn
+        /// - Chỉ hiển thị các facility type có status = Active trong danh sách
         /// </remarks>
         [HttpDelete("{id}")]
         [Authorize(Roles = "RL0003")]

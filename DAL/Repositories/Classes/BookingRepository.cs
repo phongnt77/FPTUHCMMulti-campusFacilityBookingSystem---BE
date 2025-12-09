@@ -32,7 +32,10 @@ namespace DAL.Repositories.Classes
 
             if (!string.IsNullOrEmpty(status))
             {
-                query = query.Where(b => b.Status.ToString() == status);
+                if (Enum.TryParse<BookingStatus>(status, true, out var statusEnum))
+                {
+                    query = query.Where(b => b.Status == statusEnum);
+                }
             }
 
             var total = await query.CountAsync();
@@ -51,6 +54,7 @@ namespace DAL.Repositories.Classes
                 .Where(b => b.FacilityId == facilityId
                     && b.Status != BookingStatus.Cancelled
                     && b.Status != BookingStatus.Rejected
+                    && (b.Status == BookingStatus.Approved || b.Status == BookingStatus.Pending_Approval || b.Status == BookingStatus.Draft)
                     && ((b.StartTime < endTime && b.EndTime > startTime)));
 
             if (!string.IsNullOrEmpty(excludeBookingId))
