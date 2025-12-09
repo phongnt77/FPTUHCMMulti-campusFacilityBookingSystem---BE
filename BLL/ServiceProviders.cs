@@ -21,6 +21,10 @@ namespace BLL
             services.AddScoped<IBookingService, BookingService>();
             services.AddScoped<IBookingFeedbackService, BookingFeedbackService>();
             services.AddScoped<IReportService, ReportService>();
+            services.AddScoped<INotificationService, NotificationService>();
+
+            // Background Services
+            services.AddHostedService<NotificationBackgroundService>();
         }
     }
 }

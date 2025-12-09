@@ -13,11 +13,13 @@ namespace BLL.Classes
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
+        private readonly INotificationService _notificationService;
 
-        public BookingService(IUnitOfWork unitOfWork, IMapper mapper)
+        public BookingService(IUnitOfWork unitOfWork, IMapper mapper, INotificationService notificationService)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
+            _notificationService = notificationService;
         }
 
         public async Task<ApiResponseWithPagination<List<BookingResponseDto>>> GetAllAsync(BookingFilterDto filter)
@@ -219,6 +221,9 @@ namespace BLL.Classes
             await _unitOfWork.BookingRepo.UpdateAsync(booking);
             await _unitOfWork.SaveChangesAsync();
 
+            // Create notification for User
+            await _notificationService.CreateBookingApprovedNotificationAsync(bookingId);
+
             var responseDto = _mapper.Map<BookingResponseDto>(booking);
             return ApiResponse<BookingResponseDto>.Ok(responseDto);
         }
@@ -245,6 +250,9 @@ namespace BLL.Classes
             await _unitOfWork.BookingRepo.UpdateAsync(booking);
             await _unitOfWork.SaveChangesAsync();
 
+            // Create notification for User
+            await _notificationService.CreateBookingRejectedNotificationAsync(bookingId, reason);
+
             var responseDto = _mapper.Map<BookingResponseDto>(booking);
             return ApiResponse<BookingResponseDto>.Ok(responseDto);
         }
@@ -267,6 +275,9 @@ namespace BLL.Classes
 
             await _unitOfWork.BookingRepo.UpdateAsync(booking);
             await _unitOfWork.SaveChangesAsync();
+
+            // Create notification for Facility Admin
+            await _notificationService.CreateBookingPendingApprovalNotificationAsync(bookingId);
 
             var responseDto = _mapper.Map<BookingResponseDto>(booking);
             return ApiResponse<BookingResponseDto>.Ok(responseDto);

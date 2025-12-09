@@ -151,6 +151,15 @@ namespace Applications.Mappers
             // UpdateBookingFeedbackDto → BookingFeedback (partial)
             CreateMap<UpdateBookingFeedbackDto, BookingFeedback>()
                 .ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
+
+            // ==================
+            // NOTIFICATION MAPPINGS
+            // ==================
+            
+            // Notification → NotificationResponseDto
+            CreateMap<Notification, NotificationResponseDto>()
+                .ForMember(dest => dest.Type, opt => opt.MapFrom(src => src.Type.ToString()))
+                .ForMember(dest => dest.Status, opt => opt.MapFrom(src => src.Status.ToString()));
         }
     }
 }

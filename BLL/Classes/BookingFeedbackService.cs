@@ -13,11 +13,13 @@ namespace BLL.Classes
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
+        private readonly INotificationService _notificationService;
 
-        public BookingFeedbackService(IUnitOfWork unitOfWork, IMapper mapper)
+        public BookingFeedbackService(IUnitOfWork unitOfWork, IMapper mapper, INotificationService notificationService)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
+            _notificationService = notificationService;
         }
 
         public async Task<ApiResponse<BookingFeedbackResponseDto>> GetByIdAsync(string id)
@@ -145,6 +147,9 @@ namespace BLL.Classes
 
             await _unitOfWork.BookingFeedbackRepo.AddAsync(feedback);
             await _unitOfWork.BookingFeedbackRepo.SaveChangesAsync();
+
+            // Create notification for Facility Admin
+            await _notificationService.CreateFeedbackReceivedNotificationAsync(feedbackId);
 
             var result = await _unitOfWork.BookingFeedbackRepo.GetByIdWithDetailsAsync(feedbackId);
             var responseDto = _mapper.Map<BookingFeedbackResponseDto>(result!);
