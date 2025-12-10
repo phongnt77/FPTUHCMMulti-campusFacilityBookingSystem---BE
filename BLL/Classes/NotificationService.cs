@@ -139,7 +139,7 @@ namespace BLL.Classes
                 UserId = booking.UserId,
                 Type = NotificationType.Booking_Approved,
                 Title = "Booking đã được phê duyệt",
-                Message = $"Booking {bookingId} cho facility {facility.Name} đã được phê duyệt. Thời gian: {booking.StartTime:dd/MM/yyyy HH:mm} - {booking.EndTime:dd/MM/yyyy HH:mm}",
+                Message = $"Booking {bookingId} cho facility {facility.Name} đã được phê duyệt. Thời gian: {booking.StartTime:dd/MM/yyyy HH:mm:ss} - {booking.EndTime:dd/MM/yyyy HH:mm:ss}",
                 Status = NotificationStatus.Unread,
                 BookingId = bookingId,
                 CreatedAt = DateTimeHelper.VietnamNow
@@ -252,7 +252,7 @@ namespace BLL.Classes
                     UserId = booking.UserId,
                     Type = NotificationType.Booking_Reminder_CheckIn,
                     Title = "Nhắc nhở check-in",
-                    Message = $"Booking {booking.BookingId} cho facility {facility?.Name ?? "N/A"} sẽ bắt đầu lúc {booking.StartTime:dd/MM/yyyy HH:mm}. Vui lòng check-in sớm.",
+                    Message = $"Booking {booking.BookingId} cho facility {facility?.Name ?? "N/A"} sẽ bắt đầu lúc {booking.StartTime:dd/MM/yyyy HH:mm:ss}. Vui lòng check-in sớm.",
                     Status = NotificationStatus.Unread,
                     BookingId = booking.BookingId,
                     CreatedAt = now
@@ -281,7 +281,7 @@ namespace BLL.Classes
                     UserId = booking.UserId,
                     Type = NotificationType.Booking_Reminder_CheckOut,
                     Title = "Nhắc nhở check-out",
-                    Message = $"Booking {booking.BookingId} cho facility {facility?.Name ?? "N/A"} sẽ kết thúc lúc {booking.EndTime:dd/MM/yyyy HH:mm}. Vui lòng check-out đúng giờ.",
+                    Message = $"Booking {booking.BookingId} cho facility {facility?.Name ?? "N/A"} sẽ kết thúc lúc {booking.EndTime:dd/MM/yyyy HH:mm:ss}. Vui lòng check-out đúng giờ.",
                     Status = NotificationStatus.Unread,
                     BookingId = booking.BookingId,
                     CreatedAt = now

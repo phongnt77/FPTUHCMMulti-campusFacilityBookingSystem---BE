@@ -530,12 +530,12 @@ namespace BLL.Classes
             var allowedCheckInStart = booking.StartTime.AddMinutes(-15);
             if (now < allowedCheckInStart)
             {
-                return ApiResponse<BookingResponseDto>.Fail(400, $"Chỉ có thể check-in từ 15 phút trước thời gian bắt đầu ({allowedCheckInStart:dd/MM/yyyy HH:mm}).");
+                return ApiResponse<BookingResponseDto>.Fail(400, $"Chỉ có thể check-in từ 15 phút trước thời gian bắt đầu ({allowedCheckInStart:dd/MM/yyyy HH:mm:ss}).");
             }
 
             if (now > booking.EndTime)
             {
-                return ApiResponse<BookingResponseDto>.Fail(400, $"Không thể check-in sau thời gian kết thúc ({booking.EndTime:dd/MM/yyyy HH:mm}).");
+                return ApiResponse<BookingResponseDto>.Fail(400, $"Không thể check-in sau thời gian kết thúc ({booking.EndTime:dd/MM/yyyy HH:mm:ss}).");
             }
 
             // set check-in time
