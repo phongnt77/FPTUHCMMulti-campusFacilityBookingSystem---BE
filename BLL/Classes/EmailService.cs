@@ -114,17 +114,17 @@ namespace BLL.Classes
 <body>
     <div class=""container"">
         <div class=""header"">
-            <h1>Hệ Thống Đặt Cơ Sở Vật Chất FPTU</h1>
+            <h1>FPTU Facility Booking System</h1>
         </div>
         <div class=""content"">
-            <p>Cảm ơn bạn đã đăng ký sử dụng Hệ Thống Đặt Cơ Sở Vật Chất FPTU.</p>
+            <p>Cảm ơn bạn đã đăng ký sử dụng FPTU Facility Booking System.</p>
             <p>Mã xác thực email của bạn là:</p>
             <h1 class=""code"">{code}</h1>
             <p>Vui lòng nhập mã này để xác thực địa chỉ email của bạn.</p>
             <p><small>Mã này sẽ hết hạn sau <strong>24 giờ</strong>.</small></p>
         </div>
         <div class=""footer"">
-            <p>&copy; 2025 Hệ Thống Đặt Cơ Sở Vật Chất FPTU. Đã đăng ký bản quyền.</p>
+            <p>&copy; 2025 FPTU Facility Booking System.</p>
         </div>
     </div>
 </body>
@@ -207,7 +207,7 @@ namespace BLL.Classes
             </div>
         </div>
         <div class=""footer"">
-            <p>&copy; 2025 FPTU Facility Booking System. All rights reserved.</p>
+            <p>&copy; 2025 FPTU Facility Booking System.</p>
         </div>
     </div>
 </body>
