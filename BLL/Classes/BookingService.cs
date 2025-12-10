@@ -292,7 +292,7 @@ namespace BLL.Classes
         }
 
 
-        public async Task<ApiResponse> CancelAsync(string bookingId, string userId)
+        public async Task<ApiResponse> CancelAsync(string bookingId, string userId, string? reason = null)
         {
             var booking = await _unitOfWork.BookingRepo.GetByIdAsync(bookingId);
             if (booking == null)
@@ -312,7 +312,7 @@ namespace BLL.Classes
 
             booking.Status = BookingStatus.Cancelled;
             booking.CancelledAt = DateTimeHelper.VietnamNow;
-            booking.CancellationReason = "Hủy bởi người dùng";
+            booking.CancellationReason = reason ?? "Hủy bởi người dùng";
             booking.UpdatedAt = DateTimeHelper.VietnamNow;
 
             await _unitOfWork.BookingRepo.UpdateAsync(booking);

@@ -294,14 +294,29 @@ namespace Controller.Controllers
         /// </remarks>
         [HttpDelete("{id}")]
         [ProducesResponseType(typeof(ApiResponse), 200)]
+        [ProducesResponseType(typeof(ApiResponse), 400)]
+        [ProducesResponseType(typeof(ApiResponse), 403)]
         [ProducesResponseType(typeof(ApiResponse), 404)]
-        public async Task<IActionResult> Cancel(string id, [FromQuery] string reason)
+        public async Task<IActionResult> Cancel(string id, [FromQuery] string? reason)
         {
             try
             {
-                var result = await _bookingService.CancelAsync(id, reason);
+                // Lấy userId từ JWT token
+                var userId = User.FindFirstValue(JwtRegisteredClaimNames.Sub) ??
+                            User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+                if (string.IsNullOrEmpty(userId))
+                {
+                    return Unauthorized(ApiResponse.Fail(401, "Không tìm thấy user id trong token."));
+                }
+
+                var result = await _bookingService.CancelAsync(id, userId, reason);
                 if (!result.Success)
                 {
+                    if (result.Error?.Code == 400)
+                        return BadRequest(result);
+                    if (result.Error?.Code == 403)
+                        return StatusCode(403, result);
                     return NotFound(result);
                 }
                 return Ok(result);
