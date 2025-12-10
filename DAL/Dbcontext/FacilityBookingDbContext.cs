@@ -581,12 +581,12 @@ namespace DAL.Dbcontext
                 entity.HasOne(n => n.Booking)
                     .WithMany()
                     .HasForeignKey(n => n.BookingId)
-                    .OnDelete(DeleteBehavior.SetNull);
+                    .OnDelete(DeleteBehavior.NoAction);
 
                 entity.HasOne(n => n.Feedback)
                     .WithMany()
                     .HasForeignKey(n => n.FeedbackId)
-                    .OnDelete(DeleteBehavior.SetNull);
+                    .OnDelete(DeleteBehavior.NoAction);
 
                 // Indexes
                 entity.HasIndex(e => e.UserId);
