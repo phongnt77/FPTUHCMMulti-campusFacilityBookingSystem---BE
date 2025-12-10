@@ -46,4 +46,4 @@ TestResults/
 coverage.json
 *.cobertura.xml
 *.md
-
+Controller/appsettings.json
