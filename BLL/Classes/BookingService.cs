@@ -92,7 +92,7 @@ namespace BLL.Classes
             
             var booking = _mapper.Map<Booking>(dto);
             booking.BookingId = bookingId;
-            booking.Status = BookingStatus.Draft;
+            booking.Status = BookingStatus.Pending_Approval;
             booking.CreatedAt = DateTimeHelper.VietnamNow;
             booking.UpdatedAt = DateTimeHelper.VietnamNow;
 
