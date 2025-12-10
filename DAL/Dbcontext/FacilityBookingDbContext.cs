@@ -208,7 +208,7 @@ namespace DAL.Dbcontext
                     .HasDefaultValue(VerificationStatus.Unverified);
                 entity.Property(e => e.AvatarUrl)
                     .HasColumnName("avatar_url")
-                    .HasMaxLength(500);
+                    .HasColumnType("nvarchar(MAX)");
                 entity.Property(e => e.LastLogin)
                     .HasColumnName("last_login");
                 entity.Property(e => e.EmailVerificationCode)
