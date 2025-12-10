@@ -248,23 +248,23 @@ namespace DAL.Migrations
                         {
                             CampusId = "C0001",
                             Address = "Lô E2a-7, Đường D1, Khu Công nghệ cao, P.Long Thạnh Mỹ, Tp. Thủ Đức, TP.HCM",
-                            CreatedAt = new DateTime(2025, 12, 9, 1, 44, 2, 282, DateTimeKind.Utc).AddTicks(7028),
+                            CreatedAt = new DateTime(2025, 12, 10, 2, 21, 21, 898, DateTimeKind.Utc).AddTicks(7459),
                             Email = "daihocfpt@fpt.edu.vn",
                             Name = "FPTU HCM Campus",
                             PhoneNumber = "028 7300 5588",
                             Status = "Active",
-                            UpdatedAt = new DateTime(2025, 12, 9, 1, 44, 2, 282, DateTimeKind.Utc).AddTicks(7029)
+                            UpdatedAt = new DateTime(2025, 12, 10, 2, 21, 21, 898, DateTimeKind.Utc).AddTicks(7460)
                         },
                         new
                         {
                             CampusId = "C0002",
                             Address = "Số 1 Lưu Hữu Phước, Đông Hoà, Dĩ An, TP.HCM",
-                            CreatedAt = new DateTime(2025, 12, 9, 1, 44, 2, 282, DateTimeKind.Utc).AddTicks(7032),
+                            CreatedAt = new DateTime(2025, 12, 10, 2, 21, 21, 898, DateTimeKind.Utc).AddTicks(7465),
                             Email = "nvhsv@fpt.edu.vn",
                             Name = "Nhà Văn Hóa Sinh Viên",
                             PhoneNumber = "028 7300 5589",
                             Status = "Active",
-                            UpdatedAt = new DateTime(2025, 12, 9, 1, 44, 2, 282, DateTimeKind.Utc).AddTicks(7033)
+                            UpdatedAt = new DateTime(2025, 12, 10, 2, 21, 21, 898, DateTimeKind.Utc).AddTicks(7466)
                         });
                 });
 
@@ -362,7 +362,7 @@ namespace DAL.Migrations
                             FacilityId = "F00001",
                             CampusId = "C0001",
                             Capacity = 40,
-                            CreatedAt = new DateTime(2025, 12, 9, 1, 44, 2, 798, DateTimeKind.Utc).AddTicks(5760),
+                            CreatedAt = new DateTime(2025, 12, 10, 2, 21, 22, 376, DateTimeKind.Utc).AddTicks(9268),
                             Description = "Phòng học lý thuyết",
                             FloorNumber = "1",
                             MaxConcurrentBookings = 1,
@@ -370,14 +370,14 @@ namespace DAL.Migrations
                             RoomNumber = "A101",
                             Status = "Available",
                             TypeId = "FT0001",
-                            UpdatedAt = new DateTime(2025, 12, 9, 1, 44, 2, 798, DateTimeKind.Utc).AddTicks(5761)
+                            UpdatedAt = new DateTime(2025, 12, 10, 2, 21, 22, 376, DateTimeKind.Utc).AddTicks(9269)
                         },
                         new
                         {
                             FacilityId = "F00002",
                             CampusId = "C0001",
                             Capacity = 40,
-                            CreatedAt = new DateTime(2025, 12, 9, 1, 44, 2, 798, DateTimeKind.Utc).AddTicks(5766),
+                            CreatedAt = new DateTime(2025, 12, 10, 2, 21, 22, 376, DateTimeKind.Utc).AddTicks(9274),
                             Description = "Phòng học lý thuyết",
                             FloorNumber = "1",
                             MaxConcurrentBookings = 1,
@@ -385,14 +385,14 @@ namespace DAL.Migrations
                             RoomNumber = "A102",
                             Status = "Available",
                             TypeId = "FT0001",
-                            UpdatedAt = new DateTime(2025, 12, 9, 1, 44, 2, 798, DateTimeKind.Utc).AddTicks(5766)
+                            UpdatedAt = new DateTime(2025, 12, 10, 2, 21, 22, 376, DateTimeKind.Utc).AddTicks(9275)
                         },
                         new
                         {
                             FacilityId = "F00003",
                             CampusId = "C0001",
                             Capacity = 15,
-                            CreatedAt = new DateTime(2025, 12, 9, 1, 44, 2, 798, DateTimeKind.Utc).AddTicks(5770),
+                            CreatedAt = new DateTime(2025, 12, 10, 2, 21, 22, 376, DateTimeKind.Utc).AddTicks(9340),
                             Description = "Phòng họp nhỏ",
                             FloorNumber = "2",
                             MaxConcurrentBookings = 1,
@@ -400,14 +400,14 @@ namespace DAL.Migrations
                             RoomNumber = "B201",
                             Status = "Available",
                             TypeId = "FT0002",
-                            UpdatedAt = new DateTime(2025, 12, 9, 1, 44, 2, 798, DateTimeKind.Utc).AddTicks(5770)
+                            UpdatedAt = new DateTime(2025, 12, 10, 2, 21, 22, 376, DateTimeKind.Utc).AddTicks(9340)
                         },
                         new
                         {
                             FacilityId = "F00004",
                             CampusId = "C0001",
                             Capacity = 25,
-                            CreatedAt = new DateTime(2025, 12, 9, 1, 44, 2, 798, DateTimeKind.Utc).AddTicks(5773),
+                            CreatedAt = new DateTime(2025, 12, 10, 2, 21, 22, 376, DateTimeKind.Utc).AddTicks(9344),
                             Description = "Phòng họp vừa",
                             FloorNumber = "2",
                             MaxConcurrentBookings = 1,
@@ -415,14 +415,14 @@ namespace DAL.Migrations
                             RoomNumber = "B202",
                             Status = "Available",
                             TypeId = "FT0002",
-                            UpdatedAt = new DateTime(2025, 12, 9, 1, 44, 2, 798, DateTimeKind.Utc).AddTicks(5774)
+                            UpdatedAt = new DateTime(2025, 12, 10, 2, 21, 22, 376, DateTimeKind.Utc).AddTicks(9345)
                         },
                         new
                         {
                             FacilityId = "F00005",
                             CampusId = "C0001",
                             Capacity = 50,
-                            CreatedAt = new DateTime(2025, 12, 9, 1, 44, 2, 798, DateTimeKind.Utc).AddTicks(5777),
+                            CreatedAt = new DateTime(2025, 12, 10, 2, 21, 22, 376, DateTimeKind.Utc).AddTicks(9348),
                             Description = "Phòng máy 50 máy",
                             FloorNumber = "3",
                             MaxConcurrentBookings = 1,
@@ -430,14 +430,14 @@ namespace DAL.Migrations
                             RoomNumber = "C301",
                             Status = "Available",
                             TypeId = "FT0003",
-                            UpdatedAt = new DateTime(2025, 12, 9, 1, 44, 2, 798, DateTimeKind.Utc).AddTicks(5783)
+                            UpdatedAt = new DateTime(2025, 12, 10, 2, 21, 22, 376, DateTimeKind.Utc).AddTicks(9359)
                         },
                         new
                         {
                             FacilityId = "F00006",
                             CampusId = "C0001",
                             Capacity = 50,
-                            CreatedAt = new DateTime(2025, 12, 9, 1, 44, 2, 798, DateTimeKind.Utc).AddTicks(5788),
+                            CreatedAt = new DateTime(2025, 12, 10, 2, 21, 22, 376, DateTimeKind.Utc).AddTicks(9363),
                             Description = "Phòng máy 50 máy",
                             FloorNumber = "3",
                             MaxConcurrentBookings = 1,
@@ -445,14 +445,14 @@ namespace DAL.Migrations
                             RoomNumber = "C302",
                             Status = "Available",
                             TypeId = "FT0003",
-                            UpdatedAt = new DateTime(2025, 12, 9, 1, 44, 2, 798, DateTimeKind.Utc).AddTicks(5789)
+                            UpdatedAt = new DateTime(2025, 12, 10, 2, 21, 22, 376, DateTimeKind.Utc).AddTicks(9364)
                         },
                         new
                         {
                             FacilityId = "F00007",
                             CampusId = "C0001",
                             Capacity = 100,
-                            CreatedAt = new DateTime(2025, 12, 9, 1, 44, 2, 798, DateTimeKind.Utc).AddTicks(5793),
+                            CreatedAt = new DateTime(2025, 12, 10, 2, 21, 22, 376, DateTimeKind.Utc).AddTicks(9367),
                             Description = "Sân bóng rổ ngoài trời",
                             FloorNumber = "0",
                             MaxConcurrentBookings = 2,
@@ -460,14 +460,14 @@ namespace DAL.Migrations
                             RoomNumber = "Court1",
                             Status = "Available",
                             TypeId = "FT0004",
-                            UpdatedAt = new DateTime(2025, 12, 9, 1, 44, 2, 798, DateTimeKind.Utc).AddTicks(5794)
+                            UpdatedAt = new DateTime(2025, 12, 10, 2, 21, 22, 376, DateTimeKind.Utc).AddTicks(9368)
                         },
                         new
                         {
                             FacilityId = "F00008",
                             CampusId = "C0001",
                             Capacity = 80,
-                            CreatedAt = new DateTime(2025, 12, 9, 1, 44, 2, 798, DateTimeKind.Utc).AddTicks(5799),
+                            CreatedAt = new DateTime(2025, 12, 10, 2, 21, 22, 376, DateTimeKind.Utc).AddTicks(9372),
                             Description = "4 sân cầu lông",
                             FloorNumber = "0",
                             MaxConcurrentBookings = 4,
@@ -475,14 +475,14 @@ namespace DAL.Migrations
                             RoomNumber = "Court2",
                             Status = "Available",
                             TypeId = "FT0004",
-                            UpdatedAt = new DateTime(2025, 12, 9, 1, 44, 2, 798, DateTimeKind.Utc).AddTicks(5799)
+                            UpdatedAt = new DateTime(2025, 12, 10, 2, 21, 22, 376, DateTimeKind.Utc).AddTicks(9372)
                         },
                         new
                         {
                             FacilityId = "F00009",
                             CampusId = "C0001",
                             Capacity = 500,
-                            CreatedAt = new DateTime(2025, 12, 9, 1, 44, 2, 798, DateTimeKind.Utc).AddTicks(5802),
+                            CreatedAt = new DateTime(2025, 12, 10, 2, 21, 22, 376, DateTimeKind.Utc).AddTicks(9376),
                             Description = "Hội trường lớn",
                             FloorNumber = "1",
                             MaxConcurrentBookings = 1,
@@ -490,14 +490,14 @@ namespace DAL.Migrations
                             RoomNumber = "HallA",
                             Status = "Available",
                             TypeId = "FT0005",
-                            UpdatedAt = new DateTime(2025, 12, 9, 1, 44, 2, 798, DateTimeKind.Utc).AddTicks(5802)
+                            UpdatedAt = new DateTime(2025, 12, 10, 2, 21, 22, 376, DateTimeKind.Utc).AddTicks(9376)
                         },
                         new
                         {
                             FacilityId = "F00010",
                             CampusId = "C0001",
                             Capacity = 200,
-                            CreatedAt = new DateTime(2025, 12, 9, 1, 44, 2, 798, DateTimeKind.Utc).AddTicks(5805),
+                            CreatedAt = new DateTime(2025, 12, 10, 2, 21, 22, 376, DateTimeKind.Utc).AddTicks(9380),
                             Description = "Hội trường nhỏ",
                             FloorNumber = "1",
                             MaxConcurrentBookings = 1,
@@ -505,14 +505,14 @@ namespace DAL.Migrations
                             RoomNumber = "HallB",
                             Status = "Available",
                             TypeId = "FT0005",
-                            UpdatedAt = new DateTime(2025, 12, 9, 1, 44, 2, 798, DateTimeKind.Utc).AddTicks(5806)
+                            UpdatedAt = new DateTime(2025, 12, 10, 2, 21, 22, 376, DateTimeKind.Utc).AddTicks(9380)
                         },
                         new
                         {
                             FacilityId = "F00011",
                             CampusId = "C0002",
                             Capacity = 30,
-                            CreatedAt = new DateTime(2025, 12, 9, 1, 44, 2, 798, DateTimeKind.Utc).AddTicks(5816),
+                            CreatedAt = new DateTime(2025, 12, 10, 2, 21, 22, 376, DateTimeKind.Utc).AddTicks(9450),
                             Description = "Phòng sinh hoạt câu lạc bộ",
                             FloorNumber = "1",
                             MaxConcurrentBookings = 1,
@@ -520,14 +520,14 @@ namespace DAL.Migrations
                             RoomNumber = "N101",
                             Status = "Available",
                             TypeId = "FT0001",
-                            UpdatedAt = new DateTime(2025, 12, 9, 1, 44, 2, 798, DateTimeKind.Utc).AddTicks(5817)
+                            UpdatedAt = new DateTime(2025, 12, 10, 2, 21, 22, 376, DateTimeKind.Utc).AddTicks(9451)
                         },
                         new
                         {
                             FacilityId = "F00012",
                             CampusId = "C0002",
                             Capacity = 30,
-                            CreatedAt = new DateTime(2025, 12, 9, 1, 44, 2, 798, DateTimeKind.Utc).AddTicks(5819),
+                            CreatedAt = new DateTime(2025, 12, 10, 2, 21, 22, 376, DateTimeKind.Utc).AddTicks(9455),
                             Description = "Phòng sinh hoạt câu lạc bộ",
                             FloorNumber = "1",
                             MaxConcurrentBookings = 1,
@@ -535,14 +535,14 @@ namespace DAL.Migrations
                             RoomNumber = "N102",
                             Status = "Available",
                             TypeId = "FT0001",
-                            UpdatedAt = new DateTime(2025, 12, 9, 1, 44, 2, 798, DateTimeKind.Utc).AddTicks(5820)
+                            UpdatedAt = new DateTime(2025, 12, 10, 2, 21, 22, 376, DateTimeKind.Utc).AddTicks(9455)
                         },
                         new
                         {
                             FacilityId = "F00013",
                             CampusId = "C0002",
                             Capacity = 15,
-                            CreatedAt = new DateTime(2025, 12, 9, 1, 44, 2, 798, DateTimeKind.Utc).AddTicks(5823),
+                            CreatedAt = new DateTime(2025, 12, 10, 2, 21, 22, 376, DateTimeKind.Utc).AddTicks(9459),
                             Description = "Phòng họp Ban chủ nhiệm",
                             FloorNumber = "2",
                             MaxConcurrentBookings = 1,
@@ -550,14 +550,14 @@ namespace DAL.Migrations
                             RoomNumber = "N201",
                             Status = "Available",
                             TypeId = "FT0002",
-                            UpdatedAt = new DateTime(2025, 12, 9, 1, 44, 2, 798, DateTimeKind.Utc).AddTicks(5823)
+                            UpdatedAt = new DateTime(2025, 12, 10, 2, 21, 22, 376, DateTimeKind.Utc).AddTicks(9459)
                         },
                         new
                         {
                             FacilityId = "F00014",
                             CampusId = "C0002",
                             Capacity = 25,
-                            CreatedAt = new DateTime(2025, 12, 9, 1, 44, 2, 798, DateTimeKind.Utc).AddTicks(5826),
+                            CreatedAt = new DateTime(2025, 12, 10, 2, 21, 22, 376, DateTimeKind.Utc).AddTicks(9463),
                             Description = "Phòng họp CLB",
                             FloorNumber = "2",
                             MaxConcurrentBookings = 1,
@@ -565,14 +565,14 @@ namespace DAL.Migrations
                             RoomNumber = "N202",
                             Status = "Available",
                             TypeId = "FT0002",
-                            UpdatedAt = new DateTime(2025, 12, 9, 1, 44, 2, 798, DateTimeKind.Utc).AddTicks(5826)
+                            UpdatedAt = new DateTime(2025, 12, 10, 2, 21, 22, 376, DateTimeKind.Utc).AddTicks(9463)
                         },
                         new
                         {
                             FacilityId = "F00015",
                             CampusId = "C0002",
                             Capacity = 20,
-                            CreatedAt = new DateTime(2025, 12, 9, 1, 44, 2, 798, DateTimeKind.Utc).AddTicks(5829),
+                            CreatedAt = new DateTime(2025, 12, 10, 2, 21, 22, 376, DateTimeKind.Utc).AddTicks(9467),
                             Description = "Phòng sản xuất nội dung",
                             FloorNumber = "3",
                             MaxConcurrentBookings = 1,
@@ -580,14 +580,14 @@ namespace DAL.Migrations
                             RoomNumber = "N301",
                             Status = "Available",
                             TypeId = "FT0003",
-                            UpdatedAt = new DateTime(2025, 12, 9, 1, 44, 2, 798, DateTimeKind.Utc).AddTicks(5829)
+                            UpdatedAt = new DateTime(2025, 12, 10, 2, 21, 22, 376, DateTimeKind.Utc).AddTicks(9467)
                         },
                         new
                         {
                             FacilityId = "F00016",
                             CampusId = "C0002",
                             Capacity = 25,
-                            CreatedAt = new DateTime(2025, 12, 9, 1, 44, 2, 798, DateTimeKind.Utc).AddTicks(5832),
+                            CreatedAt = new DateTime(2025, 12, 10, 2, 21, 22, 376, DateTimeKind.Utc).AddTicks(9471),
                             Description = "Phòng tập nhạc, ca hát",
                             FloorNumber = "3",
                             MaxConcurrentBookings = 1,
@@ -595,14 +595,14 @@ namespace DAL.Migrations
                             RoomNumber = "N302",
                             Status = "Available",
                             TypeId = "FT0003",
-                            UpdatedAt = new DateTime(2025, 12, 9, 1, 44, 2, 798, DateTimeKind.Utc).AddTicks(5833)
+                            UpdatedAt = new DateTime(2025, 12, 10, 2, 21, 22, 376, DateTimeKind.Utc).AddTicks(9471)
                         },
                         new
                         {
                             FacilityId = "F00017",
                             CampusId = "C0002",
                             Capacity = 200,
-                            CreatedAt = new DateTime(2025, 12, 9, 1, 44, 2, 798, DateTimeKind.Utc).AddTicks(5835),
+                            CreatedAt = new DateTime(2025, 12, 10, 2, 21, 22, 376, DateTimeKind.Utc).AddTicks(9475),
                             Description = "Sân khấu tổ chức sự kiện",
                             FloorNumber = "0",
                             MaxConcurrentBookings = 1,
@@ -610,14 +610,14 @@ namespace DAL.Migrations
                             RoomNumber = "Stage1",
                             Status = "Available",
                             TypeId = "FT0004",
-                            UpdatedAt = new DateTime(2025, 12, 9, 1, 44, 2, 798, DateTimeKind.Utc).AddTicks(5836)
+                            UpdatedAt = new DateTime(2025, 12, 10, 2, 21, 22, 376, DateTimeKind.Utc).AddTicks(9475)
                         },
                         new
                         {
                             FacilityId = "F00018",
                             CampusId = "C0002",
                             Capacity = 50,
-                            CreatedAt = new DateTime(2025, 12, 9, 1, 44, 2, 798, DateTimeKind.Utc).AddTicks(5838),
+                            CreatedAt = new DateTime(2025, 12, 10, 2, 21, 22, 376, DateTimeKind.Utc).AddTicks(9479),
                             Description = "Khu vực nướng ngoài trời",
                             FloorNumber = "0",
                             MaxConcurrentBookings = 2,
@@ -625,14 +625,14 @@ namespace DAL.Migrations
                             RoomNumber = "BBQ1",
                             Status = "Available",
                             TypeId = "FT0004",
-                            UpdatedAt = new DateTime(2025, 12, 9, 1, 44, 2, 798, DateTimeKind.Utc).AddTicks(5839)
+                            UpdatedAt = new DateTime(2025, 12, 10, 2, 21, 22, 376, DateTimeKind.Utc).AddTicks(9479)
                         },
                         new
                         {
                             FacilityId = "F00019",
                             CampusId = "C0002",
                             Capacity = 500,
-                            CreatedAt = new DateTime(2025, 12, 9, 1, 44, 2, 798, DateTimeKind.Utc).AddTicks(5842),
+                            CreatedAt = new DateTime(2025, 12, 10, 2, 21, 22, 376, DateTimeKind.Utc).AddTicks(9482),
                             Description = "Hội trường tổ chức sự kiện lớn",
                             FloorNumber = "1",
                             MaxConcurrentBookings = 1,
@@ -640,14 +640,14 @@ namespace DAL.Migrations
                             RoomNumber = "HallNVH",
                             Status = "Available",
                             TypeId = "FT0005",
-                            UpdatedAt = new DateTime(2025, 12, 9, 1, 44, 2, 798, DateTimeKind.Utc).AddTicks(5842)
+                            UpdatedAt = new DateTime(2025, 12, 10, 2, 21, 22, 376, DateTimeKind.Utc).AddTicks(9483)
                         },
                         new
                         {
                             FacilityId = "F00020",
                             CampusId = "C0002",
                             Capacity = 80,
-                            CreatedAt = new DateTime(2025, 12, 9, 1, 44, 2, 798, DateTimeKind.Utc).AddTicks(5845),
+                            CreatedAt = new DateTime(2025, 12, 10, 2, 21, 22, 376, DateTimeKind.Utc).AddTicks(9486),
                             Description = "Phòng tổ chức workshop, training",
                             FloorNumber = "2",
                             MaxConcurrentBookings = 1,
@@ -655,7 +655,7 @@ namespace DAL.Migrations
                             RoomNumber = "Workshop1",
                             Status = "Available",
                             TypeId = "FT0005",
-                            UpdatedAt = new DateTime(2025, 12, 9, 1, 44, 2, 798, DateTimeKind.Utc).AddTicks(5845)
+                            UpdatedAt = new DateTime(2025, 12, 10, 2, 21, 22, 376, DateTimeKind.Utc).AddTicks(9487)
                         });
                 });
 
@@ -716,47 +716,47 @@ namespace DAL.Migrations
                         new
                         {
                             TypeId = "FT0001",
-                            CreatedAt = new DateTime(2025, 12, 9, 1, 44, 2, 283, DateTimeKind.Utc).AddTicks(7386),
+                            CreatedAt = new DateTime(2025, 12, 10, 2, 21, 21, 900, DateTimeKind.Utc).AddTicks(7835),
                             Description = "Phòng học lý thuyết",
                             Name = "Phòng học",
                             Status = "Active",
-                            UpdatedAt = new DateTime(2025, 12, 9, 1, 44, 2, 283, DateTimeKind.Utc).AddTicks(7387)
+                            UpdatedAt = new DateTime(2025, 12, 10, 2, 21, 21, 900, DateTimeKind.Utc).AddTicks(7837)
                         },
                         new
                         {
                             TypeId = "FT0002",
-                            CreatedAt = new DateTime(2025, 12, 9, 1, 44, 2, 283, DateTimeKind.Utc).AddTicks(7390),
+                            CreatedAt = new DateTime(2025, 12, 10, 2, 21, 21, 900, DateTimeKind.Utc).AddTicks(7840),
                             Description = "Phòng họp",
                             Name = "Phòng họp",
                             Status = "Active",
-                            UpdatedAt = new DateTime(2025, 12, 9, 1, 44, 2, 283, DateTimeKind.Utc).AddTicks(7390)
+                            UpdatedAt = new DateTime(2025, 12, 10, 2, 21, 21, 900, DateTimeKind.Utc).AddTicks(7841)
                         },
                         new
                         {
                             TypeId = "FT0003",
-                            CreatedAt = new DateTime(2025, 12, 9, 1, 44, 2, 283, DateTimeKind.Utc).AddTicks(7392),
+                            CreatedAt = new DateTime(2025, 12, 10, 2, 21, 21, 900, DateTimeKind.Utc).AddTicks(7844),
                             Description = "Phòng máy tính",
                             Name = "Phòng máy tính",
                             Status = "Active",
-                            UpdatedAt = new DateTime(2025, 12, 9, 1, 44, 2, 283, DateTimeKind.Utc).AddTicks(7393)
+                            UpdatedAt = new DateTime(2025, 12, 10, 2, 21, 21, 900, DateTimeKind.Utc).AddTicks(7845)
                         },
                         new
                         {
                             TypeId = "FT0004",
-                            CreatedAt = new DateTime(2025, 12, 9, 1, 44, 2, 283, DateTimeKind.Utc).AddTicks(7395),
+                            CreatedAt = new DateTime(2025, 12, 10, 2, 21, 21, 900, DateTimeKind.Utc).AddTicks(7848),
                             Description = "Sân thể thao",
                             Name = "Sân thể thao",
                             Status = "Active",
-                            UpdatedAt = new DateTime(2025, 12, 9, 1, 44, 2, 283, DateTimeKind.Utc).AddTicks(7395)
+                            UpdatedAt = new DateTime(2025, 12, 10, 2, 21, 21, 900, DateTimeKind.Utc).AddTicks(7849)
                         },
                         new
                         {
                             TypeId = "FT0005",
-                            CreatedAt = new DateTime(2025, 12, 9, 1, 44, 2, 283, DateTimeKind.Utc).AddTicks(7397),
+                            CreatedAt = new DateTime(2025, 12, 10, 2, 21, 21, 900, DateTimeKind.Utc).AddTicks(7910),
                             Description = "Hội trường",
                             Name = "Hội trường",
                             Status = "Active",
-                            UpdatedAt = new DateTime(2025, 12, 9, 1, 44, 2, 283, DateTimeKind.Utc).AddTicks(7397)
+                            UpdatedAt = new DateTime(2025, 12, 10, 2, 21, 21, 900, DateTimeKind.Utc).AddTicks(7911)
                         });
                 });
 
@@ -871,23 +871,23 @@ namespace DAL.Migrations
                         new
                         {
                             RoleId = "RL0001",
-                            CreatedAt = new DateTime(2025, 12, 9, 1, 44, 2, 282, DateTimeKind.Utc).AddTicks(4384),
+                            CreatedAt = new DateTime(2025, 12, 10, 2, 21, 21, 898, DateTimeKind.Utc).AddTicks(553),
                             RoleName = "Sinh viên",
-                            UpdatedAt = new DateTime(2025, 12, 9, 1, 44, 2, 282, DateTimeKind.Utc).AddTicks(4385)
+                            UpdatedAt = new DateTime(2025, 12, 10, 2, 21, 21, 898, DateTimeKind.Utc).AddTicks(554)
                         },
                         new
                         {
                             RoleId = "RL0002",
-                            CreatedAt = new DateTime(2025, 12, 9, 1, 44, 2, 282, DateTimeKind.Utc).AddTicks(4387),
+                            CreatedAt = new DateTime(2025, 12, 10, 2, 21, 21, 898, DateTimeKind.Utc).AddTicks(558),
                             RoleName = "Giảng viên",
-                            UpdatedAt = new DateTime(2025, 12, 9, 1, 44, 2, 282, DateTimeKind.Utc).AddTicks(4388)
+                            UpdatedAt = new DateTime(2025, 12, 10, 2, 21, 21, 898, DateTimeKind.Utc).AddTicks(559)
                         },
                         new
                         {
                             RoleId = "RL0003",
-                            CreatedAt = new DateTime(2025, 12, 9, 1, 44, 2, 282, DateTimeKind.Utc).AddTicks(4390),
+                            CreatedAt = new DateTime(2025, 12, 10, 2, 21, 21, 898, DateTimeKind.Utc).AddTicks(562),
                             RoleName = "Quản trị viên cơ sở vật chất",
-                            UpdatedAt = new DateTime(2025, 12, 9, 1, 44, 2, 282, DateTimeKind.Utc).AddTicks(4391)
+                            UpdatedAt = new DateTime(2025, 12, 10, 2, 21, 21, 898, DateTimeKind.Utc).AddTicks(563)
                         });
                 });
 
@@ -899,8 +899,7 @@ namespace DAL.Migrations
                         .HasColumnName("user_id");
 
                     b.Property<string>("AvatarUrl")
-                        .HasMaxLength(500)
-                        .HasColumnType("nvarchar(500)")
+                        .HasColumnType("nvarchar(MAX)")
                         .HasColumnName("avatar_url");
 
                     b.Property<DateTime>("CreatedAt")
@@ -1003,40 +1002,40 @@ namespace DAL.Migrations
                         new
                         {
                             UserId = "U00001",
-                            CreatedAt = new DateTime(2025, 12, 9, 1, 44, 2, 473, DateTimeKind.Utc).AddTicks(5170),
+                            CreatedAt = new DateTime(2025, 12, 10, 2, 21, 22, 62, DateTimeKind.Utc).AddTicks(9346),
                             Email = "student@fpt.edu.vn",
                             FullName = "Nguyễn Văn A",
                             IsVerify = "Unverified",
-                            Password = "$2a$11$26R3vftITVI1HIW17zysqeCELA5zECE540zxS/4ATcwXcrbvdMjlG",
+                            Password = "$2a$11$mlzqNVf8XuIw.eibGsBbJeuQb0ZeCtJ77vBc60Fq6.hjNrsi3hcXi",
                             RoleId = "RL0001",
                             Status = "Active",
-                            UpdatedAt = new DateTime(2025, 12, 9, 1, 44, 2, 473, DateTimeKind.Utc).AddTicks(5173),
+                            UpdatedAt = new DateTime(2025, 12, 10, 2, 21, 22, 62, DateTimeKind.Utc).AddTicks(9350),
                             UserName = "studentA"
                         },
                         new
                         {
                             UserId = "U00002",
-                            CreatedAt = new DateTime(2025, 12, 9, 1, 44, 2, 635, DateTimeKind.Utc).AddTicks(727),
+                            CreatedAt = new DateTime(2025, 12, 10, 2, 21, 22, 218, DateTimeKind.Utc).AddTicks(7151),
                             Email = "lecturer@fe.edu.vn",
                             FullName = "Trần Thị B",
                             IsVerify = "Unverified",
-                            Password = "$2a$11$bpzurmzu25fAbEqFNg/A2.dUJBiOIrfGyfc2jtUdhJl93R5kAq46a",
+                            Password = "$2a$11$H1wfehj8lGSH.s5Eg2IeeuIRd7WCj1iVvchDoxI4BUgVEkxroCTFO",
                             RoleId = "RL0002",
                             Status = "Active",
-                            UpdatedAt = new DateTime(2025, 12, 9, 1, 44, 2, 635, DateTimeKind.Utc).AddTicks(731),
+                            UpdatedAt = new DateTime(2025, 12, 10, 2, 21, 22, 218, DateTimeKind.Utc).AddTicks(7157),
                             UserName = "lecturerB"
                         },
                         new
                         {
                             UserId = "U00003",
-                            CreatedAt = new DateTime(2025, 12, 9, 1, 44, 2, 796, DateTimeKind.Utc).AddTicks(2262),
+                            CreatedAt = new DateTime(2025, 12, 10, 2, 21, 22, 374, DateTimeKind.Utc).AddTicks(5306),
                             Email = "admin@fpt.edu.vn",
                             FullName = "Quản trị viên hệ thống",
                             IsVerify = "Unverified",
-                            Password = "$2a$11$MybLd5nVA6Thlay1fh8iFu4Xon42W8QEyIm3NNFHFXvd4RafJJpBq",
+                            Password = "$2a$11$jc4YFPVjpTDLT2WFK3s3DezqwDolDoqe1BTjTUbb3k7TRMSaIOjN2",
                             RoleId = "RL0003",
                             Status = "Active",
-                            UpdatedAt = new DateTime(2025, 12, 9, 1, 44, 2, 796, DateTimeKind.Utc).AddTicks(2266),
+                            UpdatedAt = new DateTime(2025, 12, 10, 2, 21, 22, 374, DateTimeKind.Utc).AddTicks(5311),
                             UserName = "admin"
                         });
                 });
@@ -1117,12 +1116,12 @@ namespace DAL.Migrations
                     b.HasOne("DAL.Models.Booking", "Booking")
                         .WithMany()
                         .HasForeignKey("BookingId")
-                        .OnDelete(DeleteBehavior.SetNull);
+                        .OnDelete(DeleteBehavior.NoAction);
 
                     b.HasOne("DAL.Models.BookingFeedback", "Feedback")
                         .WithMany()
                         .HasForeignKey("FeedbackId")
-                        .OnDelete(DeleteBehavior.SetNull);
+                        .OnDelete(DeleteBehavior.NoAction);
 
                     b.HasOne("DAL.Models.User", "User")
                         .WithMany()

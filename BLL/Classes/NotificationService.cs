@@ -325,8 +325,8 @@ namespace BLL.Classes
                     NotificationId = notificationId,
                     UserId = booking.UserId,
                     Type = NotificationType.Booking_No_Show,
-                    Title = "Booking đã bị đánh dấu No_Show",
-                    Message = $"Booking {booking.BookingId} cho facility {facility?.Name ?? "N/A"} đã bị đánh dấu No_Show do không check-in trong vòng 30 phút sau giờ bắt đầu.",
+                    Title = "Booking đã bị đánh dấu không có mặt",
+                    Message = $"Booking {booking.BookingId} cho facility {facility?.Name ?? "N/A"} đã bị đánh dấu không có mặt do không check-in trong vòng 30 phút sau giờ bắt đầu.",
                     Status = NotificationStatus.Unread,
                     BookingId = booking.BookingId,
                     CreatedAt = now
