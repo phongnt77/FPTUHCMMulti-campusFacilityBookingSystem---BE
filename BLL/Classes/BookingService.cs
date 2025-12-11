@@ -525,17 +525,19 @@ namespace BLL.Classes
                 return ApiResponse<BookingResponseDto>.Fail(400, "Booking đã được check-in trước đó.");
             }
 
-            // validate thời gian check-in (cho phép check-in từ 15 phút trước StartTime đến EndTime)
+            // validate thời gian check-in (chỉ cho phép check-in từ 15 phút trước StartTime đến 15 phút sau StartTime)
             var now = DateTimeHelper.VietnamNow;
             var allowedCheckInStart = booking.StartTime.AddMinutes(-15);
+            var allowedCheckInEnd = booking.StartTime.AddMinutes(15);
+            
             if (now < allowedCheckInStart)
             {
                 return ApiResponse<BookingResponseDto>.Fail(400, $"Chỉ có thể check-in từ 15 phút trước thời gian bắt đầu ({allowedCheckInStart:dd/MM/yyyy HH:mm:ss}).");
             }
 
-            if (now > booking.EndTime)
+            if (now > allowedCheckInEnd)
             {
-                return ApiResponse<BookingResponseDto>.Fail(400, $"Không thể check-in sau thời gian kết thúc ({booking.EndTime:dd/MM/yyyy HH:mm:ss}).");
+                return ApiResponse<BookingResponseDto>.Fail(400, $"Đã quá thời gian check-in. Thời gian check-in cho phép: từ {allowedCheckInStart:dd/MM/yyyy HH:mm:ss} đến {allowedCheckInEnd:dd/MM/yyyy HH:mm:ss}.");
             }
 
             // set check-in time
@@ -647,6 +649,69 @@ namespace BLL.Classes
             }
 
             return (true, string.Empty);
+        }
+
+        public async Task ProcessLateCheckInBookingsAsync()
+        {
+            var now = DateTimeHelper.VietnamNow;
+
+            // Get bookings that should be cancelled (quá thời gian check-in - sau 15 phút từ StartTime)
+            var bookings = await _unitOfWork.BookingRepo.GetAllAsync();
+            var lateCheckInBookings = bookings
+                .Where(b => b.Status == BookingStatus.Approved
+                    && b.CheckInTime == null
+                    && b.StartTime.AddMinutes(15) < now)
+                .ToList();
+
+            foreach (var booking in lateCheckInBookings)
+            {
+                booking.Status = BookingStatus.Cancelled;
+                booking.CancelledAt = DateTimeHelper.VietnamNow;
+                booking.CancellationReason = "Quá thời gian check-in";
+                booking.UpdatedAt = DateTimeHelper.VietnamNow;
+                await _unitOfWork.BookingRepo.UpdateAsync(booking);
+
+                // Create notification for user
+                var facility = await _unitOfWork.FacilityRepo.GetByIdAsync(booking.FacilityId);
+                var notificationId = await GenerateNotificationIdAsync();
+                var notification = new Notification
+                {
+                    NotificationId = notificationId,
+                    UserId = booking.UserId,
+                    Type = NotificationType.Booking_Cancelled,
+                    Title = "Booking đã bị hủy do quá thời gian check-in",
+                    Message = $"Booking {booking.BookingId} cho facility {facility?.Name ?? "N/A"} đã bị hủy do quá thời gian check-in (15 phút sau giờ bắt đầu).",
+                    Status = NotificationStatus.Unread,
+                    BookingId = booking.BookingId,
+                    CreatedAt = now
+                };
+                await _unitOfWork.NotificationRepo.CreateAsync(notification);
+            }
+
+            if (lateCheckInBookings.Any())
+            {
+                await _unitOfWork.SaveChangesAsync();
+            }
+        }
+
+        private async Task<string> GenerateNotificationIdAsync()
+        {
+            var notifications = await _unitOfWork.NotificationRepo.GetAllAsync();
+            var maxId = 0;
+
+            foreach (var notification in notifications)
+            {
+                if (notification.NotificationId.StartsWith("N") && notification.NotificationId.Length == 6)
+                {
+                    if (int.TryParse(notification.NotificationId.Substring(1), out var id))
+                    {
+                        if (id > maxId)
+                            maxId = id;
+                    }
+                }
+            }
+
+            return $"N{(maxId + 1):D5}";
         }
     }
 }

@@ -30,10 +30,15 @@ namespace BLL.Classes
                     using (var scope = _serviceProvider.CreateScope())
                     {
                         var notificationService = scope.ServiceProvider.GetRequiredService<INotificationService>();
+                        var bookingService = scope.ServiceProvider.GetRequiredService<IBookingService>();
 
                         // Process No_Show bookings (check every 5 minutes)
                         await notificationService.ProcessNoShowBookingsAsync();
                         _logger.LogInformation("Processed No_Show bookings.");
+
+                        // Process late check-in bookings (check every 5 minutes)
+                        await bookingService.ProcessLateCheckInBookingsAsync();
+                        _logger.LogInformation("Processed late check-in bookings.");
 
                         // Create reminder notifications (check every 5 minutes)
                         await notificationService.CreateBookingReminderNotificationsAsync();
