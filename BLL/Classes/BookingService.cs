@@ -525,17 +525,20 @@ namespace BLL.Classes
                 return ApiResponse<BookingResponseDto>.Fail(400, "Booking đã được check-in trước đó.");
             }
 
-            // validate thời gian check-in (cho phép check-in từ 15 phút trước StartTime đến EndTime)
+            // validate thời gian check-in (cho phép check-in từ 15 phút trước StartTime đến StartTime)
+            // Ví dụ: đặt 9-10h thì check-in từ 8h45-9h
             var now = DateTimeHelper.VietnamNow;
             var allowedCheckInStart = booking.StartTime.AddMinutes(-15);
+            var allowedCheckInEnd = booking.StartTime;
+            
             if (now < allowedCheckInStart)
             {
                 return ApiResponse<BookingResponseDto>.Fail(400, $"Chỉ có thể check-in từ 15 phút trước thời gian bắt đầu ({allowedCheckInStart:dd/MM/yyyy HH:mm}).");
             }
 
-            if (now > booking.EndTime)
+            if (now > allowedCheckInEnd)
             {
-                return ApiResponse<BookingResponseDto>.Fail(400, $"Không thể check-in sau thời gian kết thúc ({booking.EndTime:dd/MM/yyyy HH:mm}).");
+                return ApiResponse<BookingResponseDto>.Fail(400, $"Không thể check-in sau thời gian bắt đầu ({allowedCheckInEnd:dd/MM/yyyy HH:mm}). Vui lòng check-in từ {allowedCheckInStart:dd/MM/yyyy HH:mm} đến {allowedCheckInEnd:dd/MM/yyyy HH:mm}.");
             }
 
             // set check-in time
@@ -575,22 +578,26 @@ namespace BLL.Classes
                 return ApiResponse<BookingResponseDto>.Fail(400, "Booking đã được check-out trước đó.");
             }
 
-            // validate thời gian check-out phải sau CheckInTime
+            // validate thời gian check-out (chỉ cho phép từ EndTime đến 15 phút sau EndTime)
+            // Ví dụ: đặt 9-10h thì check-out từ 10h-10h15
             var now = DateTimeHelper.VietnamNow;
-            if (now < booking.CheckInTime.Value)
+            var allowedCheckOutStart = booking.EndTime;
+            var allowedCheckOutEnd = booking.EndTime.AddMinutes(15);
+            
+            if (now < allowedCheckOutStart)
             {
-                return ApiResponse<BookingResponseDto>.Fail(400, "Thời gian check-out phải sau thời gian check-in.");
+                return ApiResponse<BookingResponseDto>.Fail(400, $"Chỉ có thể check-out từ thời gian kết thúc ({allowedCheckOutStart:dd/MM/yyyy HH:mm}). Vui lòng check-out từ {allowedCheckOutStart:dd/MM/yyyy HH:mm} đến {allowedCheckOutEnd:dd/MM/yyyy HH:mm}.");
+            }
+
+            if (now > allowedCheckOutEnd)
+            {
+                return ApiResponse<BookingResponseDto>.Fail(400, $"Không thể check-out sau 15 phút kể từ thời gian kết thúc ({allowedCheckOutEnd:dd/MM/yyyy HH:mm}). Vui lòng check-out từ {allowedCheckOutStart:dd/MM/yyyy HH:mm} đến {allowedCheckOutEnd:dd/MM/yyyy HH:mm}.");
             }
 
             // set check-out time
             booking.CheckOutTime = now;
             booking.UpdatedAt = now;
-
-            // nếu check-out sau EndTime, set status = Completed
-            if (now >= booking.EndTime)
-            {
-                booking.Status = BookingStatus.Completed;
-            }
+            booking.Status = BookingStatus.Completed;
 
             await _unitOfWork.BookingRepo.UpdateAsync(booking);
             await _unitOfWork.SaveChangesAsync();
@@ -625,11 +632,11 @@ namespace BLL.Classes
                 return (false, "Thời gian booking không được vượt quá 3 giờ.");
             }
 
-            // 4. StartTime không được trong quá khứ (cho phép đặt từ 1 giờ trước để linh hoạt)
-            var minStartTime = now.AddHours(-1);
+            // 4. StartTime phải đặt trước ít nhất 3 giờ (ví dụ: muốn đặt 10h thì phải đặt trước 7h)
+            var minStartTime = now.AddHours(3);
             if (startTime < minStartTime)
             {
-                return (false, "Không thể đặt booking trong quá khứ. Thời gian bắt đầu phải từ 1 giờ trước trở đi.");
+                return (false, "Chỉ được phép đặt phòng trước ít nhất 3 giờ. Ví dụ: muốn đặt phòng lúc 10h thì phải đặt từ trước 7h.");
             }
 
             // 5. Không được đặt quá xa trong tương lai: 3 tháng
@@ -647,6 +654,43 @@ namespace BLL.Classes
             }
 
             return (true, string.Empty);
+        }
+
+        /// <summary>
+        /// Hủy các booking không check-in sau khi StartTime đã qua
+        /// </summary>
+        public async Task CancelNoCheckInBookingsAsync()
+        {
+            var now = DateTimeHelper.VietnamNow;
+
+            // Get all approved bookings that haven't been checked in and StartTime has passed
+            var bookings = await _unitOfWork.BookingRepo.GetAllAsync();
+            var noCheckInBookings = bookings
+                .Where(b => b.Status == BookingStatus.Approved
+                    && b.CheckInTime == null
+                    && b.StartTime < now)
+                .ToList();
+
+            foreach (var booking in noCheckInBookings)
+            {
+                booking.Status = BookingStatus.Cancelled;
+                booking.CancelledAt = now;
+                booking.CancellationReason = "Tự động hủy do không check-in sau khi thời gian bắt đầu đã qua";
+                booking.UpdatedAt = now;
+
+                await _unitOfWork.BookingRepo.UpdateAsync(booking);
+
+                // Create notification for user
+                await _notificationService.CreateBookingCancelledNotificationAsync(
+                    booking.BookingId,
+                    "Tự động hủy do không check-in sau khi thời gian bắt đầu đã qua"
+                );
+            }
+
+            if (noCheckInBookings.Any())
+            {
+                await _unitOfWork.SaveChangesAsync();
+            }
         }
     }
 }

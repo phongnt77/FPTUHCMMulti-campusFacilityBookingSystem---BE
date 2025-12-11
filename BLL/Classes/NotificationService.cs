@@ -360,6 +360,31 @@ namespace BLL.Classes
 
             return $"N{(maxId + 1):D5}";
         }
+
+        public async Task CreateBookingCancelledNotificationAsync(string bookingId, string reason)
+        {
+            var booking = await _unitOfWork.BookingRepo.GetByIdAsync(bookingId);
+            if (booking == null) return;
+
+            var facility = await _unitOfWork.FacilityRepo.GetByIdAsync(booking.FacilityId);
+            if (facility == null) return;
+
+            var notificationId = await GenerateNotificationIdAsync();
+            var notification = new Notification
+            {
+                NotificationId = notificationId,
+                UserId = booking.UserId,
+                Type = NotificationType.Booking_Rejected, // Use Rejected type for cancellation notification
+                Title = "Booking đã bị hủy",
+                Message = $"Booking {bookingId} cho facility {facility.Name} đã bị hủy. Lý do: {reason}",
+                Status = NotificationStatus.Unread,
+                BookingId = bookingId,
+                CreatedAt = DateTimeHelper.VietnamNow
+            };
+
+            await _unitOfWork.NotificationRepo.CreateAsync(notification);
+            await _unitOfWork.SaveChangesAsync();
+        }
     }
 }
 

@@ -30,6 +30,11 @@ namespace BLL.Classes
                     using (var scope = _serviceProvider.CreateScope())
                     {
                         var notificationService = scope.ServiceProvider.GetRequiredService<INotificationService>();
+                        var bookingService = scope.ServiceProvider.GetRequiredService<IBookingService>();
+
+                        // Cancel bookings that haven't been checked in after StartTime has passed
+                        await bookingService.CancelNoCheckInBookingsAsync();
+                        _logger.LogInformation("Cancelled bookings without check-in.");
 
                         // Process No_Show bookings (check every 5 minutes)
                         await notificationService.ProcessNoShowBookingsAsync();
