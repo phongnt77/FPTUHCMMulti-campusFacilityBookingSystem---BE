@@ -17,6 +17,7 @@ namespace BLL.Interfaces
         Task CreateBookingPendingApprovalNotificationAsync(string bookingId);
         Task CreateBookingApprovedNotificationAsync(string bookingId);
         Task CreateBookingRejectedNotificationAsync(string bookingId, string? reason);
+        Task CreateBookingCancelledByUserNotificationAsync(string bookingId); // Thông báo cho admin khi user hủy booking
         Task CreateFeedbackReceivedNotificationAsync(string feedbackId);
         Task CreateBookingReminderNotificationsAsync(); // For check-in/check-out reminders
         Task ProcessNoShowBookingsAsync(); // Check and update No_Show bookings

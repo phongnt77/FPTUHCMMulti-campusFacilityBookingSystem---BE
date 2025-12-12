@@ -292,7 +292,7 @@ namespace BLL.Classes
         }
 
 
-        public async Task<ApiResponse> CancelAsync(string bookingId, string userId)
+        public async Task<ApiResponse> CancelAsync(string bookingId, string userId, string? reason = null)
         {
             var booking = await _unitOfWork.BookingRepo.GetByIdAsync(bookingId);
             if (booking == null)
@@ -310,13 +310,24 @@ namespace BLL.Classes
                 return ApiResponse.Fail(400, "Chỉ có thể hủy booking ở trạng thái Draft, Pending_Approval hoặc Approved.");
             }
 
+            // Validate: chỉ cho phép hủy trước 2 giờ từ StartTime
+            var now = DateTimeHelper.VietnamNow;
+            var minCancelTime = booking.StartTime.AddHours(-2);
+            if (now > minCancelTime)
+            {
+                return ApiResponse.Fail(400, $"Chỉ có thể hủy booking trước 2 giờ từ thời gian bắt đầu. Thời gian hủy tối đa: {minCancelTime:dd/MM/yyyy HH:mm:ss}.");
+            }
+
             booking.Status = BookingStatus.Cancelled;
-            booking.CancelledAt = DateTimeHelper.VietnamNow;
-            booking.CancellationReason = "Hủy bởi người dùng";
-            booking.UpdatedAt = DateTimeHelper.VietnamNow;
+            booking.CancelledAt = now;
+            booking.CancellationReason = string.IsNullOrEmpty(reason) ? "Hủy bởi người dùng" : reason;
+            booking.UpdatedAt = now;
 
             await _unitOfWork.BookingRepo.UpdateAsync(booking);
             await _unitOfWork.SaveChangesAsync();
+
+            // Tạo thông báo cho admin khi user hủy booking
+            await _notificationService.CreateBookingCancelledByUserNotificationAsync(bookingId);
 
             return ApiResponse.Ok();
         }

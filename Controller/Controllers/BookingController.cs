@@ -283,25 +283,52 @@ namespace Controller.Controllers
         /// Hủy booking (set status = Cancelled)
         /// </summary>
         /// <param name="id">Booking ID</param>
-        /// <param name="reason">Lý do hủy</param>
+        /// <param name="reason">Lý do hủy (optional)</param>
         /// <returns>Kết quả hủy</returns>
         /// <response code="200">Hủy thành công</response>
+        /// <response code="400">Không thể hủy (đã quá thời gian cho phép hoặc trạng thái không hợp lệ)</response>
+        /// <response code="403">Không có quyền hủy booking này</response>
         /// <response code="404">Không tìm thấy booking</response>
         /// <remarks>
         /// **Roles:** Tất cả user đã đăng nhập
         /// 
         /// **Mục đích:** Hủy lượt đặt với lý do
+        /// 
+        /// **Ràng buộc:**
+        /// - Chỉ có thể hủy booking ở trạng thái Draft, Pending_Approval hoặc Approved
+        /// - Phải hủy trước 2 giờ từ thời gian bắt đầu (StartTime)
+        /// - Chỉ có thể hủy booking của chính mình
+        /// 
+        /// **Sau khi hủy:**
+        /// - Booking sẽ chuyển sang trạng thái Cancelled
+        /// - Slot sẽ được giải phóng và người khác có thể đặt được
+        /// - Admin sẽ nhận thông báo về việc hủy booking
         /// </remarks>
         [HttpDelete("{id}")]
         [ProducesResponseType(typeof(ApiResponse), 200)]
+        [ProducesResponseType(typeof(ApiResponse), 400)]
+        [ProducesResponseType(typeof(ApiResponse), 403)]
         [ProducesResponseType(typeof(ApiResponse), 404)]
-        public async Task<IActionResult> Cancel(string id, [FromQuery] string reason)
+        public async Task<IActionResult> Cancel(string id, [FromQuery] string? reason = null)
         {
             try
             {
-                var result = await _bookingService.CancelAsync(id, reason);
+                // Lấy userId từ JWT token
+                var userId = User.FindFirstValue(JwtRegisteredClaimNames.Sub) ??
+                            User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+                if (string.IsNullOrEmpty(userId))
+                {
+                    return Unauthorized(ApiResponse.Fail(401, "Không tìm thấy user id trong token."));
+                }
+
+                var result = await _bookingService.CancelAsync(id, userId, reason);
                 if (!result.Success)
                 {
+                    if (result.Error?.Code == 400)
+                        return BadRequest(result);
+                    if (result.Error?.Code == 403)
+                        return StatusCode(403, result);
                     return NotFound(result);
                 }
                 return Ok(result);

@@ -174,6 +174,49 @@ namespace BLL.Classes
             await _unitOfWork.SaveChangesAsync();
         }
 
+        public async Task CreateBookingCancelledByUserNotificationAsync(string bookingId)
+        {
+            var booking = await _unitOfWork.BookingRepo.GetByIdAsync(bookingId);
+            if (booking == null) return;
+
+            var facility = await _unitOfWork.FacilityRepo.GetByIdAsync(booking.FacilityId);
+            if (facility == null) return;
+
+            var user = await _unitOfWork.UserRepo.GetByIdAsync(booking.UserId);
+            if (user == null) return;
+
+            // Lấy tất cả admin (RL0003 - Facility_Admin)
+            var allUsers = await _unitOfWork.UserRepo.GetAllAsync();
+            var admins = allUsers
+                .Where(u => u.RoleId == "RL0003" && u.Status == UserStatus.Active)
+                .ToList();
+
+            var notifications = new List<Notification>();
+            var now = DateTimeHelper.VietnamNow;
+
+            foreach (var admin in admins)
+            {
+                var notificationId = await GenerateNotificationIdAsync();
+                notifications.Add(new Notification
+                {
+                    NotificationId = notificationId,
+                    UserId = admin.UserId,
+                    Type = NotificationType.Booking_Cancelled,
+                    Title = "User đã hủy booking",
+                    Message = $"User {user.FullName ?? user.Email} đã hủy booking {bookingId} cho facility {facility.Name}. Thời gian đã đặt: {booking.StartTime:dd/MM/yyyy HH:mm:ss} - {booking.EndTime:dd/MM/yyyy HH:mm:ss}.{(string.IsNullOrEmpty(booking.CancellationReason) ? "" : $" Lý do: {booking.CancellationReason}")}",
+                    Status = NotificationStatus.Unread,
+                    BookingId = bookingId,
+                    CreatedAt = now
+                });
+            }
+
+            if (notifications.Any())
+            {
+                await _unitOfWork.NotificationRepo.AddRangeAsync(notifications);
+                await _unitOfWork.SaveChangesAsync();
+            }
+        }
+
         public async Task CreateFeedbackReceivedNotificationAsync(string feedbackId)
         {
             var feedback = await _unitOfWork.BookingFeedbackRepo.GetByIdWithDetailsAsync(feedbackId);
@@ -325,8 +368,8 @@ namespace BLL.Classes
                     NotificationId = notificationId,
                     UserId = booking.UserId,
                     Type = NotificationType.Booking_No_Show,
-                    Title = "Booking đã bị đánh dấu không có mặt",
-                    Message = $"Booking {booking.BookingId} cho facility {facility?.Name ?? "N/A"} đã bị đánh dấu không có mặt do không check-in trong vòng 30 phút sau giờ bắt đầu.",
+                    Title = "Booking đã bị đánh dấu No_Show",
+                    Message = $"Booking {booking.BookingId} cho facility {facility?.Name ?? "N/A"} đã bị đánh dấu No_Show do không check-in trong vòng 30 phút sau giờ bắt đầu.",
                     Status = NotificationStatus.Unread,
                     BookingId = booking.BookingId,
                     CreatedAt = now
