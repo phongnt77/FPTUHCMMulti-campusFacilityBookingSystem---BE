@@ -525,21 +525,22 @@ namespace BLL.Classes
                 return ApiResponse<BookingResponseDto>.Fail(400, "Booking đã được check-in trước đó.");
             }
 
+            // TODO: Tạm thời bỏ validation thời gian để test
             // validate thời gian check-in (cho phép check-in từ 15 phút trước StartTime đến StartTime)
             // Ví dụ: đặt 9-10h thì check-in từ 8h45-9h
             var now = DateTimeHelper.VietnamNow;
-            var allowedCheckInStart = booking.StartTime.AddMinutes(-15);
-            var allowedCheckInEnd = booking.StartTime;
+            // var allowedCheckInStart = booking.StartTime.AddMinutes(-15);
+            // var allowedCheckInEnd = booking.StartTime;
             
-            if (now < allowedCheckInStart)
-            {
-                return ApiResponse<BookingResponseDto>.Fail(400, $"Chỉ có thể check-in từ 15 phút trước thời gian bắt đầu ({allowedCheckInStart:dd/MM/yyyy HH:mm}).");
-            }
+            // if (now < allowedCheckInStart)
+            // {
+            //     return ApiResponse<BookingResponseDto>.Fail(400, $"Chỉ có thể check-in từ 15 phút trước thời gian bắt đầu ({allowedCheckInStart:dd/MM/yyyy HH:mm}).");
+            // }
 
-            if (now > allowedCheckInEnd)
-            {
-                return ApiResponse<BookingResponseDto>.Fail(400, $"Không thể check-in sau thời gian bắt đầu ({allowedCheckInEnd:dd/MM/yyyy HH:mm}). Vui lòng check-in từ {allowedCheckInStart:dd/MM/yyyy HH:mm} đến {allowedCheckInEnd:dd/MM/yyyy HH:mm}.");
-            }
+            // if (now > allowedCheckInEnd)
+            // {
+            //     return ApiResponse<BookingResponseDto>.Fail(400, $"Không thể check-in sau thời gian bắt đầu ({allowedCheckInEnd:dd/MM/yyyy HH:mm}). Vui lòng check-in từ {allowedCheckInStart:dd/MM/yyyy HH:mm} đến {allowedCheckInEnd:dd/MM/yyyy HH:mm}.");
+            // }
 
             // set check-in time
             booking.CheckInTime = now;
@@ -578,21 +579,22 @@ namespace BLL.Classes
                 return ApiResponse<BookingResponseDto>.Fail(400, "Booking đã được check-out trước đó.");
             }
 
+            // TODO: Tạm thời bỏ validation thời gian để test
             // validate thời gian check-out (chỉ cho phép từ EndTime đến 15 phút sau EndTime)
             // Ví dụ: đặt 9-10h thì check-out từ 10h-10h15
             var now = DateTimeHelper.VietnamNow;
-            var allowedCheckOutStart = booking.EndTime;
-            var allowedCheckOutEnd = booking.EndTime.AddMinutes(15);
+            // var allowedCheckOutStart = booking.EndTime;
+            // var allowedCheckOutEnd = booking.EndTime.AddMinutes(15);
             
-            if (now < allowedCheckOutStart)
-            {
-                return ApiResponse<BookingResponseDto>.Fail(400, $"Chỉ có thể check-out từ thời gian kết thúc ({allowedCheckOutStart:dd/MM/yyyy HH:mm}). Vui lòng check-out từ {allowedCheckOutStart:dd/MM/yyyy HH:mm} đến {allowedCheckOutEnd:dd/MM/yyyy HH:mm}.");
-            }
+            // if (now < allowedCheckOutStart)
+            // {
+            //     return ApiResponse<BookingResponseDto>.Fail(400, $"Chỉ có thể check-out từ thời gian kết thúc ({allowedCheckOutStart:dd/MM/yyyy HH:mm}). Vui lòng check-out từ {allowedCheckOutStart:dd/MM/yyyy HH:mm} đến {allowedCheckOutEnd:dd/MM/yyyy HH:mm}.");
+            // }
 
-            if (now > allowedCheckOutEnd)
-            {
-                return ApiResponse<BookingResponseDto>.Fail(400, $"Không thể check-out sau 15 phút kể từ thời gian kết thúc ({allowedCheckOutEnd:dd/MM/yyyy HH:mm}). Vui lòng check-out từ {allowedCheckOutStart:dd/MM/yyyy HH:mm} đến {allowedCheckOutEnd:dd/MM/yyyy HH:mm}.");
-            }
+            // if (now > allowedCheckOutEnd)
+            // {
+            //     return ApiResponse<BookingResponseDto>.Fail(400, $"Không thể check-out sau 15 phút kể từ thời gian kết thúc ({allowedCheckOutEnd:dd/MM/yyyy HH:mm}). Vui lòng check-out từ {allowedCheckOutStart:dd/MM/yyyy HH:mm} đến {allowedCheckOutEnd:dd/MM/yyyy HH:mm}.");
+            // }
 
             // set check-out time
             booking.CheckOutTime = now;
