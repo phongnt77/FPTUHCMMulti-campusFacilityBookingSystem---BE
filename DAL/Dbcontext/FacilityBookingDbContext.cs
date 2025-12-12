@@ -430,7 +430,7 @@ namespace DAL.Dbcontext
                     .HasColumnName("status")
                     .HasMaxLength(50)
                     .HasConversion<string>()
-                    .HasDefaultValue(BookingStatus.Draft);
+                    .HasDefaultValue(BookingStatus.Pending_Approval);
                 entity.Property(e => e.ApprovedBy)
                     .HasColumnName("approved_by")
                     .HasMaxLength(6);

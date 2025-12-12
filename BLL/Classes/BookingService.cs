@@ -99,6 +99,9 @@ namespace BLL.Classes
             await _unitOfWork.BookingRepo.CreateAsync(booking);
             await _unitOfWork.SaveChangesAsync();
 
+            // Create notification for Facility Admin
+            await _notificationService.CreateBookingPendingApprovalNotificationAsync(bookingId);
+
             var responseDto = _mapper.Map<BookingResponseDto>(booking);
             return ApiResponse<BookingResponseDto>.Ok(responseDto);
         }
@@ -273,19 +276,14 @@ namespace BLL.Classes
                 return ApiResponse<BookingResponseDto>.Fail(404, "Không tìm thấy booking.");
             }
 
-            if (booking.Status != BookingStatus.Draft)
+            // Booking đã tự động là Pending_Approval khi tạo, nên chỉ cần kiểm tra và đảm bảo thông báo đã được gửi
+            if (booking.Status != BookingStatus.Pending_Approval)
             {
-                return ApiResponse<BookingResponseDto>.Fail(400, "Chỉ có thể submit booking ở trạng thái Draft.");
+                return ApiResponse<BookingResponseDto>.Fail(400, $"Booking không ở trạng thái Pending_Approval. Trạng thái hiện tại: {booking.Status}.");
             }
 
-            booking.Status = BookingStatus.Pending_Approval;
-            booking.UpdatedAt = DateTimeHelper.VietnamNow;
+            // Đảm bảo thông báo đã được gửi 
 
-            await _unitOfWork.BookingRepo.UpdateAsync(booking);
-            await _unitOfWork.SaveChangesAsync();
-
-            // Create notification for Facility Admin
-            await _notificationService.CreateBookingPendingApprovalNotificationAsync(bookingId);
 
             var responseDto = _mapper.Map<BookingResponseDto>(booking);
             return ApiResponse<BookingResponseDto>.Ok(responseDto);
@@ -305,9 +303,9 @@ namespace BLL.Classes
                 return ApiResponse.Fail(403, "Bạn không có quyền hủy booking này.");
             }
 
-            if (booking.Status != BookingStatus.Draft && booking.Status != BookingStatus.Pending_Approval && booking.Status != BookingStatus.Approved)
+            if (booking.Status != BookingStatus.Pending_Approval && booking.Status != BookingStatus.Approved)
             {
-                return ApiResponse.Fail(400, "Chỉ có thể hủy booking ở trạng thái Draft, Pending_Approval hoặc Approved.");
+                return ApiResponse.Fail(400, "Chỉ có thể hủy booking ở trạng thái Pending_Approval hoặc Approved.");
             }
 
             // Validate: chỉ cho phép hủy trước 2 giờ từ StartTime

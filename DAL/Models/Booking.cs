@@ -13,7 +13,7 @@ namespace DAL.Models
         public string? Category { get; set; }
         public int? EstimatedAttendees { get; set; }
         public string? SpecialRequirements { get; set; } // JSON string
-        public BookingStatus Status { get; set; } = BookingStatus.Draft;
+        public BookingStatus Status { get; set; } = BookingStatus.Pending_Approval;
         public string? ApprovedBy { get; set; }
         public DateTime? ApprovedAt { get; set; }
         public string? RejectionReason { get; set; }

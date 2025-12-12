@@ -37,7 +37,7 @@ namespace Controller.Controllers
         /// **Filters:**
         /// - userId: Lọc theo người đặt
         /// - facilityId: Lọc theo cơ sở
-        /// - status: Draft | Pending_Approval | Approved | Rejected | Cancelled | Completed | No_Show
+        /// - status: Pending_Approval | Approved | Rejected | Cancelled | Completed | No_Show
         /// - page: Trang (default: 1)
         /// - limit: Số items/trang (default: 10)
         /// </remarks>
@@ -60,7 +60,7 @@ namespace Controller.Controllers
         /// <summary>
         /// Lấy tất cả bookings của user hiện tại
         /// </summary>
-        /// <param name="status">Filter theo status (Draft, Pending_Approval, Approved, Rejected, Cancelled, Completed, No_Show)</param>
+        /// <param name="status">Filter theo status (Pending_Approval, Approved, Rejected, Cancelled, Completed, No_Show)</param>
         /// <param name="page">Trang hiện tại (default: 1)</param>
         /// <param name="limit">Số item per page (default: 10)</param>
         /// <returns>Danh sách bookings của user</returns>
@@ -72,7 +72,6 @@ namespace Controller.Controllers
         /// **Mục đích:** User xem lại tất cả bookings của mình với filter theo status và phân trang
         /// 
         /// **Status Values:**
-        /// - Draft: Booking đang soạn thảo
         /// - Pending_Approval: Đang chờ duyệt
         /// - Approved: Đã được duyệt
         /// - Rejected: Bị từ chối
@@ -237,24 +236,23 @@ namespace Controller.Controllers
         }
 
         /// <summary>
-        /// Submit booking để chuyển từ Draft → Pending_Approval
+        /// Kiểm tra trạng thái booking (deprecated - booking tự động là Pending_Approval khi tạo)
         /// </summary>
         /// <param name="id">Booking ID</param>
         /// <returns>Booking đã submit</returns>
         /// <response code="200">Submit thành công</response>
-        /// <response code="400">Booking không ở trạng thái Draft</response>
+        /// <response code="400">Booking không ở trạng thái Pending_Approval</response>
         /// <response code="404">Không tìm thấy booking</response>
         /// <remarks>
         /// **Roles:** Tất cả user đã đăng nhập
         /// 
-        /// **Mục đích:** Submit booking để gửi yêu cầu duyệt
+        /// **Mục đích:** Kiểm tra trạng thái booking (deprecated method)
         /// 
         /// **Workflow:**
-        /// - Tạo booking → Status = Draft
-        /// - Submit booking → Status = Pending_Approval (chờ admin duyệt)
+        /// - Tạo booking → Status = Pending_Approval (tự động, chờ admin duyệt)
         /// - Admin approve/reject → Status = Approved/Rejected
         /// 
-        /// **Lưu ý:** Chỉ có thể submit booking ở trạng thái Draft
+        /// **Lưu ý:** Booking tự động là Pending_Approval khi tạo, không cần submit nữa
         /// </remarks>
         [HttpPost("{id}/submit")]
         [ProducesResponseType(typeof(ApiResponse<BookingResponseDto>), 200)]
@@ -295,7 +293,7 @@ namespace Controller.Controllers
         /// **Mục đích:** Hủy lượt đặt với lý do
         /// 
         /// **Ràng buộc:**
-        /// - Chỉ có thể hủy booking ở trạng thái Draft, Pending_Approval hoặc Approved
+        /// - Chỉ có thể hủy booking ở trạng thái Pending_Approval hoặc Approved
         /// - Phải hủy trước 2 giờ từ thời gian bắt đầu (StartTime)
         /// - Chỉ có thể hủy booking của chính mình
         /// 

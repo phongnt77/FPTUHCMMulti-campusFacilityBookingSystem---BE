@@ -38,7 +38,6 @@ namespace Controller.Controllers
         /// **Mục đích:** Xem tất cả bookings trong hệ thống để approve/reject
         /// 
         /// **Status values:**
-        /// - Draft
         /// - Pending_Approval
         /// - Approved
         /// - Rejected
