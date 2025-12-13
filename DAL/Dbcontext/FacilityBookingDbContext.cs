@@ -20,6 +20,7 @@ namespace DAL.Dbcontext
         public DbSet<Booking> Bookings { get; set; }
         public DbSet<BookingFeedback> BookingFeedbacks { get; set; }
         public DbSet<Notification> Notifications { get; set; }
+        public DbSet<SystemSettings> SystemSettings { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -592,6 +593,35 @@ namespace DAL.Dbcontext
                 entity.HasIndex(e => e.UserId);
                 entity.HasIndex(e => e.Status);
                 entity.HasIndex(e => e.CreatedAt);
+            });
+
+            // ====================
+            // SYSTEM SETTINGS CONFIGURATION
+            // ====================
+            modelBuilder.Entity<SystemSettings>(entity =>
+            {
+                entity.ToTable("system_settings");
+                entity.HasKey(e => e.SettingKey);
+                entity.Property(e => e.SettingKey)
+                    .HasColumnName("setting_key")
+                    .HasMaxLength(100)
+                    .IsRequired();
+                entity.Property(e => e.SettingValue)
+                    .HasColumnName("setting_value")
+                    .HasMaxLength(500)
+                    .IsRequired();
+                entity.Property(e => e.Description)
+                    .HasColumnName("description")
+                    .HasColumnType("nvarchar(MAX)");
+                entity.Property(e => e.CreatedAt)
+                    .HasColumnName("created_at")
+                    .HasDefaultValueSql("GETUTCDATE()");
+                entity.Property(e => e.UpdatedAt)
+                    .HasColumnName("updated_at")
+                    .HasDefaultValueSql("GETUTCDATE()");
+
+                // Indexes
+                entity.HasIndex(e => e.SettingKey).IsUnique();
             });
         }
     }

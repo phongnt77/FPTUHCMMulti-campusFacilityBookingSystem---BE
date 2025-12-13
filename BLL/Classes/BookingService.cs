@@ -14,12 +14,14 @@ namespace BLL.Classes
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
         private readonly INotificationService _notificationService;
+        private readonly ISystemSettingsService _systemSettingsService;
 
-        public BookingService(IUnitOfWork unitOfWork, IMapper mapper, INotificationService notificationService)
+        public BookingService(IUnitOfWork unitOfWork, IMapper mapper, INotificationService notificationService, ISystemSettingsService systemSettingsService)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
             _notificationService = notificationService;
+            _systemSettingsService = systemSettingsService;
         }
 
         public async Task<ApiResponseWithPagination<List<BookingResponseDto>>> GetAllAsync(BookingFilterDto filter)
@@ -56,27 +58,27 @@ namespace BLL.Classes
 
         public async Task<ApiResponse<BookingResponseDto>> CreateAsync(CreateBookingDto dto)
         {
-            // Validate thời gian hợp lý
-            var timeValidation = ValidateBookingTime(dto.StartTime, dto.EndTime);
+            // validate thời gian hợp lý
+            var timeValidation = await ValidateBookingTimeAsync(dto.StartTime, dto.EndTime);
             if (!timeValidation.IsValid)
             {
                 return ApiResponse<BookingResponseDto>.Fail(400, timeValidation.ErrorMessage);
             }
 
-            // Validate facility exists and is available
+            // validate facility tồn tại và có sẵn
             var facility = await _unitOfWork.FacilityRepo.GetByIdAsync(dto.FacilityId);
             if (facility == null)
             {
                 return ApiResponse<BookingResponseDto>.Fail(404, "Không tìm thấy facility");
             }
 
-            // Check facility status
+            // check trạng thái facility
             if (facility.Status != FacilityStatus.Available)
             {
                 return ApiResponse<BookingResponseDto>.Fail(400, $"Facility đang ở trạng thái {facility.Status}. Vui lòng chọn facility khác hoặc đợi facility sẵn sàng.");
             }
 
-            // Real-time conflict check
+            // check conflict 
             var hasConflict = await _unitOfWork.BookingRepo.HasConflictAsync(
                 dto.FacilityId,
                 dto.StartTime,
@@ -99,7 +101,7 @@ namespace BLL.Classes
             await _unitOfWork.BookingRepo.CreateAsync(booking);
             await _unitOfWork.SaveChangesAsync();
 
-            // Create notification for Facility Admin
+            // tạo thông báo cho admin
             await _notificationService.CreateBookingPendingApprovalNotificationAsync(bookingId);
 
             var responseDto = _mapper.Map<BookingResponseDto>(booking);
@@ -137,14 +139,14 @@ namespace BLL.Classes
                 var newStartTime = dto.StartTime ?? booking.StartTime;
                 var newEndTime = dto.EndTime ?? booking.EndTime;
 
-                // Validate thời gian 
-                var timeValidation = ValidateBookingTime(newStartTime, newEndTime);
+                // validate thời gian 
+                var timeValidation = await ValidateBookingTimeAsync(newStartTime, newEndTime);
                 if (!timeValidation.IsValid)
                 {
                     return ApiResponse<BookingResponseDto>.Fail(400, timeValidation.ErrorMessage);
                 }
 
-                // check conflict thực tế (loại trừ booking hiện tại)
+                // check conflict 
                 var hasConflict = await _unitOfWork.BookingRepo.HasConflictAsync(
                     booking.FacilityId,
                     newStartTime,
@@ -232,7 +234,7 @@ namespace BLL.Classes
             await _unitOfWork.BookingRepo.UpdateAsync(booking);
             await _unitOfWork.SaveChangesAsync();
 
-            // Create notification for User
+            // tạo thông báo cho user
             await _notificationService.CreateBookingApprovedNotificationAsync(bookingId);
 
             var responseDto = _mapper.Map<BookingResponseDto>(booking);
@@ -261,7 +263,7 @@ namespace BLL.Classes
             await _unitOfWork.BookingRepo.UpdateAsync(booking);
             await _unitOfWork.SaveChangesAsync();
 
-            // Create notification for User
+            // tạo thông báo cho user
             await _notificationService.CreateBookingRejectedNotificationAsync(bookingId, reason);
 
             var responseDto = _mapper.Map<BookingResponseDto>(booking);
@@ -276,13 +278,12 @@ namespace BLL.Classes
                 return ApiResponse<BookingResponseDto>.Fail(404, "Không tìm thấy booking.");
             }
 
-            // Booking đã tự động là Pending_Approval khi tạo, nên chỉ cần kiểm tra và đảm bảo thông báo đã được gửi
+            // booking đã tự động là Pending_Approval khi tạo, nên chỉ cần check thông báo đã được gửi
             if (booking.Status != BookingStatus.Pending_Approval)
             {
                 return ApiResponse<BookingResponseDto>.Fail(400, $"Booking không ở trạng thái Pending_Approval. Trạng thái hiện tại: {booking.Status}.");
             }
 
-            // Đảm bảo thông báo đã được gửi 
 
 
             var responseDto = _mapper.Map<BookingResponseDto>(booking);
@@ -308,7 +309,7 @@ namespace BLL.Classes
                 return ApiResponse.Fail(400, "Chỉ có thể hủy booking ở trạng thái Pending_Approval hoặc Approved.");
             }
 
-            // Validate: chỉ cho phép hủy trước 2 giờ từ StartTime
+            // chỉ cho phép hủy trước 2 giờ từ StartTime
             var now = DateTimeHelper.VietnamNow;
             var minCancelTime = booking.StartTime.AddHours(-2);
             if (now > minCancelTime)
@@ -324,7 +325,7 @@ namespace BLL.Classes
             await _unitOfWork.BookingRepo.UpdateAsync(booking);
             await _unitOfWork.SaveChangesAsync();
 
-            // Tạo thông báo cho admin khi user hủy booking
+            // thông báo cho admin khi user hủy booking
             await _notificationService.CreateBookingCancelledByUserNotificationAsync(bookingId);
 
             return ApiResponse.Ok();
@@ -363,7 +364,7 @@ namespace BLL.Classes
                 FacilityStatus = facility.Status.ToString()
             };
 
-            // Check facility status
+            // check trạng thái facility
             if (facility.Status != FacilityStatus.Available)
             {
                 response.IsAvailable = false;
@@ -381,7 +382,7 @@ namespace BLL.Classes
                 return ApiResponse<AvailabilityCheckResponseDto>.Ok(response);
             }
 
-            // Check time conflict
+            // check conflict
             var hasConflict = await _unitOfWork.BookingRepo.HasConflictAsync(
                 dto.FacilityId,
                 dto.StartTime,
@@ -422,7 +423,7 @@ namespace BLL.Classes
                 return ApiResponse<List<AlternativeFacilityDto>>.Fail(404, "Không tìm thấy facility");
             }
 
-            // Get facilities in same campus with similar capacity
+            // lấy facility trong cùng campus với capacity tương đương
             var facilities = await _unitOfWork.FacilityRepo.GetFilteredAsync(
                 null,
                 FacilityStatus.Available.ToString(),
@@ -458,7 +459,7 @@ namespace BLL.Classes
                 }
                 else
                 {
-                    // Find next available time
+                    // tìm thời gian available tiếp theo
                     var nextAvailable = await FindNextAvailableTimeAsync(
                         facility.FacilityId,
                         startTime,
@@ -534,14 +535,17 @@ namespace BLL.Classes
                 return ApiResponse<BookingResponseDto>.Fail(400, "Booking đã được check-in trước đó.");
             }
 
-            // validate thời gian check-in (chỉ cho phép check-in từ 15 phút trước StartTime đến 15 phút sau StartTime)
+            // validate thời gian check-in (lấy từ settings)
             var now = DateTimeHelper.VietnamNow;
-            var allowedCheckInStart = booking.StartTime.AddMinutes(-15);
-            var allowedCheckInEnd = booking.StartTime.AddMinutes(15);
+            var checkInMinutesBefore = await _systemSettingsService.GetCheckInMinutesBeforeStartAsync();
+            var checkInMinutesAfter = await _systemSettingsService.GetCheckInMinutesAfterStartAsync();
+            
+            var allowedCheckInStart = booking.StartTime.AddMinutes(-checkInMinutesBefore);
+            var allowedCheckInEnd = booking.StartTime.AddMinutes(checkInMinutesAfter);
             
             if (now < allowedCheckInStart)
             {
-                return ApiResponse<BookingResponseDto>.Fail(400, $"Chỉ có thể check-in từ 15 phút trước thời gian bắt đầu ({allowedCheckInStart:dd/MM/yyyy HH:mm:ss}).");
+                return ApiResponse<BookingResponseDto>.Fail(400, $"Chỉ có thể check-in từ {checkInMinutesBefore} phút trước thời gian bắt đầu ({allowedCheckInStart:dd/MM/yyyy HH:mm:ss}).");
             }
 
             if (now > allowedCheckInEnd)
@@ -636,7 +640,9 @@ namespace BLL.Classes
                 return (false, "Thời gian booking không được vượt quá 3 giờ.");
             }
 
-            // 4. StartTime không được trong quá khứ (cho phép đặt từ 1 giờ trước để linh hoạt)
+            // 4. StartTime phải trước ít nhất X giờ (lấy từ settings, mặc định 3 giờ)
+            // Note: Method này là sync, nhưng validation thực tế được làm trong ValidateBookingTimeAsync
+            // Giữ lại method này để tương thích, nhưng logic chính sẽ dùng async version
             var minStartTime = now.AddHours(-1);
             if (startTime < minStartTime)
             {
@@ -660,16 +666,68 @@ namespace BLL.Classes
             return (true, string.Empty);
         }
 
-        public async Task ProcessLateCheckInBookingsAsync()
+        /// <summary>
+        /// Validate thời gian booking hợp lý (async version với settings)
+        /// </summary>
+        private async Task<(bool IsValid, string ErrorMessage)> ValidateBookingTimeAsync(DateTime startTime, DateTime endTime)
         {
             var now = DateTimeHelper.VietnamNow;
 
-            // Get bookings that should be cancelled (quá thời gian check-in - sau 15 phút từ StartTime)
+            // 1. EndTime phải sau StartTime
+            if (endTime <= startTime)
+            {
+                return (false, "Thời gian kết thúc phải sau thời gian bắt đầu.");
+            }
+
+            // 2. Thời gian tối thiểu: 1 giờ
+            var duration = endTime - startTime;
+            if (duration.TotalHours < 1)
+            {
+                return (false, "Thời gian booking phải tối thiểu 1 giờ.");
+            }
+
+            // 3. Thời gian tối đa: 3 giờ
+            if (duration.TotalHours > 3)
+            {
+                return (false, "Thời gian booking không được vượt quá 3 giờ.");
+            }
+
+            // 4. StartTime phải trước ít nhất X giờ (lấy từ settings, mặc định 3 giờ)
+            var minBookingHours = await _systemSettingsService.GetMinimumBookingHoursBeforeStartAsync();
+            var minStartTime = now.AddHours(minBookingHours);
+            if (startTime < minStartTime)
+            {
+                return (false, $"Không thể đặt booking. Thời gian bắt đầu phải trước ít nhất {minBookingHours} giờ từ bây giờ.");
+            }
+
+            // 5. Không được đặt quá xa trong tương lai: 3 tháng
+            var maxStartTime = now.AddMonths(3);
+            if (startTime > maxStartTime)
+            {
+                return (false, "Không thể đặt booking quá 3 tháng trong tương lai.");
+            }
+
+            // 6. EndTime không được quá xa trong tương lai
+            var maxEndTime = now.AddMonths(3).AddDays(1);
+            if (endTime > maxEndTime)
+            {
+                return (false, "Thời gian kết thúc không được vượt quá 3 tháng trong tương lai.");
+            }
+
+            return (true, string.Empty);
+        }
+
+        public async Task ProcessLateCheckInBookingsAsync()
+        {
+            var now = DateTimeHelper.VietnamNow;
+            var checkInMinutesAfter = await _systemSettingsService.GetCheckInMinutesAfterStartAsync();
+
+            // Get bookings that should be cancelled (quá thời gian check-in - sau X phút từ StartTime)
             var bookings = await _unitOfWork.BookingRepo.GetAllAsync();
             var lateCheckInBookings = bookings
                 .Where(b => b.Status == BookingStatus.Approved
                     && b.CheckInTime == null
-                    && b.StartTime.AddMinutes(15) < now)
+                    && b.StartTime.AddMinutes(checkInMinutesAfter) < now)
                 .ToList();
 
             foreach (var booking in lateCheckInBookings)
@@ -689,7 +747,7 @@ namespace BLL.Classes
                     UserId = booking.UserId,
                     Type = NotificationType.Booking_Cancelled,
                     Title = "Booking đã bị hủy do quá thời gian check-in",
-                    Message = $"Booking {booking.BookingId} cho facility {facility?.Name ?? "N/A"} đã bị hủy do quá thời gian check-in (15 phút sau giờ bắt đầu).",
+                    Message = $"Booking {booking.BookingId} cho facility {facility?.Name ?? "N/A"} đã bị hủy do quá thời gian check-in ({checkInMinutesAfter} phút sau giờ bắt đầu).",
                     Status = NotificationStatus.Unread,
                     BookingId = booking.BookingId,
                     CreatedAt = now
