@@ -601,11 +601,8 @@ namespace BLL.Classes
             booking.CheckOutTime = now;
             booking.UpdatedAt = now;
 
-            // nếu check-out sau EndTime, set status = Completed
-            if (now >= booking.EndTime)
-            {
-                booking.Status = BookingStatus.Completed;
-            }
+            // Khi check-out thì booking hoàn tất, set status = Completed
+            booking.Status = BookingStatus.Completed;
 
             await _unitOfWork.BookingRepo.UpdateAsync(booking);
             await _unitOfWork.SaveChangesAsync();
