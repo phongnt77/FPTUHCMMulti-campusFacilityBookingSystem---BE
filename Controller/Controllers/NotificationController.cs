@@ -30,6 +30,18 @@ namespace Controller.Controllers
         /// <returns>Danh sách thông báo</returns>
         /// <response code="200">Trả về danh sách thành công</response>
         /// <response code="401">Chưa đăng nhập</response>
+        /// <remarks>
+        /// **Roles:** Tất cả user đã đăng nhập
+        /// 
+        /// **Mục đích:** Lấy danh sách thông báo với các bộ lọc nâng cao
+        /// 
+        /// **Filters:**
+        /// - userId: Lọc theo user (nếu không có, tự động lấy từ token)
+        /// - type: Lọc theo loại thông báo
+        /// - status: Read | Unread
+        /// - page: Trang hiện tại (default: 1)
+        /// - limit: Số item per page (default: 10)
+        /// </remarks>
         [HttpGet]
         [ProducesResponseType(typeof(ApiResponseWithPagination<List<NotificationResponseDto>>), 200)]
         [ProducesResponseType(401)]
@@ -63,6 +75,13 @@ namespace Controller.Controllers
         /// <returns>Danh sách thông báo chưa đọc</returns>
         /// <response code="200">Trả về danh sách thành công</response>
         /// <response code="401">Chưa đăng nhập</response>
+        /// <remarks>
+        /// **Roles:** Tất cả user đã đăng nhập
+        /// 
+        /// **Mục đích:** Lấy danh sách tất cả thông báo chưa đọc của user hiện tại
+        /// 
+        /// User ID được lấy tự động từ JWT token
+        /// </remarks>
         [HttpGet("unread")]
         [ProducesResponseType(typeof(ApiResponse<List<NotificationResponseDto>>), 200)]
         [ProducesResponseType(401)]
@@ -93,6 +112,13 @@ namespace Controller.Controllers
         /// <returns>Số lượng thông báo chưa đọc</returns>
         /// <response code="200">Trả về số lượng thành công</response>
         /// <response code="401">Chưa đăng nhập</response>
+        /// <remarks>
+        /// **Roles:** Tất cả user đã đăng nhập
+        /// 
+        /// **Mục đích:** Lấy số lượng thông báo chưa đọc để hiển thị badge trên UI
+        /// 
+        /// User ID được lấy tự động từ JWT token
+        /// </remarks>
         [HttpGet("unread/count")]
         [ProducesResponseType(typeof(ApiResponse<int>), 200)]
         [ProducesResponseType(401)]
@@ -124,6 +150,13 @@ namespace Controller.Controllers
         /// <returns>Kết quả</returns>
         /// <response code="200">Đánh dấu thành công</response>
         /// <response code="404">Không tìm thấy thông báo</response>
+        /// <remarks>
+        /// **Roles:** Tất cả user đã đăng nhập
+        /// 
+        /// **Mục đích:** Đánh dấu một thông báo cụ thể là đã đọc
+        /// 
+        /// Sau khi đánh dấu, thông báo sẽ không còn hiển thị trong danh sách unread
+        /// </remarks>
         [HttpPut("{id}/read")]
         [ProducesResponseType(typeof(ApiResponse), 200)]
         [ProducesResponseType(typeof(ApiResponse), 404)]
@@ -150,6 +183,13 @@ namespace Controller.Controllers
         /// <returns>Kết quả</returns>
         /// <response code="200">Đánh dấu thành công</response>
         /// <response code="401">Chưa đăng nhập</response>
+        /// <remarks>
+        /// **Roles:** Tất cả user đã đăng nhập
+        /// 
+        /// **Mục đích:** Đánh dấu tất cả thông báo của user hiện tại là đã đọc (mark all as read)
+        /// 
+        /// User ID được lấy tự động từ JWT token
+        /// </remarks>
         [HttpPut("read-all")]
         [ProducesResponseType(typeof(ApiResponse), 200)]
         [ProducesResponseType(401)]
@@ -181,6 +221,13 @@ namespace Controller.Controllers
         /// <returns>Kết quả</returns>
         /// <response code="200">Xóa thành công</response>
         /// <response code="404">Không tìm thấy thông báo</response>
+        /// <remarks>
+        /// **Roles:** Tất cả user đã đăng nhập
+        /// 
+        /// **Mục đích:** Xóa một thông báo cụ thể khỏi danh sách
+        /// 
+        /// User chỉ có thể xóa thông báo của chính mình
+        /// </remarks>
         [HttpDelete("{id}")]
         [ProducesResponseType(typeof(ApiResponse), 200)]
         [ProducesResponseType(typeof(ApiResponse), 404)]

@@ -139,7 +139,7 @@ namespace BLL.Classes
                 UserId = booking.UserId,
                 Type = NotificationType.Booking_Approved,
                 Title = "Booking đã được phê duyệt",
-                Message = $"Booking {bookingId} cho facility {facility.Name} đã được phê duyệt. Thời gian: {booking.StartTime:dd/MM/yyyy HH:mm} - {booking.EndTime:dd/MM/yyyy HH:mm}",
+                Message = $"Booking {bookingId} cho facility {facility.Name} đã được phê duyệt. Thời gian: {booking.StartTime:dd/MM/yyyy HH:mm:ss} - {booking.EndTime:dd/MM/yyyy HH:mm:ss}",
                 Status = NotificationStatus.Unread,
                 BookingId = bookingId,
                 CreatedAt = DateTimeHelper.VietnamNow
@@ -172,6 +172,49 @@ namespace BLL.Classes
 
             await _unitOfWork.NotificationRepo.CreateAsync(notification);
             await _unitOfWork.SaveChangesAsync();
+        }
+
+        public async Task CreateBookingCancelledByUserNotificationAsync(string bookingId)
+        {
+            var booking = await _unitOfWork.BookingRepo.GetByIdAsync(bookingId);
+            if (booking == null) return;
+
+            var facility = await _unitOfWork.FacilityRepo.GetByIdAsync(booking.FacilityId);
+            if (facility == null) return;
+
+            var user = await _unitOfWork.UserRepo.GetByIdAsync(booking.UserId);
+            if (user == null) return;
+
+            // Lấy tất cả admin (RL0003 - Facility_Admin)
+            var allUsers = await _unitOfWork.UserRepo.GetAllAsync();
+            var admins = allUsers
+                .Where(u => u.RoleId == "RL0003" && u.Status == UserStatus.Active)
+                .ToList();
+
+            var notifications = new List<Notification>();
+            var now = DateTimeHelper.VietnamNow;
+
+            foreach (var admin in admins)
+            {
+                var notificationId = await GenerateNotificationIdAsync();
+                notifications.Add(new Notification
+                {
+                    NotificationId = notificationId,
+                    UserId = admin.UserId,
+                    Type = NotificationType.Booking_Cancelled,
+                    Title = "User đã hủy booking",
+                    Message = $"User {user.FullName ?? user.Email} đã hủy booking {bookingId} cho facility {facility.Name}. Thời gian đã đặt: {booking.StartTime:dd/MM/yyyy HH:mm:ss} - {booking.EndTime:dd/MM/yyyy HH:mm:ss}.{(string.IsNullOrEmpty(booking.CancellationReason) ? "" : $" Lý do: {booking.CancellationReason}")}",
+                    Status = NotificationStatus.Unread,
+                    BookingId = bookingId,
+                    CreatedAt = now
+                });
+            }
+
+            if (notifications.Any())
+            {
+                await _unitOfWork.NotificationRepo.AddRangeAsync(notifications);
+                await _unitOfWork.SaveChangesAsync();
+            }
         }
 
         public async Task CreateFeedbackReceivedNotificationAsync(string feedbackId)
@@ -252,7 +295,7 @@ namespace BLL.Classes
                     UserId = booking.UserId,
                     Type = NotificationType.Booking_Reminder_CheckIn,
                     Title = "Nhắc nhở check-in",
-                    Message = $"Booking {booking.BookingId} cho facility {facility?.Name ?? "N/A"} sẽ bắt đầu lúc {booking.StartTime:dd/MM/yyyy HH:mm}. Vui lòng check-in sớm.",
+                    Message = $"Booking {booking.BookingId} cho facility {facility?.Name ?? "N/A"} sẽ bắt đầu lúc {booking.StartTime:dd/MM/yyyy HH:mm:ss}. Vui lòng check-in sớm.",
                     Status = NotificationStatus.Unread,
                     BookingId = booking.BookingId,
                     CreatedAt = now
@@ -281,7 +324,7 @@ namespace BLL.Classes
                     UserId = booking.UserId,
                     Type = NotificationType.Booking_Reminder_CheckOut,
                     Title = "Nhắc nhở check-out",
-                    Message = $"Booking {booking.BookingId} cho facility {facility?.Name ?? "N/A"} sẽ kết thúc lúc {booking.EndTime:dd/MM/yyyy HH:mm}. Vui lòng check-out đúng giờ.",
+                    Message = $"Booking {booking.BookingId} cho facility {facility?.Name ?? "N/A"} sẽ kết thúc lúc {booking.EndTime:dd/MM/yyyy HH:mm:ss}. Vui lòng check-out đúng giờ.",
                     Status = NotificationStatus.Unread,
                     BookingId = booking.BookingId,
                     CreatedAt = now

@@ -32,13 +32,13 @@ namespace BLL.Classes
                         var notificationService = scope.ServiceProvider.GetRequiredService<INotificationService>();
                         var bookingService = scope.ServiceProvider.GetRequiredService<IBookingService>();
 
-                        // Cancel bookings that haven't been checked in after StartTime has passed
-                        await bookingService.CancelNoCheckInBookingsAsync();
-                        _logger.LogInformation("Cancelled bookings without check-in.");
-
                         // Process No_Show bookings (check every 5 minutes)
                         await notificationService.ProcessNoShowBookingsAsync();
                         _logger.LogInformation("Processed No_Show bookings.");
+
+                        // Process late check-in bookings (check every 5 minutes)
+                        await bookingService.ProcessLateCheckInBookingsAsync();
+                        _logger.LogInformation("Processed late check-in bookings.");
 
                         // Create reminder notifications (check every 5 minutes)
                         await notificationService.CreateBookingReminderNotificationsAsync();
