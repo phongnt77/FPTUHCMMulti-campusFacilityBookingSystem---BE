@@ -187,6 +187,9 @@ namespace DAL.Dbcontext
                 entity.Property(e => e.PhoneNumber)
                     .HasColumnName("phone_number")
                     .HasMaxLength(20);
+                entity.Property(e => e.StudentId)
+                    .HasColumnName("student_id")
+                    .HasMaxLength(8);
                 entity.Property(e => e.UserName)
                     .HasColumnName("user_name")
                     .HasMaxLength(100);
