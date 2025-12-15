@@ -18,10 +18,12 @@ namespace Controller.Controllers
     public class BookingController : ControllerBase
     {
         private readonly IBookingService _bookingService;
+        private readonly ICloudinaryService _cloudinaryService;
 
-        public BookingController(IBookingService bookingService)
+        public BookingController(IBookingService bookingService, ICloudinaryService cloudinaryService)
         {
             _bookingService = bookingService;
+            _cloudinaryService = cloudinaryService;
         }
 
         /// <summary>
@@ -494,6 +496,87 @@ namespace Controller.Controllers
         }
 
         /// <summary>
+        /// Check-in booking với upload ảnh trực tiếp (multipart/form-data)
+        /// </summary>
+        /// <param name="id">Booking ID</param>
+        /// <param name="note">Ghi chú khi check-in</param>
+        /// <param name="images">Danh sách file ảnh (tối đa 5 ảnh)</param>
+        /// <returns>Booking đã check-in</returns>
+        /// <response code="200">Check-in thành công</response>
+        /// <response code="400">Booking không ở trạng thái Approved hoặc đã check-in</response>
+        /// <response code="403">Không có quyền check-in booking này</response>
+        /// <response code="404">Không tìm thấy booking</response>
+        /// <remarks>
+        /// **Roles:** Tất cả user đã đăng nhập
+        /// 
+        /// **Mục đích:** Check-in với upload ảnh trực tiếp lên Cloudinary
+        /// 
+        /// **Form Data:**
+        /// - note: Ghi chú khi check-in (string, optional)
+        /// - images: Danh sách file ảnh (IFormFile[], optional, max 5 files, max 10MB/file)
+        /// 
+        /// **Định dạng ảnh hỗ trợ:** jpg, jpeg, png, gif, webp
+        /// </remarks>
+        [HttpPost("{id}/check-in-with-images")]
+        [ProducesResponseType(typeof(ApiResponse<BookingResponseDto>), 200)]
+        [ProducesResponseType(typeof(ApiResponse), 400)]
+        [ProducesResponseType(typeof(ApiResponse), 403)]
+        [ProducesResponseType(typeof(ApiResponse), 404)]
+        [Consumes("multipart/form-data")]
+        public async Task<IActionResult> CheckInWithImages(string id, [FromForm] string? note, [FromForm] List<IFormFile>? images)
+        {
+            try
+            {
+                var userId = User.FindFirstValue(JwtRegisteredClaimNames.Sub) ??
+                            User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+                if (string.IsNullOrEmpty(userId))
+                {
+                    return Unauthorized(ApiResponse.Fail(401, "Không tìm thấy user id trong token."));
+                }
+
+                // Validate số lượng ảnh
+                if (images != null && images.Count > 5)
+                {
+                    return BadRequest(ApiResponse.Fail(400, "Chỉ được upload tối đa 5 ảnh."));
+                }
+
+                // Upload ảnh lên Cloudinary
+                var imageUrls = new List<string>();
+                if (images != null && images.Any())
+                {
+                    imageUrls = await _cloudinaryService.UploadImagesAsync(images, "check-in");
+                }
+
+                // Tạo DTO với URLs từ Cloudinary
+                var dto = new CheckInDto
+                {
+                    Note = note,
+                    ImageUrls = imageUrls.Any() ? imageUrls : null
+                };
+
+                var result = await _bookingService.CheckInAsync(id, userId, dto);
+                if (!result.Success)
+                {
+                    if (result.Error?.Code == 400)
+                        return BadRequest(result);
+                    if (result.Error?.Code == 403)
+                        return StatusCode(403, result);
+                    return NotFound(result);
+                }
+                return Ok(result);
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(ApiResponse.Fail(400, ex.Message));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ApiResponse.Fail(500, ex.Message));
+            }
+        }
+
+        /// <summary>
         /// Check-out booking (ghi nhận thời gian rời đi)
         /// </summary>
         /// <param name="id">Booking ID</param>
@@ -551,6 +634,87 @@ namespace Controller.Controllers
                     return NotFound(result);
                 }
                 return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ApiResponse.Fail(500, ex.Message));
+            }
+        }
+
+        /// <summary>
+        /// Check-out booking với upload ảnh trực tiếp (multipart/form-data)
+        /// </summary>
+        /// <param name="id">Booking ID</param>
+        /// <param name="note">Ghi chú khi check-out</param>
+        /// <param name="images">Danh sách file ảnh (tối đa 5 ảnh)</param>
+        /// <returns>Booking đã check-out</returns>
+        /// <response code="200">Check-out thành công</response>
+        /// <response code="400">Chưa check-in hoặc đã check-out</response>
+        /// <response code="403">Không có quyền check-out booking này</response>
+        /// <response code="404">Không tìm thấy booking</response>
+        /// <remarks>
+        /// **Roles:** Tất cả user đã đăng nhập
+        /// 
+        /// **Mục đích:** Check-out với upload ảnh trực tiếp lên Cloudinary
+        /// 
+        /// **Form Data:**
+        /// - note: Ghi chú khi check-out (string, optional)
+        /// - images: Danh sách file ảnh (IFormFile[], optional, max 5 files, max 10MB/file)
+        /// 
+        /// **Định dạng ảnh hỗ trợ:** jpg, jpeg, png, gif, webp
+        /// </remarks>
+        [HttpPost("{id}/check-out-with-images")]
+        [ProducesResponseType(typeof(ApiResponse<BookingResponseDto>), 200)]
+        [ProducesResponseType(typeof(ApiResponse), 400)]
+        [ProducesResponseType(typeof(ApiResponse), 403)]
+        [ProducesResponseType(typeof(ApiResponse), 404)]
+        [Consumes("multipart/form-data")]
+        public async Task<IActionResult> CheckOutWithImages(string id, [FromForm] string? note, [FromForm] List<IFormFile>? images)
+        {
+            try
+            {
+                var userId = User.FindFirstValue(JwtRegisteredClaimNames.Sub) ??
+                            User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+                if (string.IsNullOrEmpty(userId))
+                {
+                    return Unauthorized(ApiResponse.Fail(401, "Không tìm thấy user id trong token."));
+                }
+
+                // Validate số lượng ảnh
+                if (images != null && images.Count > 5)
+                {
+                    return BadRequest(ApiResponse.Fail(400, "Chỉ được upload tối đa 5 ảnh."));
+                }
+
+                // Upload ảnh lên Cloudinary
+                var imageUrls = new List<string>();
+                if (images != null && images.Any())
+                {
+                    imageUrls = await _cloudinaryService.UploadImagesAsync(images, "check-out");
+                }
+
+                // Tạo DTO với URLs từ Cloudinary
+                var dto = new CheckOutDto
+                {
+                    Note = note,
+                    ImageUrls = imageUrls.Any() ? imageUrls : null
+                };
+
+                var result = await _bookingService.CheckOutAsync(id, userId, dto);
+                if (!result.Success)
+                {
+                    if (result.Error?.Code == 400)
+                        return BadRequest(result);
+                    if (result.Error?.Code == 403)
+                        return StatusCode(403, result);
+                    return NotFound(result);
+                }
+                return Ok(result);
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(ApiResponse.Fail(400, ex.Message));
             }
             catch (Exception ex)
             {
