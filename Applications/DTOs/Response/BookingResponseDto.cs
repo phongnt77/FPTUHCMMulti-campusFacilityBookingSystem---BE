@@ -24,6 +24,22 @@ namespace Applications.DTOs.Response
         public bool IsUsed { get; set; }
         public DateTime CreatedAt { get; set; }
         public DateTime UpdatedAt { get; set; }
+        
+        // Feedback (nếu có)
+        public BookingFeedbackDto? Feedback { get; set; }
+    }
+
+    /// <summary>
+    /// DTO cho Feedback trong BookingResponse (simplified version)
+    /// </summary>
+    public class BookingFeedbackDto
+    {
+        public string FeedbackId { get; set; } = string.Empty;
+        public int Rating { get; set; }
+        public string? Comments { get; set; }
+        public bool ReportIssue { get; set; }
+        public string? IssueDescription { get; set; }
+        public DateTime CreatedAt { get; set; }
     }
 }
 

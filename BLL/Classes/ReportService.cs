@@ -115,13 +115,8 @@ namespace BLL.Classes
                 var completed = facilityBookings.Count(b => b.Status == BookingStatus.Completed);
                 var utilization = CalculateFacilityUtilization(facility, startDate, endDate, completed);
 
-                // Get average rating from feedbacks
-                var feedbacks = await _unitOfWork.BookingFeedbackRepo.GetByBookingIdAsync(group.Key);
-                var bookingIds = facilityBookings.Select(b => b.BookingId).ToList();
-                var relevantFeedbacks = feedbacks.Where(f => bookingIds.Contains(f.BookingId)).ToList();
-                var avgRating = relevantFeedbacks.Any() 
-                    ? relevantFeedbacks.Average(f => f.Rating) 
-                    : 0;
+                // Get average rating from feedbacks using the correct method
+                var avgRating = await _unitOfWork.BookingFeedbackRepo.GetAverageFacilityRatingAsync(facility.FacilityId);
 
                 facilityStats.Add(new FacilityStatistics
                 {

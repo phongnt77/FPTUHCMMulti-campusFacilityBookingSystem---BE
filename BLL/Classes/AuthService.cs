@@ -400,7 +400,7 @@ namespace BLL.Classes
                 issuer: _configuration["Jwt:Issuer"],
                 audience: _configuration["Jwt:Audience"],
                 claims: claims,
-                expires: DateTime.UtcNow.AddHours(8),
+                expires: DateTime.UtcNow.AddHours(48),
                 signingCredentials: creds);
 
             return new JwtSecurityTokenHandler().WriteToken(token);
