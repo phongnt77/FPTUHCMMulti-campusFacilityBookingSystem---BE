@@ -122,6 +122,8 @@ namespace Applications.Mappers
             CreateMap<Booking, BookingResponseDto>()
                 .ForMember(dest => dest.UserName, opt => opt.MapFrom(src => src.User.FullName))
                 .ForMember(dest => dest.FacilityName, opt => opt.MapFrom(src => src.Facility.Name))
+                .ForMember(dest => dest.FacilityRoomNumber, opt => opt.MapFrom(src => src.Facility.RoomNumber))
+                .ForMember(dest => dest.FacilityFloorNumber, opt => opt.MapFrom(src => src.Facility.FloorNumber))
                 .ForMember(dest => dest.Status, opt => opt.MapFrom(src => src.Status.ToString()));
 
             // UpdateBookingDto → Booking (partial)

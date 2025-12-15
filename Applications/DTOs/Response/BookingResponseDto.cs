@@ -7,6 +7,8 @@ namespace Applications.DTOs.Response
         public string UserName { get; set; } = string.Empty;
         public string FacilityId { get; set; } = string.Empty;
         public string FacilityName { get; set; } = string.Empty;
+        public string? FacilityRoomNumber { get; set; }
+        public string? FacilityFloorNumber { get; set; }
         public DateTime StartTime { get; set; }
         public DateTime EndTime { get; set; }
         public string? Purpose { get; set; }

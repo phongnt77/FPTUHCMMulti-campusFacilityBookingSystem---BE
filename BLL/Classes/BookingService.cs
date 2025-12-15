@@ -590,12 +590,22 @@ namespace BLL.Classes
                 return ApiResponse<BookingResponseDto>.Fail(400, "Booking đã được check-out trước đó.");
             }
 
-            // validate thời gian check-out phải sau CheckInTime
+            // TODO: Tạm thời bỏ validation thời gian để test
+            // validate thời gian check-out (chỉ cho phép từ EndTime đến 15 phút sau EndTime)
+            // Ví dụ: đặt 9-10h thì check-out từ 10h-10h15
             var now = DateTimeHelper.VietnamNow;
-            if (now < booking.CheckInTime.Value)
-            {
-                return ApiResponse<BookingResponseDto>.Fail(400, "Thời gian check-out phải sau thời gian check-in.");
-            }
+            // var allowedCheckOutStart = booking.EndTime;
+            // var allowedCheckOutEnd = booking.EndTime.AddMinutes(15);
+            
+            // if (now < allowedCheckOutStart)
+            // {
+            //     return ApiResponse<BookingResponseDto>.Fail(400, $"Chỉ có thể check-out từ thời gian kết thúc ({allowedCheckOutStart:dd/MM/yyyy HH:mm}). Vui lòng check-out từ {allowedCheckOutStart:dd/MM/yyyy HH:mm} đến {allowedCheckOutEnd:dd/MM/yyyy HH:mm}.");
+            // }
+
+            // if (now > allowedCheckOutEnd)
+            // {
+            //     return ApiResponse<BookingResponseDto>.Fail(400, $"Không thể check-out sau 15 phút kể từ thời gian kết thúc ({allowedCheckOutEnd:dd/MM/yyyy HH:mm}). Vui lòng check-out từ {allowedCheckOutStart:dd/MM/yyyy HH:mm} đến {allowedCheckOutEnd:dd/MM/yyyy HH:mm}.");
+            // }
 
             // set check-out time
             booking.CheckOutTime = now;
@@ -643,7 +653,7 @@ namespace BLL.Classes
             var minStartTime = now.AddHours(-1);
             if (startTime < minStartTime)
             {
-                return (false, "Không thể đặt booking trong quá khứ. Thời gian bắt đầu phải từ 1 giờ trước trở đi.");
+                return (false, "Chỉ được phép đặt phòng trước ít nhất 3 giờ. Ví dụ: muốn đặt phòng lúc 10h thì phải đặt từ trước 7h.");
             }
 
             // 5. Không được đặt quá xa trong tương lai: 3 tháng

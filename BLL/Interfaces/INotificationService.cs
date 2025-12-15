@@ -21,6 +21,7 @@ namespace BLL.Interfaces
         Task CreateFeedbackReceivedNotificationAsync(string feedbackId);
         Task CreateBookingReminderNotificationsAsync(); // For check-in/check-out reminders
         Task ProcessNoShowBookingsAsync(); // Check and update No_Show bookings
+        Task CreateBookingCancelledNotificationAsync(string bookingId, string reason); // Create notification when booking is cancelled
     }
 }
 
