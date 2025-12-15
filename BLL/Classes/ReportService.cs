@@ -72,15 +72,27 @@ namespace BLL.Classes
                 overall.CompletionRate = (double)overall.CompletedBookings / overall.TotalBookings * 100;
             }
 
-            // Calculate utilization rate
+            // Calculate utilization rate based on actual booking hours
             var allFacilities = await _unitOfWork.FacilityRepo.GetAllAsync();
-            var totalAvailableSlots = CalculateTotalAvailableSlots(allFacilities, startDate, endDate);
-            if (totalAvailableSlots > 0)
+            var availableFacilities = allFacilities.Where(f => f.Status == FacilityStatus.Available).ToList();
+            var completedBookings = bookingsInPeriod.Where(b => b.Status == BookingStatus.Completed).ToList();
+            
+            // Calculate total used hours from completed bookings
+            var totalUsedHours = completedBookings.Sum(b => (b.EndTime - b.StartTime).TotalHours);
+            
+            // Calculate total available hours (facilities × days × operating hours per day)
+            // Assuming 12 operating hours per day (7:00 - 19:00)
+            const int OPERATING_HOURS_PER_DAY = 12;
+            var totalDays = CalculateDaysInPeriod(startDate, endDate);
+            var totalAvailableHours = availableFacilities.Count * totalDays * OPERATING_HOURS_PER_DAY;
+            
+            if (totalAvailableHours > 0)
             {
-                overall.UtilizationRate = (double)overall.CompletedBookings / totalAvailableSlots * 100;
+                overall.UtilizationRate = Math.Round(totalUsedHours / totalAvailableHours * 100, 2);
             }
 
             // Daily statistics
+            const int DAILY_OPERATING_HOURS = 12;
             var dailyStats = new List<DailyStatistics>();
             for (var date = startDate.Date; date <= endDate.Date; date = date.AddDays(1))
             {
@@ -88,21 +100,24 @@ namespace BLL.Classes
                     .Where(b => b.StartTime.Date == date)
                     .ToList();
 
-                var dayCompleted = dayBookings.Count(b => b.Status == BookingStatus.Completed);
-                var dayUtilization = totalAvailableSlots > 0 
-                    ? (double)dayCompleted / (allFacilities.Count * 24) * 100 
+                var dayCompletedBookings = dayBookings.Where(b => b.Status == BookingStatus.Completed).ToList();
+                var dayUsedHours = dayCompletedBookings.Sum(b => (b.EndTime - b.StartTime).TotalHours);
+                var dayAvailableHours = availableFacilities.Count * DAILY_OPERATING_HOURS;
+                var dayUtilization = dayAvailableHours > 0 
+                    ? Math.Round(dayUsedHours / dayAvailableHours * 100, 2) 
                     : 0;
 
                 dailyStats.Add(new DailyStatistics
                 {
                     Date = date,
                     TotalBookings = dayBookings.Count,
-                    CompletedBookings = dayCompleted,
+                    CompletedBookings = dayCompletedBookings.Count,
                     UtilizationRate = dayUtilization
                 });
             }
 
             // Facility statistics
+            const int FACILITY_OPERATING_HOURS = 12;
             var facilityStats = new List<FacilityStatistics>();
             var facilityGroups = bookingsInPeriod.GroupBy(b => b.FacilityId);
             
@@ -112,16 +127,15 @@ namespace BLL.Classes
                 if (facility == null) continue;
 
                 var facilityBookings = group.ToList();
-                var completed = facilityBookings.Count(b => b.Status == BookingStatus.Completed);
-                var utilization = CalculateFacilityUtilization(facility, startDate, endDate, completed);
-
-                // Get average rating from feedbacks
-                var feedbacks = await _unitOfWork.BookingFeedbackRepo.GetByBookingIdAsync(group.Key);
-                var bookingIds = facilityBookings.Select(b => b.BookingId).ToList();
-                var relevantFeedbacks = feedbacks.Where(f => bookingIds.Contains(f.BookingId)).ToList();
-                var avgRating = relevantFeedbacks.Any() 
-                    ? relevantFeedbacks.Average(f => f.Rating) 
+                var facilityCompletedBookings = facilityBookings.Where(b => b.Status == BookingStatus.Completed).ToList();
+                var facilityUsedHours = facilityCompletedBookings.Sum(b => (b.EndTime - b.StartTime).TotalHours);
+                var facilityAvailableHours = totalDays * FACILITY_OPERATING_HOURS;
+                var utilization = facilityAvailableHours > 0 
+                    ? Math.Round(facilityUsedHours / facilityAvailableHours * 100, 2) 
                     : 0;
+
+                // Get average rating from feedbacks using the correct method
+                var avgRating = await _unitOfWork.BookingFeedbackRepo.GetAverageFacilityRatingAsync(facility.FacilityId);
 
                 facilityStats.Add(new FacilityStatistics
                 {
@@ -129,27 +143,30 @@ namespace BLL.Classes
                     FacilityName = facility.Name,
                     CampusName = facility.Campus?.Name ?? "",
                     TotalBookings = facilityBookings.Count,
-                    CompletedBookings = completed,
+                    CompletedBookings = facilityCompletedBookings.Count,
                     UtilizationRate = utilization,
                     AverageRating = avgRating
                 });
             }
 
             // Campus statistics
+            const int CAMPUS_OPERATING_HOURS = 12;
             var campusStats = new List<CampusStatistics>();
             var campuses = await _unitOfWork.CampusRepo.GetAllAsync();
             
             foreach (var campus in campuses)
             {
-                var campusFacilities = allFacilities.Where(f => f.CampusId == campus.CampusId).ToList();
+                var campusFacilities = availableFacilities.Where(f => f.CampusId == campus.CampusId).ToList();
                 var campusFacilityIds = campusFacilities.Select(f => f.FacilityId).ToList();
                 var campusBookings = bookingsInPeriod
                     .Where(b => campusFacilityIds.Contains(b.FacilityId))
                     .ToList();
 
-                var completed = campusBookings.Count(b => b.Status == BookingStatus.Completed);
-                var utilization = campusFacilities.Any()
-                    ? (double)completed / (campusFacilities.Count * CalculateDaysInPeriod(startDate, endDate) * 24) * 100
+                var campusCompletedBookings = campusBookings.Where(b => b.Status == BookingStatus.Completed).ToList();
+                var campusUsedHours = campusCompletedBookings.Sum(b => (b.EndTime - b.StartTime).TotalHours);
+                var campusAvailableHours = campusFacilities.Count * totalDays * CAMPUS_OPERATING_HOURS;
+                var utilization = campusAvailableHours > 0
+                    ? Math.Round(campusUsedHours / campusAvailableHours * 100, 2)
                     : 0;
 
                 campusStats.Add(new CampusStatistics
@@ -157,7 +174,7 @@ namespace BLL.Classes
                     CampusId = campus.CampusId,
                     CampusName = campus.Name,
                     TotalBookings = campusBookings.Count,
-                    CompletedBookings = completed,
+                    CompletedBookings = campusCompletedBookings.Count,
                     UtilizationRate = utilization,
                     TotalFacilities = campusFacilities.Count
                 });
@@ -212,22 +229,6 @@ namespace BLL.Classes
 
             // Default: last 30 days
             return (now.Date.AddDays(-29), now.Date);
-        }
-
-        private int CalculateTotalAvailableSlots(List<Facility> facilities, DateTime startDate, DateTime endDate)
-        {
-            var days = CalculateDaysInPeriod(startDate, endDate);
-            return facilities.Count(f => f.Status == FacilityStatus.Available) * days * 24; // 24 hours per day
-        }
-
-        private double CalculateFacilityUtilization(Facility facility, DateTime startDate, DateTime endDate, int completedBookings)
-        {
-            if (facility.Status != FacilityStatus.Available) return 0;
-
-            var days = CalculateDaysInPeriod(startDate, endDate);
-            var totalSlots = days * 24; // 24 hours per day
-
-            return totalSlots > 0 ? (double)completedBookings / totalSlots * 100 : 0;
         }
 
         private int CalculateDaysInPeriod(DateTime startDate, DateTime endDate)

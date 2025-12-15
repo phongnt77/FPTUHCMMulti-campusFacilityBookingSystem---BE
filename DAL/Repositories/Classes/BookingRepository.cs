@@ -18,6 +18,7 @@ namespace DAL.Repositories.Classes
             var query = _context.Set<Booking>()
                 .Include(b => b.User)
                 .Include(b => b.Facility)
+                .Include(b => b.Feedback)
                 .AsQueryable();
 
             if (!string.IsNullOrEmpty(userId))

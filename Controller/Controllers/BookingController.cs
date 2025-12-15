@@ -432,6 +432,7 @@ namespace Controller.Controllers
         /// Check-in booking (ghi nhận thời gian đến sử dụng)
         /// </summary>
         /// <param name="id">Booking ID</param>
+        /// <param name="dto">Thông tin check-in (note và image URLs)</param>
         /// <returns>Booking đã check-in</returns>
         /// <response code="200">Check-in thành công</response>
         /// <response code="400">Booking không ở trạng thái Approved hoặc đã check-in</response>
@@ -440,24 +441,29 @@ namespace Controller.Controllers
         /// <remarks>
         /// **Roles:** Tất cả user đã đăng nhập
         /// 
-        /// **Mục đích:** Ghi nhận thời gian user đến sử dụng facility
+        /// **Mục đích:** Ghi nhận thời gian user đến sử dụng facility kèm ghi chú và ảnh
         /// 
         /// **Điều kiện:**
         /// - Booking phải ở trạng thái Approved
         /// - Booking chưa được check-in
-        /// - Chỉ có thể check-in từ 15 phút trước StartTime đến EndTime
+        /// - Chỉ có thể check-in từ X phút trước StartTime đến X phút sau StartTime (theo settings)
         /// - Chỉ chủ booking mới có thể check-in
+        /// 
+        /// **Request Body (optional):**
+        /// - note: Ghi chú khi check-in (ví dụ: "Số lượng bàn: 10, ghế: 20")
+        /// - imageUrls: Danh sách URL ảnh đính kèm (frontend cần upload ảnh trước và gửi URLs)
         /// 
         /// **Lưu ý:** 
         /// - CheckInTime sẽ được set bằng thời gian hiện tại (Vietnam time)
         /// - Sau khi check-in, có thể check-out để hoàn tất booking
+        /// - Ảnh cần được upload trước (qua API upload riêng) và gửi URLs trong request
         /// </remarks>
         [HttpPost("{id}/check-in")]
         [ProducesResponseType(typeof(ApiResponse<BookingResponseDto>), 200)]
         [ProducesResponseType(typeof(ApiResponse), 400)]
         [ProducesResponseType(typeof(ApiResponse), 403)]
         [ProducesResponseType(typeof(ApiResponse), 404)]
-        public async Task<IActionResult> CheckIn(string id)
+        public async Task<IActionResult> CheckIn(string id, [FromBody] CheckInDto? dto = null)
         {
             try
             {
@@ -470,7 +476,7 @@ namespace Controller.Controllers
                     return Unauthorized(ApiResponse.Fail(401, "Không tìm thấy user id trong token."));
                 }
 
-                var result = await _bookingService.CheckInAsync(id, userId);
+                var result = await _bookingService.CheckInAsync(id, userId, dto);
                 if (!result.Success)
                 {
                     if (result.Error?.Code == 400)
@@ -491,6 +497,7 @@ namespace Controller.Controllers
         /// Check-out booking (ghi nhận thời gian rời đi)
         /// </summary>
         /// <param name="id">Booking ID</param>
+        /// <param name="dto">Thông tin check-out (note và image URLs)</param>
         /// <returns>Booking đã check-out</returns>
         /// <response code="200">Check-out thành công</response>
         /// <response code="400">Chưa check-in hoặc đã check-out</response>
@@ -499,7 +506,7 @@ namespace Controller.Controllers
         /// <remarks>
         /// **Roles:** Tất cả user đã đăng nhập
         /// 
-        /// **Mục đích:** Ghi nhận thời gian user rời khỏi facility
+        /// **Mục đích:** Ghi nhận thời gian user rời khỏi facility kèm ghi chú và ảnh
         /// 
         /// **Điều kiện:**
         /// - Booking phải đã được check-in
@@ -507,16 +514,21 @@ namespace Controller.Controllers
         /// - Thời gian check-out phải sau thời gian check-in
         /// - Chỉ chủ booking mới có thể check-out
         /// 
+        /// **Request Body (optional):**
+        /// - note: Ghi chú khi check-out (ví dụ: "Tình trạng phòng sau khi sử dụng: sạch sẽ, đầy đủ")
+        /// - imageUrls: Danh sách URL ảnh đính kèm (frontend cần upload ảnh trước và gửi URLs)
+        /// 
         /// **Lưu ý:** 
         /// - CheckOutTime sẽ được set bằng thời gian hiện tại (Vietnam time)
-        /// - Nếu check-out sau EndTime, status sẽ tự động chuyển thành Completed
+        /// - Khi check-out, status sẽ tự động chuyển thành Completed
+        /// - Ảnh cần được upload trước (qua API upload riêng) và gửi URLs trong request
         /// </remarks>
         [HttpPost("{id}/check-out")]
         [ProducesResponseType(typeof(ApiResponse<BookingResponseDto>), 200)]
         [ProducesResponseType(typeof(ApiResponse), 400)]
         [ProducesResponseType(typeof(ApiResponse), 403)]
         [ProducesResponseType(typeof(ApiResponse), 404)]
-        public async Task<IActionResult> CheckOut(string id)
+        public async Task<IActionResult> CheckOut(string id, [FromBody] CheckOutDto? dto = null)
         {
             try
             {
@@ -529,7 +541,7 @@ namespace Controller.Controllers
                     return Unauthorized(ApiResponse.Fail(401, "Không tìm thấy user id trong token."));
                 }
 
-                var result = await _bookingService.CheckOutAsync(id, userId);
+                var result = await _bookingService.CheckOutAsync(id, userId, dto);
                 if (!result.Success)
                 {
                     if (result.Error?.Code == 400)

@@ -124,7 +124,19 @@ namespace Applications.Mappers
                 .ForMember(dest => dest.FacilityName, opt => opt.MapFrom(src => src.Facility.Name))
                 .ForMember(dest => dest.FacilityRoomNumber, opt => opt.MapFrom(src => src.Facility.RoomNumber))
                 .ForMember(dest => dest.FacilityFloorNumber, opt => opt.MapFrom(src => src.Facility.FloorNumber))
-                .ForMember(dest => dest.Status, opt => opt.MapFrom(src => src.Status.ToString()));
+                .ForMember(dest => dest.Status, opt => opt.MapFrom(src => src.Status.ToString()))
+                .ForMember(dest => dest.CheckInImages, opt => opt.MapFrom(src => 
+                    string.IsNullOrEmpty(src.CheckInImages) 
+                        ? null 
+                        : System.Text.Json.JsonSerializer.Deserialize<List<string>>(src.CheckInImages, (System.Text.Json.JsonSerializerOptions)null!)))
+                .ForMember(dest => dest.CheckOutImages, opt => opt.MapFrom(src => 
+                    string.IsNullOrEmpty(src.CheckOutImages) 
+                        ? null 
+                        : System.Text.Json.JsonSerializer.Deserialize<List<string>>(src.CheckOutImages, (System.Text.Json.JsonSerializerOptions)null!)))
+                .ForMember(dest => dest.Feedback, opt => opt.MapFrom(src => src.Feedback));
+
+            // BookingFeedback → BookingFeedbackDto (for embedding in BookingResponseDto)
+            CreateMap<BookingFeedback, BookingFeedbackDto>();
 
             // UpdateBookingDto → Booking (partial)
             CreateMap<UpdateBookingDto, Booking>()
