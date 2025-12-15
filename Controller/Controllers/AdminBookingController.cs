@@ -73,6 +73,7 @@ namespace Controller.Controllers
         /// Duyệt booking (Approve)
         /// </summary>
         /// <param name="bookingId">Booking ID</param>
+        /// <param name="dto">Thông tin bổ sung khi duyệt (MSSV)</param>
         /// <returns>Kết quả duyệt</returns>
         /// <response code="200">Duyệt thành công</response>
         /// <response code="400">Booking không ở trạng thái Pending_Approval</response>
@@ -95,19 +96,24 @@ namespace Controller.Controllers
         [ProducesResponseType(typeof(ApiResponse), 401)]
         [ProducesResponseType(typeof(ApiResponse), 404)]
         [ProducesResponseType(typeof(ApiResponse), 409)]
-        public async Task<IActionResult> ApproveBooking(string bookingId)
+        public async Task<IActionResult> ApproveBooking(string bookingId, [FromBody] ApproveBookingDto dto)
         {
             var approverId = User.FindFirstValue(JwtRegisteredClaimNames.Sub) ??
                             User.FindFirstValue(ClaimTypes.NameIdentifier);
 
             if (string.IsNullOrEmpty(approverId))
             {
-                return Unauthorized(ApiResponse.Fail(401, "Không tìm thấy user id trong token."));
+                return Unauthorized(ApiResponse.Fail(401, "Không tìm thấy MSSV trong token."));
+            }
+
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ApiResponse.Fail(400, "Dữ liệu không hợp lệ."));
             }
 
             try
             {
-                var result = await _bookingService.ApproveBookingAsync(bookingId, approverId);
+                var result = await _bookingService.ApproveBookingAsync(bookingId, approverId, dto.StudentId);
                 
                 if (!result.Success)
                 {
