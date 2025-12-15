@@ -20,7 +20,11 @@ namespace Applications.DTOs.Response
         public DateTime? ApprovedAt { get; set; }
         public string? RejectionReason { get; set; }
         public DateTime? CheckInTime { get; set; }
+        public string? CheckInNote { get; set; }
+        public List<string>? CheckInImages { get; set; }
         public DateTime? CheckOutTime { get; set; }
+        public string? CheckOutNote { get; set; }
+        public List<string>? CheckOutImages { get; set; }
         public bool IsUsed { get; set; }
         public DateTime CreatedAt { get; set; }
         public DateTime UpdatedAt { get; set; }

@@ -18,7 +18,11 @@ namespace DAL.Models
         public DateTime? ApprovedAt { get; set; }
         public string? RejectionReason { get; set; }
         public DateTime? CheckInTime { get; set; }
+        public string? CheckInNote { get; set; } // Ghi chú khi check-in (ví dụ: số lượng bàn, ghế)
+        public string? CheckInImages { get; set; } // JSON array of image URLs
         public DateTime? CheckOutTime { get; set; }
+        public string? CheckOutNote { get; set; } // Ghi chú khi check-out
+        public string? CheckOutImages { get; set; } // JSON array of image URLs
         public bool IsUsed { get; set; } = false;
         public DateTime? CancelledAt { get; set; }
         public string? CancellationReason { get; set; }
