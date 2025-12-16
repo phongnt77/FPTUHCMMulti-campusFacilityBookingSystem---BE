@@ -12,11 +12,14 @@ namespace BLL.Classes
         private const string KEY_MIN_BOOKING_HOURS = "MinimumBookingHoursBeforeStart";
         private const string KEY_CHECKIN_MINUTES_BEFORE = "CheckInMinutesBeforeStart";
         private const string KEY_CHECKIN_MINUTES_AFTER = "CheckInMinutesAfterStart";
+        private const string KEY_CHECKOUT_MIN_RATIO = "CheckoutMinRatio";
 
         // thời gian mặc định
         private const int DEFAULT_MIN_BOOKING_HOURS = 3;
         private const int DEFAULT_CHECKIN_MINUTES_BEFORE = 15;
         private const int DEFAULT_CHECKIN_MINUTES_AFTER = 15;
+        // mặc định cho phép check-out sau khi đã qua 2/3 thời lượng booking
+        private const double DEFAULT_CHECKOUT_MIN_RATIO = 2.0 / 3.0;
 
         public SystemSettingsService(IUnitOfWork unitOfWork)
         {
@@ -28,12 +31,14 @@ namespace BLL.Classes
             var minHours = await GetMinimumBookingHoursBeforeStartAsync();
             var checkInBefore = await GetCheckInMinutesBeforeStartAsync();
             var checkInAfter = await GetCheckInMinutesAfterStartAsync();
+            var checkoutRatio = await GetCheckoutMinRatioAsync();
 
             var response = new SystemSettingsResponseDto
             {
                 MinimumBookingHoursBeforeStart = minHours,
                 CheckInMinutesBeforeStart = checkInBefore,
-                CheckInMinutesAfterStart = checkInAfter
+                CheckInMinutesAfterStart = checkInAfter,
+                CheckoutMinRatio = checkoutRatio
             };
 
             return ApiResponse<SystemSettingsResponseDto>.Ok(response);
@@ -80,6 +85,20 @@ namespace BLL.Classes
                 );
             }
 
+            if (dto.CheckoutMinRatio.HasValue)
+            {
+                if (dto.CheckoutMinRatio.Value < 0 || dto.CheckoutMinRatio.Value > 1)
+                {
+                    return ApiResponse<SystemSettingsResponseDto>.Fail(400, "Tỉ lệ thời gian check-out phải nằm trong khoảng 0 - 1.");
+                }
+
+                await _unitOfWork.SystemSettingsRepo.CreateOrUpdateAsync(
+                    KEY_CHECKOUT_MIN_RATIO,
+                    dto.CheckoutMinRatio.Value.ToString(System.Globalization.CultureInfo.InvariantCulture),
+                    "Tỉ lệ tối thiểu (0-1) thời lượng booking phải qua để cho phép check-out (mặc định 2/3)"
+                );
+            }
+
             await _unitOfWork.SaveChangesAsync();
 
             return await GetSettingsAsync();
@@ -113,6 +132,16 @@ namespace BLL.Classes
                 return value;
             }
             return DEFAULT_CHECKIN_MINUTES_AFTER;
+        }
+
+        public async Task<double> GetCheckoutMinRatioAsync()
+        {
+            var setting = await _unitOfWork.SystemSettingsRepo.GetByKeyAsync(KEY_CHECKOUT_MIN_RATIO);
+            if (setting != null && double.TryParse(setting.SettingValue, System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture, out var value))
+            {
+                return value;
+            }
+            return DEFAULT_CHECKOUT_MIN_RATIO;
         }
     }
 }

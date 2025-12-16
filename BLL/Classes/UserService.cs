@@ -59,7 +59,7 @@ namespace BLL.Classes
 
                 if (!DAL.Models.StudentIdRegex.IsValid(dto.StudentId))
                 {
-                    throw new ArgumentException("MSSV không hợp lệ. Ví dụ đúng: SE173162. Ví dụ sai: AB000111.");
+                    throw new ArgumentException("MSSV không hợp lệ. Ví dụ đúng: SE173456. Ví dụ sai: AB000111.");
                 }
             }
 
