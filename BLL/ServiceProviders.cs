@@ -24,6 +24,9 @@ namespace BLL
             services.AddScoped<INotificationService, NotificationService>();
             services.AddScoped<ISystemSettingsService, SystemSettingsService>();
 
+            // Cloud Services
+            services.AddScoped<ICloudinaryService, CloudinaryService>();
+
             // Background Services
             services.AddHostedService<NotificationBackgroundService>();
         }

@@ -187,6 +187,9 @@ namespace DAL.Dbcontext
                 entity.Property(e => e.PhoneNumber)
                     .HasColumnName("phone_number")
                     .HasMaxLength(20);
+                entity.Property(e => e.StudentId)
+                    .HasColumnName("student_id")
+                    .HasMaxLength(8);
                 entity.Property(e => e.UserName)
                     .HasColumnName("user_name")
                     .HasMaxLength(100);
@@ -442,8 +445,20 @@ namespace DAL.Dbcontext
                     .HasColumnType("nvarchar(MAX)");
                 entity.Property(e => e.CheckInTime)
                     .HasColumnName("check_in_time");
+                entity.Property(e => e.CheckInNote)
+                    .HasColumnName("check_in_note")
+                    .HasColumnType("nvarchar(MAX)");
+                entity.Property(e => e.CheckInImages)
+                    .HasColumnName("check_in_images")
+                    .HasColumnType("nvarchar(MAX)");
                 entity.Property(e => e.CheckOutTime)
                     .HasColumnName("check_out_time");
+                entity.Property(e => e.CheckOutNote)
+                    .HasColumnName("check_out_note")
+                    .HasColumnType("nvarchar(MAX)");
+                entity.Property(e => e.CheckOutImages)
+                    .HasColumnName("check_out_images")
+                    .HasColumnType("nvarchar(MAX)");
                 entity.Property(e => e.IsUsed)
                     .HasColumnName("is_used")
                     .HasDefaultValue(false);

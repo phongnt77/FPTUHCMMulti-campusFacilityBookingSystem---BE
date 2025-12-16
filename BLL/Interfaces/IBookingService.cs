@@ -15,8 +15,8 @@ namespace BLL.Interfaces
         Task<ApiResponse<BookingResponseDto>> RejectBookingAsync(string bookingId, string approverId, string? reason);
         Task<ApiResponse<AvailabilityCheckResponseDto>> CheckAvailabilityAsync(CheckAvailabilityDto dto);
         Task<ApiResponse<List<AlternativeFacilityDto>>> GetAlternativeFacilitiesAsync(string facilityId, DateTime startTime, DateTime endTime, int capacity);
-        Task<ApiResponse<BookingResponseDto>> CheckInAsync(string bookingId, string userId);
-        Task<ApiResponse<BookingResponseDto>> CheckOutAsync(string bookingId, string userId);
+        Task<ApiResponse<BookingResponseDto>> CheckInAsync(string bookingId, string userId, CheckInDto? dto = null);
+        Task<ApiResponse<BookingResponseDto>> CheckOutAsync(string bookingId, string userId, CheckOutDto? dto = null);
         Task ProcessLateCheckInBookingsAsync(); // hủy booking khi quá thời gian check-in
     }
 }

@@ -88,6 +88,10 @@ namespace Controller.Controllers
         /// - Booking phải ở trạng thái Pending_Approval
         /// - Facility không bị trùng lịch với booking đã approved
         /// - Ghi nhận approver ID (người duyệt)
+        /// 
+        /// **Lưu ý:**
+        /// - MSSV và Email của user sẽ được hiển thị trong response để admin xem
+        /// - Không cần duyệt MSSV/Email, chỉ cần duyệt thông tin booking
         /// </remarks>
         [HttpPatch("{bookingId}/approve")]
         [ProducesResponseType(typeof(ApiResponse<BookingResponseDto>), 200)]

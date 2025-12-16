@@ -49,8 +49,29 @@ namespace BLL.Classes
                 }
             }
 
+            // validate MSSV (chỉ cho phép Student role - RL0001)
+            if (!string.IsNullOrWhiteSpace(dto.StudentId))
+            {
+                if (user.RoleId != "RL0001")
+                {
+                    throw new UnauthorizedAccessException("Chỉ user có role Student mới được cập nhật MSSV.");
+                }
+
+                if (!DAL.Models.StudentIdRegex.IsValid(dto.StudentId))
+                {
+                    throw new ArgumentException("MSSV không hợp lệ. Ví dụ đúng: SE173162. Ví dụ sai: AB000111.");
+                }
+            }
+
             user.PhoneNumber = dto.PhoneNumber;
             user.AvatarUrl = dto.AvatarUrl;
+            
+            // Chỉ cập nhật MSSV nếu user là Student
+            if (!string.IsNullOrWhiteSpace(dto.StudentId) && user.RoleId == "RL0001")
+            {
+                user.StudentId = dto.StudentId;
+            }
+            
             user.UpdatedAt = DateTimeHelper.VietnamNow;
 
             await _unitOfWork.UserRepo.UpdateAsync(user);

@@ -214,6 +214,7 @@ namespace BLL.Classes
                 return ApiResponse<BookingResponseDto>.Fail(400, "Chỉ có thể duyệt booking ở trạng thái Pending_Approval.");
             }
 
+            // check conflict
             var hasConflict = await _unitOfWork.BookingRepo.HasConflictAsync(
                 booking.FacilityId,
                 booking.StartTime,
@@ -509,7 +510,7 @@ namespace BLL.Classes
             return null;
         }
 
-        public async Task<ApiResponse<BookingResponseDto>> CheckInAsync(string bookingId, string userId)
+        public async Task<ApiResponse<BookingResponseDto>> CheckInAsync(string bookingId, string userId, CheckInDto? dto = null)
         {
             var booking = await _unitOfWork.BookingRepo.GetByIdAsync(bookingId);
             if (booking == null)
@@ -553,9 +554,19 @@ namespace BLL.Classes
                 return ApiResponse<BookingResponseDto>.Fail(400, $"Đã quá thời gian check-in. Thời gian check-in cho phép: từ {allowedCheckInStart:dd/MM/yyyy HH:mm:ss} đến {allowedCheckInEnd:dd/MM/yyyy HH:mm:ss}.");
             }
 
-            // set check-in time
+            // set check-in time, note, and images
             booking.CheckInTime = now;
             booking.UpdatedAt = now;
+            
+            if (dto != null)
+            {
+                booking.CheckInNote = dto.Note;
+                // Convert image URLs list to JSON string
+                if (dto.ImageUrls != null && dto.ImageUrls.Any())
+                {
+                    booking.CheckInImages = System.Text.Json.JsonSerializer.Serialize(dto.ImageUrls);
+                }
+            }
 
             await _unitOfWork.BookingRepo.UpdateAsync(booking);
             await _unitOfWork.SaveChangesAsync();
@@ -564,7 +575,7 @@ namespace BLL.Classes
             return ApiResponse<BookingResponseDto>.Ok(responseDto);
         }
 
-        public async Task<ApiResponse<BookingResponseDto>> CheckOutAsync(string bookingId, string userId)
+        public async Task<ApiResponse<BookingResponseDto>> CheckOutAsync(string bookingId, string userId, CheckOutDto? dto = null)
         {
             var booking = await _unitOfWork.BookingRepo.GetByIdAsync(bookingId);
             if (booking == null)
@@ -607,9 +618,19 @@ namespace BLL.Classes
             //     return ApiResponse<BookingResponseDto>.Fail(400, $"Không thể check-out sau 15 phút kể từ thời gian kết thúc ({allowedCheckOutEnd:dd/MM/yyyy HH:mm}). Vui lòng check-out từ {allowedCheckOutStart:dd/MM/yyyy HH:mm} đến {allowedCheckOutEnd:dd/MM/yyyy HH:mm}.");
             // }
 
-            // set check-out time
+            // set check-out time, note, and images
             booking.CheckOutTime = now;
             booking.UpdatedAt = now;
+
+            if (dto != null)
+            {
+                booking.CheckOutNote = dto.Note;
+                // Convert image URLs list to JSON string
+                if (dto.ImageUrls != null && dto.ImageUrls.Any())
+                {
+                    booking.CheckOutImages = System.Text.Json.JsonSerializer.Serialize(dto.ImageUrls);
+                }
+            }
 
             // Khi check-out thì booking hoàn tất, set status = Completed
             booking.Status = BookingStatus.Completed;
