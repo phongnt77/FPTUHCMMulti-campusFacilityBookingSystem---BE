@@ -73,7 +73,6 @@ namespace Controller.Controllers
         /// Duyệt booking (Approve)
         /// </summary>
         /// <param name="bookingId">Booking ID</param>
-        /// <param name="dto">Thông tin bổ sung khi duyệt (MSSV)</param>
         /// <returns>Kết quả duyệt</returns>
         /// <response code="200">Duyệt thành công</response>
         /// <response code="400">Booking không ở trạng thái Pending_Approval</response>
@@ -89,6 +88,10 @@ namespace Controller.Controllers
         /// - Booking phải ở trạng thái Pending_Approval
         /// - Facility không bị trùng lịch với booking đã approved
         /// - Ghi nhận approver ID (người duyệt)
+        /// 
+        /// **Lưu ý:**
+        /// - MSSV và Email của user sẽ được hiển thị trong response để admin xem
+        /// - Không cần duyệt MSSV/Email, chỉ cần duyệt thông tin booking
         /// </remarks>
         [HttpPatch("{bookingId}/approve")]
         [ProducesResponseType(typeof(ApiResponse<BookingResponseDto>), 200)]
@@ -96,24 +99,19 @@ namespace Controller.Controllers
         [ProducesResponseType(typeof(ApiResponse), 401)]
         [ProducesResponseType(typeof(ApiResponse), 404)]
         [ProducesResponseType(typeof(ApiResponse), 409)]
-        public async Task<IActionResult> ApproveBooking(string bookingId, [FromBody] ApproveBookingDto dto)
+        public async Task<IActionResult> ApproveBooking(string bookingId)
         {
             var approverId = User.FindFirstValue(JwtRegisteredClaimNames.Sub) ??
                             User.FindFirstValue(ClaimTypes.NameIdentifier);
 
             if (string.IsNullOrEmpty(approverId))
             {
-                return Unauthorized(ApiResponse.Fail(401, "Không tìm thấy MSSV trong token."));
-            }
-
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ApiResponse.Fail(400, "Dữ liệu không hợp lệ."));
+                return Unauthorized(ApiResponse.Fail(401, "Không tìm thấy user id trong token."));
             }
 
             try
             {
-                var result = await _bookingService.ApproveBookingAsync(bookingId, approverId, dto.StudentId);
+                var result = await _bookingService.ApproveBookingAsync(bookingId, approverId);
                 
                 if (!result.Success)
                 {

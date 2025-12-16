@@ -201,7 +201,7 @@ namespace BLL.Classes
             return ApiResponse.Ok();
         }
 
-        public async Task<ApiResponse<BookingResponseDto>> ApproveBookingAsync(string bookingId, string approverId, string studentId)
+        public async Task<ApiResponse<BookingResponseDto>> ApproveBookingAsync(string bookingId, string approverId)
         {
             var booking = await _unitOfWork.BookingRepo.GetByIdAsync(bookingId);
             if (booking == null)
@@ -214,31 +214,7 @@ namespace BLL.Classes
                 return ApiResponse<BookingResponseDto>.Fail(400, "Chỉ có thể duyệt booking ở trạng thái Pending_Approval.");
             }
 
-            // validate MSSV
-            if (string.IsNullOrWhiteSpace(studentId))
-            {
-                return ApiResponse<BookingResponseDto>.Fail(400, "MSSV là bắt buộc khi duyệt booking.");
-            }
-
-            if (!StudentIdRegex.IsValid(studentId))
-            {
-                return ApiResponse<BookingResponseDto>.Fail(400, "MSSV không hợp lệ. Ví dụ đúng: SE173162. Ví dụ sai: AB000111.");
-            }
-
-            // update MSSV cho user nếu khác / chưa có
-            var user = await _unitOfWork.UserRepo.GetByIdAsync(booking.UserId);
-            if (user == null)
-            {
-                return ApiResponse<BookingResponseDto>.Fail(404, "Không tìm thấy user của booking.");
-            }
-
-            if (!string.Equals(user.StudentId, studentId, StringComparison.OrdinalIgnoreCase))
-            {
-                user.StudentId = studentId;
-                user.UpdatedAt = DateTimeHelper.VietnamNow;
-                await _unitOfWork.UserRepo.UpdateAsync(user);
-            }
-
+            // check conflict
             var hasConflict = await _unitOfWork.BookingRepo.HasConflictAsync(
                 booking.FacilityId,
                 booking.StartTime,
