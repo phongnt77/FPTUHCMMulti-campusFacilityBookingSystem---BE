@@ -629,22 +629,27 @@ namespace BLL.Classes
                 return ApiResponse<BookingResponseDto>.Fail(400, "Booking đã được check-out trước đó.");
             }
 
-            // TODO: Tạm thời bỏ validation thời gian để test
-            // validate thời gian check-out (chỉ cho phép từ EndTime đến 15 phút sau EndTime)
-            // Ví dụ: đặt 9-10h thì check-out từ 10h-10h15
             var now = DateTimeHelper.VietnamNow;
-            // var allowedCheckOutStart = booking.EndTime;
-            // var allowedCheckOutEnd = booking.EndTime.AddMinutes(15);
-            
-            // if (now < allowedCheckOutStart)
-            // {
-            //     return ApiResponse<BookingResponseDto>.Fail(400, $"Chỉ có thể check-out từ thời gian kết thúc ({allowedCheckOutStart:dd/MM/yyyy HH:mm}). Vui lòng check-out từ {allowedCheckOutStart:dd/MM/yyyy HH:mm} đến {allowedCheckOutEnd:dd/MM/yyyy HH:mm}.");
-            // }
 
-            // if (now > allowedCheckOutEnd)
-            // {
-            //     return ApiResponse<BookingResponseDto>.Fail(400, $"Không thể check-out sau 15 phút kể từ thời gian kết thúc ({allowedCheckOutEnd:dd/MM/yyyy HH:mm}). Vui lòng check-out từ {allowedCheckOutStart:dd/MM/yyyy HH:mm} đến {allowedCheckOutEnd:dd/MM/yyyy HH:mm}.");
-            // }
+            // validate thời gian check-out: chỉ cho phép sau khi đã qua X% thời lượng booking
+            // mặc định X = 2/3, admin có thể custom 
+            var checkoutRatio = await _systemSettingsService.GetCheckoutMinRatioAsync();
+            if (checkoutRatio < 0) checkoutRatio = 0;
+            if (checkoutRatio > 1) checkoutRatio = 1;
+
+            var totalDuration = booking.EndTime - booking.StartTime;
+            var minElapsed = TimeSpan.FromTicks((long)(totalDuration.Ticks * checkoutRatio));
+            var minCheckoutTime = booking.StartTime.Add(minElapsed);
+
+            if (now < minCheckoutTime)
+            {
+                var percent = Math.Round(checkoutRatio * 100);
+                return ApiResponse<BookingResponseDto>.Fail(
+                    400,
+                    $"Chỉ có thể check-out sau khi đã sử dụng ít nhất {percent}% thời lượng booking. " +
+                    $"Thời gian sớm nhất có thể check-out: {minCheckoutTime:dd/MM/yyyy HH:mm:ss}."
+                );
+            }
 
             // set check-out time, note, and images
             booking.CheckOutTime = now;

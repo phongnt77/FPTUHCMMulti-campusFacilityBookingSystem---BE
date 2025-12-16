@@ -16,6 +16,12 @@ namespace Applications.DTOs.Request
         /// số phút cho phép check-in sau StartTime (mặc định: 15)
         /// </summary>
         public int? CheckInMinutesAfterStart { get; set; }
+
+        /// <summary>
+        /// Tỉ lệ tối thiểu (0-1) thời lượng booking phải qua mới được phép check-out (mặc định: 2/3).
+        /// Ví dụ: 0.66 nghĩa là phải qua 66% thời gian booking mới được check-out.
+        /// </summary>
+        public double? CheckoutMinRatio { get; set; }
     }
 }
 
