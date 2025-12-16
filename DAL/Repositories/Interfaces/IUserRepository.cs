@@ -5,6 +5,7 @@ namespace DAL.Repositories.Interfaces
     public interface IUserRepository
     {
         Task<User?> GetByIdAsync(string id);
+        Task<User?> GetByIdWithRoleAsync(string id);
         Task<List<User>> GetAllAsync();
         Task<User?> GetByEmailAsync(string email);
         Task<User?> GetByUsernameAsync(string username);

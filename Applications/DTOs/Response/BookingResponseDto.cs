@@ -5,8 +5,10 @@ namespace Applications.DTOs.Response
         public string BookingId { get; set; } = string.Empty;
         public string UserId { get; set; } = string.Empty;
         public string UserName { get; set; } = string.Empty;
+        public string? UserEmail { get; set; }
         public string? UserPhoneNumber { get; set; }
-        public string? StudentId { get; set; }
+        public string? UserStudentId { get; set; }
+        public string? UserRoleName { get; set; }
         public string FacilityId { get; set; } = string.Empty;
         public string FacilityName { get; set; } = string.Empty;
         public string? FacilityRoomNumber { get; set; }

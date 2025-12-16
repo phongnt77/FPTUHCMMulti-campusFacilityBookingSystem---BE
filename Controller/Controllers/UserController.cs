@@ -17,10 +17,12 @@ namespace Controller.Controllers
     public class UserController : ControllerBase
     {
         private readonly IUserService _userService;
+        private readonly ICloudinaryService _cloudinaryService;
 
-        public UserController(IUserService userService)
+        public UserController(IUserService userService, ICloudinaryService cloudinaryService)
         {
             _userService = userService;
+            _cloudinaryService = cloudinaryService;
         }
 
         /// <summary>
@@ -73,7 +75,12 @@ namespace Controller.Controllers
         /// <remarks>
         /// **Roles:** Tất cả user đã đăng nhập
         /// 
-        /// **Mục đích:** Cập nhật thông tin cá nhân (FullName, PhoneNumber, AvatarUrl)
+        /// **Mục đích:** Cập nhật thông tin cá nhân (PhoneNumber, AvatarUrl, StudentId)
+        /// 
+        /// **Lưu ý về StudentId:**
+        /// - Chỉ sinh viên (role = Student) mới cần cập nhật MSSV
+        /// - MSSV phải đúng format: SE/SS/IB/MC + 6 số (2 số đầu >= 14)
+        /// - Ví dụ: SE173162, SS180123, IB150001
         /// 
         /// User chỉ có thể cập nhật profile của chính mình
         /// </remarks>
@@ -86,7 +93,11 @@ namespace Controller.Controllers
         {
             if (!ModelState.IsValid)
             {
-                return BadRequest(ApiResponse.Fail(400, "Dữ liệu không hợp lệ"));
+                var errors = ModelState.Values
+                    .SelectMany(v => v.Errors)
+                    .Select(e => e.ErrorMessage)
+                    .ToList();
+                return BadRequest(ApiResponse.Fail(400, string.Join("; ", errors)));
             }
 
             var userId = User.FindFirstValue(JwtRegisteredClaimNames.Sub) ??
@@ -105,6 +116,91 @@ namespace Controller.Controllers
             }
 
             return Ok(ApiResponse<UserResponseDto>.Ok(result));
+        }
+
+        /// <summary>
+        /// Cập nhật profile với upload avatar trực tiếp (multipart/form-data)
+        /// </summary>
+        /// <param name="phoneNumber">Số điện thoại</param>
+        /// <param name="studentId">MSSV (chỉ cho sinh viên)</param>
+        /// <param name="avatar">File ảnh avatar</param>
+        /// <returns>Thông tin user sau khi cập nhật</returns>
+        /// <response code="200">Cập nhật thành công</response>
+        /// <response code="400">Dữ liệu không hợp lệ</response>
+        /// <response code="401">Chưa đăng nhập</response>
+        /// <response code="404">Không tìm thấy user</response>
+        /// <remarks>
+        /// **Roles:** Tất cả user đã đăng nhập
+        /// 
+        /// **Mục đích:** Cập nhật profile với upload avatar trực tiếp lên Cloudinary
+        /// 
+        /// **Form Data:**
+        /// - phoneNumber: Số điện thoại (10 số, bắt đầu bằng 0)
+        /// - studentId: MSSV (SE/SS/IB/MC + 6 số, chỉ cho sinh viên)
+        /// - avatar: File ảnh (jpg, png, gif, webp - max 10MB)
+        /// </remarks>
+        [HttpPut("profile/upload")]
+        [ProducesResponseType(typeof(ApiResponse<UserResponseDto>), 200)]
+        [ProducesResponseType(typeof(ApiResponse), 400)]
+        [ProducesResponseType(typeof(ApiResponse), 401)]
+        [ProducesResponseType(typeof(ApiResponse), 404)]
+        [Consumes("multipart/form-data")]
+        public async Task<IActionResult> UpdateProfileWithAvatar(
+            [FromForm] string? phoneNumber,
+            [FromForm] string? studentId,
+            [FromForm] IFormFile? avatar)
+        {
+            try
+            {
+                var userId = User.FindFirstValue(JwtRegisteredClaimNames.Sub) ??
+                             User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+                if (string.IsNullOrEmpty(userId))
+                {
+                    return Unauthorized(ApiResponse.Fail(401, "Không tìm thấy user id trong token."));
+                }
+
+                // Upload avatar lên Cloudinary nếu có
+                string? avatarUrl = null;
+                if (avatar != null && avatar.Length > 0)
+                {
+                    avatarUrl = await _cloudinaryService.UploadImageAsync(avatar, "avatars");
+                }
+
+                // Tạo DTO với dữ liệu từ form
+                var dto = new UpdateUserProfileDto
+                {
+                    PhoneNumber = phoneNumber,
+                    StudentId = studentId,
+                    AvatarUrl = avatarUrl
+                };
+
+                // Validate DTO manually
+                var validationContext = new System.ComponentModel.DataAnnotations.ValidationContext(dto);
+                var validationResults = new List<System.ComponentModel.DataAnnotations.ValidationResult>();
+                if (!System.ComponentModel.DataAnnotations.Validator.TryValidateObject(dto, validationContext, validationResults, true))
+                {
+                    var errors = validationResults.Select(r => r.ErrorMessage).ToList();
+                    return BadRequest(ApiResponse.Fail(400, string.Join("; ", errors)));
+                }
+
+                var result = await _userService.UpdateProfileAsync(userId, dto);
+
+                if (result == null)
+                {
+                    return NotFound(ApiResponse.Fail(404, "Không tìm thấy user."));
+                }
+
+                return Ok(ApiResponse<UserResponseDto>.Ok(result));
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(ApiResponse.Fail(400, ex.Message));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ApiResponse.Fail(500, $"Lỗi upload: {ex.Message}"));
+            }
         }
 
         /// <summary>

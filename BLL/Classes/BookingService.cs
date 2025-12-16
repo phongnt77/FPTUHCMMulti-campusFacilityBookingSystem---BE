@@ -58,6 +58,34 @@ namespace BLL.Classes
 
         public async Task<ApiResponse<BookingResponseDto>> CreateAsync(CreateBookingDto dto)
         {
+            // validate user tồn tại và kiểm tra thông tin bắt buộc
+            var user = await _unitOfWork.UserRepo.GetByIdAsync(dto.UserId);
+            if (user == null)
+            {
+                return ApiResponse<BookingResponseDto>.Fail(404, "Không tìm thấy user.");
+            }
+
+            // Kiểm tra email bắt buộc
+            if (string.IsNullOrWhiteSpace(user.Email))
+            {
+                return ApiResponse<BookingResponseDto>.Fail(400, "Bạn phải cập nhật email trong hồ sơ cá nhân trước khi đặt phòng.");
+            }
+
+            // Kiểm tra số điện thoại bắt buộc
+            if (string.IsNullOrWhiteSpace(user.PhoneNumber))
+            {
+                return ApiResponse<BookingResponseDto>.Fail(400, "Bạn phải cập nhật số điện thoại trong hồ sơ cá nhân trước khi đặt phòng. Vui lòng vào Hồ sơ để cập nhật.");
+            }
+
+            // Nếu user có role là Student thì phải có MSSV
+            if (user.Role != null && user.Role.RoleName.Equals("Student", StringComparison.OrdinalIgnoreCase))
+            {
+                if (string.IsNullOrWhiteSpace(user.StudentId))
+                {
+                    return ApiResponse<BookingResponseDto>.Fail(400, "Sinh viên phải cập nhật MSSV trong hồ sơ cá nhân trước khi đặt phòng. Vui lòng vào Hồ sơ để cập nhật.");
+                }
+            }
+
             // validate thời gian hợp lý
             var timeValidation = await ValidateBookingTimeAsync(dto.StartTime, dto.EndTime);
             if (!timeValidation.IsValid)

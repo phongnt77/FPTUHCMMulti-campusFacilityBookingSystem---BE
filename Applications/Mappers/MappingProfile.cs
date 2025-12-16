@@ -122,8 +122,10 @@ namespace Applications.Mappers
             // Booking → BookingResponseDto
             CreateMap<Booking, BookingResponseDto>()
                 .ForMember(dest => dest.UserName, opt => opt.MapFrom(src => src.User.FullName))
+                .ForMember(dest => dest.UserEmail, opt => opt.MapFrom(src => src.User.Email))
                 .ForMember(dest => dest.UserPhoneNumber, opt => opt.MapFrom(src => src.User.PhoneNumber))
-                .ForMember(dest => dest.StudentId, opt => opt.MapFrom(src => src.User.StudentId))
+                .ForMember(dest => dest.UserStudentId, opt => opt.MapFrom(src => src.User.StudentId))
+                .ForMember(dest => dest.UserRoleName, opt => opt.MapFrom(src => src.User.Role != null ? src.User.Role.RoleName : null))
                 .ForMember(dest => dest.FacilityName, opt => opt.MapFrom(src => src.Facility.Name))
                 .ForMember(dest => dest.FacilityRoomNumber, opt => opt.MapFrom(src => src.Facility.RoomNumber))
                 .ForMember(dest => dest.FacilityFloorNumber, opt => opt.MapFrom(src => src.Facility.FloorNumber))
