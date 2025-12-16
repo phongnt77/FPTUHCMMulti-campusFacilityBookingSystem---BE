@@ -22,7 +22,7 @@ namespace BLL.Classes
 
         public async Task<UserResponseDto?> GetProfileAsync(string userId)
         {
-            var user = await _unitOfWork.UserRepo.GetByIdAsync(userId);
+            var user = await _unitOfWork.UserRepo.GetByIdWithRoleAsync(userId);
             if (user == null)
             {
                 return null;
@@ -33,7 +33,7 @@ namespace BLL.Classes
 
         public async Task<UserResponseDto?> UpdateProfileAsync(string userId, UpdateUserProfileDto dto)
         {
-            var user = await _unitOfWork.UserRepo.GetByIdAsync(userId);
+            var user = await _unitOfWork.UserRepo.GetByIdWithRoleAsync(userId);
             if (user == null)
             {
                 return null;
@@ -77,7 +77,9 @@ namespace BLL.Classes
             await _unitOfWork.UserRepo.UpdateAsync(user);
             await _unitOfWork.SaveChangesAsync();
 
-            return _mapper.Map<UserResponseDto>(user);
+            // Reload user with Role after update for correct mapping
+            var updatedUser = await _unitOfWork.UserRepo.GetByIdWithRoleAsync(userId);
+            return _mapper.Map<UserResponseDto>(updatedUser);
         }
 
         private (bool IsValid, string ErrorMessage) ValidatePhoneNumber(string phoneNumber)
