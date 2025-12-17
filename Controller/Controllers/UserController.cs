@@ -121,9 +121,7 @@ namespace Controller.Controllers
         /// <summary>
         /// Cập nhật profile với upload avatar trực tiếp (multipart/form-data)
         /// </summary>
-        /// <param name="phoneNumber">Số điện thoại</param>
-        /// <param name="studentId">MSSV (chỉ cho sinh viên)</param>
-        /// <param name="avatar">File ảnh avatar</param>
+        /// <param name="request">Form data chứa phoneNumber, studentId, và avatar file</param>
         /// <returns>Thông tin user sau khi cập nhật</returns>
         /// <response code="200">Cập nhật thành công</response>
         /// <response code="400">Dữ liệu không hợp lệ</response>
@@ -135,9 +133,9 @@ namespace Controller.Controllers
         /// **Mục đích:** Cập nhật profile với upload avatar trực tiếp lên Cloudinary
         /// 
         /// **Form Data:**
-        /// - phoneNumber: Số điện thoại (10 số, bắt đầu bằng 0)
-        /// - studentId: MSSV (SE/SS/IB/MC + 6 số, chỉ cho sinh viên)
-        /// - avatar: File ảnh (jpg, png, gif, webp - max 10MB)
+        /// - PhoneNumber: Số điện thoại (10 số, bắt đầu bằng 0)
+        /// - StudentId: MSSV (SE/SS/IB/MC + 6 số, chỉ cho sinh viên)
+        /// - Avatar: File ảnh (jpg, png, gif, webp - max 10MB)
         /// </remarks>
         [HttpPut("profile/upload")]
         [ProducesResponseType(typeof(ApiResponse<UserResponseDto>), 200)]
@@ -145,10 +143,7 @@ namespace Controller.Controllers
         [ProducesResponseType(typeof(ApiResponse), 401)]
         [ProducesResponseType(typeof(ApiResponse), 404)]
         [Consumes("multipart/form-data")]
-        public async Task<IActionResult> UpdateProfileWithAvatar(
-            [FromForm] string? phoneNumber,
-            [FromForm] string? studentId,
-            [FromForm] IFormFile? avatar)
+        public async Task<IActionResult> UpdateProfileWithAvatar([FromForm] UpdateProfileWithAvatarDto request)
         {
             try
             {
@@ -162,16 +157,16 @@ namespace Controller.Controllers
 
                 // Upload avatar lên Cloudinary nếu có
                 string? avatarUrl = null;
-                if (avatar != null && avatar.Length > 0)
+                if (request.Avatar != null && request.Avatar.Length > 0)
                 {
-                    avatarUrl = await _cloudinaryService.UploadImageAsync(avatar, "avatars");
+                    avatarUrl = await _cloudinaryService.UploadImageAsync(request.Avatar, "avatars");
                 }
 
                 // Tạo DTO với dữ liệu từ form
                 var dto = new UpdateUserProfileDto
                 {
-                    PhoneNumber = phoneNumber,
-                    StudentId = studentId,
+                    PhoneNumber = request.PhoneNumber,
+                    StudentId = request.StudentId,
                     AvatarUrl = avatarUrl
                 };
 
