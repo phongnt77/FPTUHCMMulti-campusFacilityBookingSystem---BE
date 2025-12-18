@@ -538,7 +538,7 @@ namespace BLL.Classes
             return null;
         }
 
-        public async Task<ApiResponse<BookingResponseDto>> CheckInAsync(string bookingId, string userId, CheckInDto? dto = null)
+        public async Task<ApiResponse<BookingResponseDto>> CheckInAsync(string bookingId, string userId, CheckInDto? dto = null, DateTime? nowOverride = null)
         {
             var booking = await _unitOfWork.BookingRepo.GetByIdAsync(bookingId);
             if (booking == null)
@@ -565,7 +565,7 @@ namespace BLL.Classes
             }
 
             // validate thời gian check-in (lấy từ settings)
-            var now = DateTimeHelper.VietnamNow;
+            var now = nowOverride ?? DateTimeHelper.VietnamNow;
             var checkInMinutesBefore = await _systemSettingsService.GetCheckInMinutesBeforeStartAsync();
             var checkInMinutesAfter = await _systemSettingsService.GetCheckInMinutesAfterStartAsync();
             
@@ -603,7 +603,7 @@ namespace BLL.Classes
             return ApiResponse<BookingResponseDto>.Ok(responseDto);
         }
 
-        public async Task<ApiResponse<BookingResponseDto>> CheckOutAsync(string bookingId, string userId, CheckOutDto? dto = null)
+        public async Task<ApiResponse<BookingResponseDto>> CheckOutAsync(string bookingId, string userId, CheckOutDto? dto = null, DateTime? nowOverride = null)
         {
             var booking = await _unitOfWork.BookingRepo.GetByIdAsync(bookingId);
             if (booking == null)
@@ -629,7 +629,7 @@ namespace BLL.Classes
                 return ApiResponse<BookingResponseDto>.Fail(400, "Booking đã được check-out trước đó.");
             }
 
-            var now = DateTimeHelper.VietnamNow;
+            var now = nowOverride ?? DateTimeHelper.VietnamNow;
 
             // validate thời gian check-out: chỉ cho phép sau khi đã qua X% thời lượng booking
             // mặc định X = 2/3, admin có thể custom 

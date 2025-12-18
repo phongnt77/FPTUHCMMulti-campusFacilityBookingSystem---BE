@@ -4,6 +4,8 @@ using BLL.Interfaces;
 using DAL.Models.Enums;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Hosting;
+using System.Globalization;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 
@@ -19,11 +21,36 @@ namespace Controller.Controllers
     {
         private readonly IBookingService _bookingService;
         private readonly ICloudinaryService _cloudinaryService;
+        private readonly IWebHostEnvironment _env;
 
-        public BookingController(IBookingService bookingService, ICloudinaryService cloudinaryService)
+        public BookingController(IBookingService bookingService, ICloudinaryService cloudinaryService, IWebHostEnvironment env)
         {
             _bookingService = bookingService;
             _cloudinaryService = cloudinaryService;
+            _env = env;
+        }
+
+        private DateTime? GetMockNowFromHeader()
+        {
+            if (!_env.IsDevelopment()) return null;
+
+            if (!Request.Headers.TryGetValue("X-Mock-Time", out var value)) return null;
+            var raw = value.ToString();
+            if (string.IsNullOrWhiteSpace(raw)) return null;
+
+            // Expect ISO-like string, e.g. 2025-12-19T07:00:00
+            if (DateTime.TryParse(raw, CultureInfo.InvariantCulture, DateTimeStyles.AllowWhiteSpaces, out var parsed))
+            {
+                return parsed;
+            }
+
+            // Fallback: try current culture
+            if (DateTime.TryParse(raw, out parsed))
+            {
+                return parsed;
+            }
+
+            return null;
         }
 
         /// <summary>
@@ -478,7 +505,8 @@ namespace Controller.Controllers
                     return Unauthorized(ApiResponse.Fail(401, "Không tìm thấy user id trong token."));
                 }
 
-                var result = await _bookingService.CheckInAsync(id, userId, dto);
+                var mockNow = GetMockNowFromHeader();
+                var result = await _bookingService.CheckInAsync(id, userId, dto, mockNow);
                 if (!result.Success)
                 {
                     if (result.Error?.Code == 400)
@@ -557,7 +585,8 @@ namespace Controller.Controllers
                     ImageUrls = imageUrls.Any() ? imageUrls : null
                 };
 
-                var result = await _bookingService.CheckInAsync(id, userId, dto);
+                var mockNow = GetMockNowFromHeader();
+                var result = await _bookingService.CheckInAsync(id, userId, dto, mockNow);
                 if (!result.Success)
                 {
                     if (result.Error?.Code == 400)
@@ -626,7 +655,8 @@ namespace Controller.Controllers
                     return Unauthorized(ApiResponse.Fail(401, "Không tìm thấy user id trong token."));
                 }
 
-                var result = await _bookingService.CheckOutAsync(id, userId, dto);
+                var mockNow = GetMockNowFromHeader();
+                var result = await _bookingService.CheckOutAsync(id, userId, dto, mockNow);
                 if (!result.Success)
                 {
                     if (result.Error?.Code == 400)
@@ -705,7 +735,8 @@ namespace Controller.Controllers
                     ImageUrls = imageUrls.Any() ? imageUrls : null
                 };
 
-                var result = await _bookingService.CheckOutAsync(id, userId, dto);
+                var mockNow = GetMockNowFromHeader();
+                var result = await _bookingService.CheckOutAsync(id, userId, dto, mockNow);
                 if (!result.Success)
                 {
                     if (result.Error?.Code == 400)
