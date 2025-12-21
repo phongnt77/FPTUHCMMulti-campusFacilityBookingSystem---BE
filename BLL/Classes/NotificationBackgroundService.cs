@@ -36,7 +36,11 @@ namespace BLL.Classes
                         await notificationService.ProcessNoShowBookingsAsync();
                         _logger.LogInformation("Processed No_Show bookings.");
 
-                        // Process late check-in bookings (check every 5 minutes)
+                        // process late check-in bookings (check every 5 minutes)
+                        // hàm này tự động hủy các booking đã được duyệt nhưng không check-in đúng giờ
+                        // ràng buộc: booking phải check-in trong khoảng thời gian cho phép (lấy từ system settings)
+                        // nếu quá thời gian, booking sẽ bị hủy với lý do "quá thời gian check-in"
+                        // user sẽ nhận notification về việc booking bị hủy
                         await bookingService.ProcessLateCheckInBookingsAsync();
                         _logger.LogInformation("Processed late check-in bookings.");
 

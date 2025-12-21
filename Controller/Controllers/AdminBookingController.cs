@@ -92,6 +92,7 @@ namespace Controller.Controllers
         /// **Lưu ý:**
         /// - MSSV và Email của user sẽ được hiển thị trong response để admin xem
         /// - Không cần duyệt MSSV/Email, chỉ cần duyệt thông tin booking
+        /// - MSSV được user tự cập nhật trong profile (chỉ Student role)
         /// </remarks>
         [HttpPatch("{bookingId}/approve")]
         [ProducesResponseType(typeof(ApiResponse<BookingResponseDto>), 200)]
@@ -101,6 +102,7 @@ namespace Controller.Controllers
         [ProducesResponseType(typeof(ApiResponse), 409)]
         public async Task<IActionResult> ApproveBooking(string bookingId)
         {
+            // lấy approverid từ jwt token (người duyệt booking)
             var approverId = User.FindFirstValue(JwtRegisteredClaimNames.Sub) ??
                             User.FindFirstValue(ClaimTypes.NameIdentifier);
 
@@ -111,6 +113,9 @@ namespace Controller.Controllers
 
             try
             {
+                // gọi service để duyệt booking
+                // service sẽ kiểm tra conflict, cập nhật status, và tạo notification cho user
+                // mssv và email sẽ được tự động include trong response (qua automapper)
                 var result = await _bookingService.ApproveBookingAsync(bookingId, approverId);
                 
                 if (!result.Success)
