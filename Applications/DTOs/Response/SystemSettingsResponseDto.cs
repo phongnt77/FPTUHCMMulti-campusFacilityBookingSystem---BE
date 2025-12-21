@@ -18,10 +18,10 @@ namespace Applications.DTOs.Response
         public int CheckInMinutesAfterStart { get; set; }
 
         /// <summary>
-        /// Tỉ lệ tối thiểu (0-1) thời lượng booking phải qua mới được phép check-out.
-        /// Mặc định: 2/3.
+        /// số phút tối thiểu sau khi check-in để được phép check-out
+        /// mặc định: 0 (có thể check-out ngay sau khi check-in)
         /// </summary>
-        public double CheckoutMinRatio { get; set; }
+        public int CheckoutMinMinutesAfterCheckIn { get; set; }
     }
 }
 

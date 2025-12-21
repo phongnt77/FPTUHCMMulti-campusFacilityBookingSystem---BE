@@ -36,6 +36,7 @@ namespace Controller.Controllers
         /// - MinimumBookingHoursBeforeStart: Thời gian tối thiểu (giờ) trước khi booking bắt đầu (mặc định: 3)
         /// - CheckInMinutesBeforeStart: Số phút cho phép check-in trước StartTime (mặc định: 15)
         /// - CheckInMinutesAfterStart: Số phút cho phép check-in sau StartTime (mặc định: 15)
+        /// - CheckoutMinMinutesAfterCheckIn: Số phút tối thiểu sau khi check-in để được phép check-out (mặc định: 0)
         /// </remarks>
         [HttpGet]
         [ProducesResponseType(typeof(ApiResponse<SystemSettingsResponseDto>), 200)]
@@ -71,6 +72,7 @@ namespace Controller.Controllers
         /// - MinimumBookingHoursBeforeStart: Thời gian tối thiểu (giờ) trước khi booking bắt đầu (>= 0)
         /// - CheckInMinutesBeforeStart: Số phút cho phép check-in trước StartTime (>= 0)
         /// - CheckInMinutesAfterStart: Số phút cho phép check-in sau StartTime (>= 0)
+        /// - CheckoutMinMinutesAfterCheckIn: Số phút tối thiểu sau khi check-in để được phép check-out (>= 0, mặc định: 0)
         /// 
         /// **Lưu ý:**
         /// - Chỉ cần gửi các field muốn cập nhật (các field khác giữ nguyên)

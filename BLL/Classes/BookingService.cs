@@ -664,28 +664,24 @@ namespace BLL.Classes
 
             var now = DateTimeHelper.VietnamNow;
 
-            // validate thời gian check-out - chỉ cho phép sau khi đã qua x% thời lượng booking
-            // ràng buộc: user phải sử dụng ít nhất x% thời lượng booking mới được phép check-out
-            // mặc định x = 2/3 (66.67%), admin có thể custom qua system settings
-            // ví dụ: booking 3 giờ (9h-12h), ratio=2/3 → phải đợi đến 11h mới được checkout
-            // mục đích: đảm bảo user sử dụng đủ thời gian đã đặt, tránh lãng phí tài nguyên
-            var checkoutRatio = await _systemSettingsService.GetCheckoutMinRatioAsync();
-            // đảm bảo ratio trong khoảng [0, 1]
-            if (checkoutRatio < 0) checkoutRatio = 0;
-            if (checkoutRatio > 1) checkoutRatio = 1;
+            // validate thời gian check-out - chỉ cho phép sau khi đã qua x phút từ lúc check-in
+            // ràng buộc: user phải đợi ít nhất x phút sau khi check-in mới được phép check-out
+            // mặc định x = 0 (có thể check-out ngay sau khi check-in), admin có thể custom qua system settings
+            // ví dụ: nếu set = 30 phút, user check-in lúc 9h thì phải đợi đến 9h30 mới được checkout
+            // mục đích: đảm bảo user sử dụng đủ thời gian tối thiểu, tránh lãng phí tài nguyên
+            var checkoutMinMinutes = await _systemSettingsService.GetCheckoutMinMinutesAfterCheckInAsync();
+            // đảm bảo số phút >= 0
+            if (checkoutMinMinutes < 0) checkoutMinMinutes = 0;
 
-            // tính thời gian tối thiểu phải sử dụng
-            var totalDuration = booking.EndTime - booking.StartTime;
-            var minElapsed = TimeSpan.FromTicks((long)(totalDuration.Ticks * checkoutRatio));
-            var minCheckoutTime = booking.StartTime.Add(minElapsed);
+            // tính thời gian sớm nhất có thể check-out (check-in time + số phút tối thiểu)
+            var minCheckoutTime = booking.CheckInTime.Value.AddMinutes(checkoutMinMinutes);
 
             // kiểm tra nếu check-out quá sớm
             if (now < minCheckoutTime)
             {
-                var percent = Math.Round(checkoutRatio * 100);
                 return ApiResponse<BookingResponseDto>.Fail(
                     400,
-                    $"Chỉ có thể check-out sau khi đã sử dụng ít nhất {percent}% thời lượng booking. " +
+                    $"Chỉ có thể check-out sau khi đã check-in ít nhất {checkoutMinMinutes} phút. " +
                     $"Thời gian sớm nhất có thể check-out: {minCheckoutTime:dd/MM/yyyy HH:mm:ss}."
                 );
             }
