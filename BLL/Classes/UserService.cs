@@ -22,7 +22,7 @@ namespace BLL.Classes
 
         public async Task<UserResponseDto?> GetProfileAsync(string userId)
         {
-            var user = await _unitOfWork.UserRepo.GetByIdAsync(userId);
+            var user = await _unitOfWork.UserRepo.GetByIdWithRoleAsync(userId);
             if (user == null)
             {
                 return null;
@@ -33,7 +33,7 @@ namespace BLL.Classes
 
         public async Task<UserResponseDto?> UpdateProfileAsync(string userId, UpdateUserProfileDto dto)
         {
-            var user = await _unitOfWork.UserRepo.GetByIdAsync(userId);
+            var user = await _unitOfWork.UserRepo.GetByIdWithRoleAsync(userId);
             if (user == null)
             {
                 return null;
@@ -49,24 +49,33 @@ namespace BLL.Classes
                 }
             }
 
-            // validate MSSV (chỉ cho phép Student role - RL0001)
+            // validate mssv (chỉ cho phép student role - rl0001)
+            // mssv chỉ được cập nhật bởi user có role student
+            // admin khi duyệt booking chỉ xem mssv, không cần duyệt
             if (!string.IsNullOrWhiteSpace(dto.StudentId))
             {
+                // kiểm tra user có phải student không
                 if (user.RoleId != "RL0001")
                 {
                     throw new UnauthorizedAccessException("Chỉ user có role Student mới được cập nhật MSSV.");
                 }
 
+                // validate format mssv bằng regex
+                // format: 2 chữ cái (se, ss, ib, mc) + 6 số (2 số đầu >= 14)
+                // ví dụ đúng: se173456, ss152345
+                // ví dụ sai: ab000111, se123456 (khóa 12 không hợp lệ)
                 if (!DAL.Models.StudentIdRegex.IsValid(dto.StudentId))
                 {
-                    throw new ArgumentException("MSSV không hợp lệ. Ví dụ đúng: SE173162. Ví dụ sai: AB000111.");
+                    throw new ArgumentException("MSSV không hợp lệ. Ví dụ đúng: SE173456. Ví dụ sai: AB000111.");
                 }
             }
 
+            // cập nhật thông tin user
             user.PhoneNumber = dto.PhoneNumber;
             user.AvatarUrl = dto.AvatarUrl;
             
-            // Chỉ cập nhật MSSV nếu user là Student
+            // chỉ cập nhật mssv nếu user là student và đã validate thành công
+            // mssv sẽ được hiển thị trong booking response để admin xem khi duyệt
             if (!string.IsNullOrWhiteSpace(dto.StudentId) && user.RoleId == "RL0001")
             {
                 user.StudentId = dto.StudentId;
@@ -77,7 +86,9 @@ namespace BLL.Classes
             await _unitOfWork.UserRepo.UpdateAsync(user);
             await _unitOfWork.SaveChangesAsync();
 
-            return _mapper.Map<UserResponseDto>(user);
+            // Reload user with Role after update for correct mapping
+            var updatedUser = await _unitOfWork.UserRepo.GetByIdWithRoleAsync(userId);
+            return _mapper.Map<UserResponseDto>(updatedUser);
         }
 
         private (bool IsValid, string ErrorMessage) ValidatePhoneNumber(string phoneNumber)

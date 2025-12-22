@@ -535,18 +535,20 @@ namespace Controller.Controllers
                     return Unauthorized(ApiResponse.Fail(401, "Không tìm thấy user id trong token."));
                 }
 
+                // Bắt buộc phải có ít nhất 1 ảnh
+                if (images == null || !images.Any())
+                {
+                    return BadRequest(ApiResponse.Fail(400, "Vui lòng upload ít nhất 1 ảnh để check-in."));
+                }
+
                 // Validate số lượng ảnh
-                if (images != null && images.Count > 5)
+                if (images.Count > 5)
                 {
                     return BadRequest(ApiResponse.Fail(400, "Chỉ được upload tối đa 5 ảnh."));
                 }
 
                 // Upload ảnh lên Cloudinary
-                var imageUrls = new List<string>();
-                if (images != null && images.Any())
-                {
-                    imageUrls = await _cloudinaryService.UploadImagesAsync(images, "check-in");
-                }
+                var imageUrls = await _cloudinaryService.UploadImagesAsync(images, "check-in");
 
                 // Tạo DTO với URLs từ Cloudinary
                 var dto = new CheckInDto
@@ -681,18 +683,20 @@ namespace Controller.Controllers
                     return Unauthorized(ApiResponse.Fail(401, "Không tìm thấy user id trong token."));
                 }
 
+                // Bắt buộc phải có ít nhất 1 ảnh
+                if (images == null || !images.Any())
+                {
+                    return BadRequest(ApiResponse.Fail(400, "Vui lòng upload ít nhất 1 ảnh để check-out."));
+                }
+
                 // Validate số lượng ảnh
-                if (images != null && images.Count > 5)
+                if (images.Count > 5)
                 {
                     return BadRequest(ApiResponse.Fail(400, "Chỉ được upload tối đa 5 ảnh."));
                 }
 
                 // Upload ảnh lên Cloudinary
-                var imageUrls = new List<string>();
-                if (images != null && images.Any())
-                {
-                    imageUrls = await _cloudinaryService.UploadImagesAsync(images, "check-out");
-                }
+                var imageUrls = await _cloudinaryService.UploadImagesAsync(images, "check-out");
 
                 // Tạo DTO với URLs từ Cloudinary
                 var dto = new CheckOutDto

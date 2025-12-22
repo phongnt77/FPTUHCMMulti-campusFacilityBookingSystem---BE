@@ -20,6 +20,10 @@ namespace BLL.Classes
         public async Task<ApiResponse<BookingReportResponseDto>> GetBookingReportAsync(BookingReportFilterDto filter)
         {
             var (startDate, endDate) = CalculatePeriod(filter);
+            
+            // Đảm bảo endDate bao gồm hết ngày cuối (23:59:59.999)
+            var endDateInclusive = endDate.Date.AddDays(1).AddTicks(-1);
+            
             var periodInfo = new PeriodInfo
             {
                 PeriodType = filter.PeriodType ?? "custom",
@@ -31,7 +35,7 @@ namespace BLL.Classes
             // Get all bookings in period
             var allBookings = await _unitOfWork.BookingRepo.GetAllAsync();
             var bookingsInPeriod = allBookings
-                .Where(b => b.StartTime >= startDate && b.StartTime <= endDate)
+                .Where(b => b.StartTime >= startDate && b.StartTime <= endDateInclusive)
                 .ToList();
 
             // Apply filters

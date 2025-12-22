@@ -13,6 +13,13 @@ namespace DAL.Repositories.Classes
         {
         }
 
+        public async Task<User?> GetByIdWithRoleAsync(string id)
+        {
+            return await _context.Set<User>()
+                .Include(u => u.Role)
+                .FirstOrDefaultAsync(u => u.UserId == id);
+        }
+
         public async Task<User?> GetByEmailAsync(string email)
         {
             return await _context.Set<User>().FirstOrDefaultAsync(u => u.Email == email);

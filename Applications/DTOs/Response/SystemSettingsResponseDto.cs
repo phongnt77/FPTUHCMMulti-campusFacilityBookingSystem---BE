@@ -16,6 +16,12 @@ namespace Applications.DTOs.Response
         /// số phút cho phép check-in sau StartTime
         /// </summary>
         public int CheckInMinutesAfterStart { get; set; }
+
+        /// <summary>
+        /// số phút tối thiểu sau khi check-in để được phép check-out
+        /// mặc định: 0 (có thể check-out ngay sau khi check-in)
+        /// </summary>
+        public int CheckoutMinMinutesAfterCheckIn { get; set; }
     }
 }
 

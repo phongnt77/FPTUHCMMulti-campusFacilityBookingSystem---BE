@@ -11,7 +11,7 @@ namespace Controller.Controllers
     /// </summary>
     [ApiController]
     [Route("api/system-settings")]
-    [Authorize(Roles = "RL0003")] // Chỉ Facility_Admin
+    [Authorize]
     public class SystemSettingsController : ControllerBase
     {
         private readonly ISystemSettingsService _systemSettingsService;
@@ -27,9 +27,8 @@ namespace Controller.Controllers
         /// <returns>Cấu hình hệ thống</returns>
         /// <response code="200">Trả về cấu hình thành công</response>
         /// <response code="401">Chưa đăng nhập</response>
-        /// <response code="403">Không có quyền (chỉ Facility_Admin)</response>
         /// <remarks>
-        /// **Roles:** Chỉ Facility_Admin (RL0003)
+        /// **Roles:** Tất cả user đã đăng nhập
         /// 
         /// **Mục đích:** Xem các cấu hình thời gian hiện tại của hệ thống
         /// 
@@ -37,11 +36,11 @@ namespace Controller.Controllers
         /// - MinimumBookingHoursBeforeStart: Thời gian tối thiểu (giờ) trước khi booking bắt đầu (mặc định: 3)
         /// - CheckInMinutesBeforeStart: Số phút cho phép check-in trước StartTime (mặc định: 15)
         /// - CheckInMinutesAfterStart: Số phút cho phép check-in sau StartTime (mặc định: 15)
+        /// - CheckoutMinMinutesAfterCheckIn: Số phút tối thiểu sau khi check-in để được phép check-out (mặc định: 0)
         /// </remarks>
         [HttpGet]
         [ProducesResponseType(typeof(ApiResponse<SystemSettingsResponseDto>), 200)]
         [ProducesResponseType(401)]
-        [ProducesResponseType(403)]
         public async Task<IActionResult> GetSettings()
         {
             try
@@ -73,6 +72,7 @@ namespace Controller.Controllers
         /// - MinimumBookingHoursBeforeStart: Thời gian tối thiểu (giờ) trước khi booking bắt đầu (>= 0)
         /// - CheckInMinutesBeforeStart: Số phút cho phép check-in trước StartTime (>= 0)
         /// - CheckInMinutesAfterStart: Số phút cho phép check-in sau StartTime (>= 0)
+        /// - CheckoutMinMinutesAfterCheckIn: Số phút tối thiểu sau khi check-in để được phép check-out (>= 0, mặc định: 0)
         /// 
         /// **Lưu ý:**
         /// - Chỉ cần gửi các field muốn cập nhật (các field khác giữ nguyên)
@@ -80,6 +80,7 @@ namespace Controller.Controllers
         /// - Các giá trị phải >= 0
         /// </remarks>
         [HttpPut]
+        [Authorize(Roles = "RL0003")]
         [ProducesResponseType(typeof(ApiResponse<SystemSettingsResponseDto>), 200)]
         [ProducesResponseType(typeof(ApiResponse), 400)]
         [ProducesResponseType(401)]

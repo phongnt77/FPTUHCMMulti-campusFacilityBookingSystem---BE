@@ -7,6 +7,7 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using System.Text;
 using Controller.Converters;
+using Controller.Filters;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -87,6 +88,36 @@ builder.Services.AddSwaggerGen(c =>
 
     // Add enum descriptions to show in dropdown
     c.UseInlineDefinitionsForEnums();
+
+    // Map IFormFile để Swagger biết cách xử lý
+    c.MapType<IFormFile>(() => new OpenApiSchema
+    {
+        Type = "string",
+        Format = "binary"
+    });
+    
+    c.MapType<IFormFile[]>(() => new OpenApiSchema
+    {
+        Type = "array",
+        Items = new OpenApiSchema
+        {
+            Type = "string",
+            Format = "binary"
+        }
+    });
+    
+    c.MapType<List<IFormFile>>(() => new OpenApiSchema
+    {
+        Type = "array",
+        Items = new OpenApiSchema
+        {
+            Type = "string",
+            Format = "binary"
+        }
+    });
+
+    // Add support for file uploads in Swagger
+    c.OperationFilter<FileUploadOperationFilter>();
 
     c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
     {

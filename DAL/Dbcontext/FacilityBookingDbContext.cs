@@ -160,8 +160,7 @@ namespace DAL.Dbcontext
                     new FacilityType { TypeId = "FT0001", Name = "Phòng học", Description = "Phòng học lý thuyết", CreatedAt = DateTime.UtcNow, UpdatedAt = DateTime.UtcNow },
                     new FacilityType { TypeId = "FT0002", Name = "Phòng họp", Description = "Phòng họp", CreatedAt = DateTime.UtcNow, UpdatedAt = DateTime.UtcNow },
                     new FacilityType { TypeId = "FT0003", Name = "Phòng máy tính", Description = "Phòng máy tính", CreatedAt = DateTime.UtcNow, UpdatedAt = DateTime.UtcNow },
-                    new FacilityType { TypeId = "FT0004", Name = "Sân thể thao", Description = "Sân thể thao", CreatedAt = DateTime.UtcNow, UpdatedAt = DateTime.UtcNow },
-                    new FacilityType { TypeId = "FT0005", Name = "Hội trường", Description = "Hội trường", CreatedAt = DateTime.UtcNow, UpdatedAt = DateTime.UtcNow }
+                    new FacilityType { TypeId = "FT0004", Name = "Sân thể thao", Description = "Sân thể thao", CreatedAt = DateTime.UtcNow, UpdatedAt = DateTime.UtcNow }
 
                 );
             });
@@ -372,8 +371,6 @@ namespace DAL.Dbcontext
                     new Facility { FacilityId = "F00006", Name = "Lab máy tính C302", Description = "Phòng máy 50 máy", Capacity = 50, RoomNumber = "C302", FloorNumber = "3", CampusId = "C0001", TypeId = "FT0003", Status = FacilityStatus.Available, MaxConcurrentBookings = 1, CreatedAt = DateTime.UtcNow, UpdatedAt = DateTime.UtcNow },
                     new Facility { FacilityId = "F00007", Name = "Sân bóng rổ", Description = "Sân bóng rổ ngoài trời", Capacity = 100, RoomNumber = "Court1", FloorNumber = "0", CampusId = "C0001", TypeId = "FT0004", Status = FacilityStatus.Available, MaxConcurrentBookings = 2, CreatedAt = DateTime.UtcNow, UpdatedAt = DateTime.UtcNow },
                     new Facility { FacilityId = "F00008", Name = "Sân cầu lông", Description = "4 sân cầu lông", Capacity = 80, RoomNumber = "Court2", FloorNumber = "0", CampusId = "C0001", TypeId = "FT0004", Status = FacilityStatus.Available, MaxConcurrentBookings = 4, CreatedAt = DateTime.UtcNow, UpdatedAt = DateTime.UtcNow },
-                    new Facility { FacilityId = "F00009", Name = "Hội trường A", Description = "Hội trường lớn", Capacity = 500, RoomNumber = "HallA", FloorNumber = "1", CampusId = "C0001", TypeId = "FT0005", Status = FacilityStatus.Available, MaxConcurrentBookings = 1, CreatedAt = DateTime.UtcNow, UpdatedAt = DateTime.UtcNow },
-                    new Facility { FacilityId = "F00010", Name = "Hội trường B", Description = "Hội trường nhỏ", Capacity = 200, RoomNumber = "HallB", FloorNumber = "1", CampusId = "C0001", TypeId = "FT0005", Status = FacilityStatus.Available, MaxConcurrentBookings = 1, CreatedAt = DateTime.UtcNow, UpdatedAt = DateTime.UtcNow },
                 });
 
                 // NVHSV (Nhà Văn Hóa Sinh Viên) - 10 facilities
@@ -387,8 +384,6 @@ namespace DAL.Dbcontext
                     new Facility { FacilityId = "F00016", Name = "Phòng Âm nhạc", Description = "Phòng tập nhạc, ca hát", Capacity = 25, RoomNumber = "N302", FloorNumber = "3", CampusId = "C0002", TypeId = "FT0003", Status = FacilityStatus.Available, MaxConcurrentBookings = 1, CreatedAt = DateTime.UtcNow, UpdatedAt = DateTime.UtcNow },
                     new Facility { FacilityId = "F00017", Name = "Sân khấu ngoài trời", Description = "Sân khấu tổ chức sự kiện", Capacity = 200, RoomNumber = "Stage1", FloorNumber = "0", CampusId = "C0002", TypeId = "FT0004", Status = FacilityStatus.Available, MaxConcurrentBookings = 1, CreatedAt = DateTime.UtcNow, UpdatedAt = DateTime.UtcNow },
                     new Facility { FacilityId = "F00018", Name = "Khu vực BBQ", Description = "Khu vực nướng ngoài trời", Capacity = 50, RoomNumber = "BBQ1", FloorNumber = "0", CampusId = "C0002", TypeId = "FT0004", Status = FacilityStatus.Available, MaxConcurrentBookings = 2, CreatedAt = DateTime.UtcNow, UpdatedAt = DateTime.UtcNow },
-                    new Facility { FacilityId = "F00019", Name = "Hội trường NVHSV", Description = "Hội trường tổ chức sự kiện lớn", Capacity = 500, RoomNumber = "HallNVH", FloorNumber = "1", CampusId = "C0002", TypeId = "FT0005", Status = FacilityStatus.Available, MaxConcurrentBookings = 1, CreatedAt = DateTime.UtcNow, UpdatedAt = DateTime.UtcNow },
-                    new Facility { FacilityId = "F00020", Name = "Phòng Workshop", Description = "Phòng tổ chức workshop, training", Capacity = 80, RoomNumber = "Workshop1", FloorNumber = "2", CampusId = "C0002", TypeId = "FT0005", Status = FacilityStatus.Available, MaxConcurrentBookings = 1, CreatedAt = DateTime.UtcNow, UpdatedAt = DateTime.UtcNow },
                 });
 
                 entity.HasData(facilities);
