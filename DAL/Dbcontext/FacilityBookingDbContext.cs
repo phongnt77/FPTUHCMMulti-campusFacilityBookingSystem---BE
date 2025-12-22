@@ -71,6 +71,9 @@ namespace DAL.Dbcontext
                     .HasColumnName("name")
                     .HasMaxLength(255)
                     .IsRequired();
+                entity.Property(e => e.ImageUrl)
+                    .HasColumnName("image_url")
+                    .HasColumnType("nvarchar(MAX)");
                 entity.Property(e => e.Address)
                     .HasColumnName("address")
                     .HasColumnType("nvarchar(MAX)");
