@@ -47,6 +47,7 @@ coverage.json
 *.cobertura.xml
 *.md
 Controller/appsettings.json
+/node_modules
 
 # Playwright
 node_modules/

@@ -59,25 +59,30 @@ namespace BLL.Classes
         public async Task<ApiResponse<BookingResponseDto>> CreateAsync(CreateBookingDto dto)
         {
             // validate user tồn tại và kiểm tra thông tin bắt buộc
+            // lấy thông tin user từ database để kiểm tra các thông tin cần thiết trước khi cho phép đặt phòng
             var user = await _unitOfWork.UserRepo.GetByIdAsync(dto.UserId);
             if (user == null)
             {
                 return ApiResponse<BookingResponseDto>.Fail(404, "Không tìm thấy user.");
             }
 
-            // Kiểm tra email bắt buộc
+            // kiểm tra email bắt buộc
+            // email là thông tin quan trọng để liên hệ với user, bắt buộc phải có trước khi đặt phòng
             if (string.IsNullOrWhiteSpace(user.Email))
             {
                 return ApiResponse<BookingResponseDto>.Fail(400, "Bạn phải cập nhật email trong hồ sơ cá nhân trước khi đặt phòng.");
             }
 
-            // Kiểm tra số điện thoại bắt buộc
+            // kiểm tra số điện thoại bắt buộc
+            // số điện thoại cần thiết để admin liên hệ khi cần, bắt buộc phải có
             if (string.IsNullOrWhiteSpace(user.PhoneNumber))
             {
                 return ApiResponse<BookingResponseDto>.Fail(400, "Bạn phải cập nhật số điện thoại trong hồ sơ cá nhân trước khi đặt phòng. Vui lòng vào Hồ sơ để cập nhật.");
             }
 
-            // Nếu user có role là Student thì phải có MSSV
+            // nếu user có role là student thì phải có mssv
+            // sinh viên bắt buộc phải có mssv để admin xác minh danh tính khi duyệt booking
+            // mssv sẽ được hiển thị trong response để admin xem (không cần duyệt, chỉ xem)
             if (user.Role != null && user.Role.RoleName.Equals("Student", StringComparison.OrdinalIgnoreCase))
             {
                 if (string.IsNullOrWhiteSpace(user.StudentId))
@@ -86,7 +91,10 @@ namespace BLL.Classes
                 }
             }
 
-            // validate thời gian hợp lý
+            // validate thời gian booking hợp lý
+            // kiểm tra các ràng buộc về thời gian: duration (1-3 giờ), thời gian tối thiểu trước khi bắt đầu (lấy từ system settings)
+            // hàm validatebookingtimeasync sẽ lấy giá trị minimumbookinghoursbeforestart từ system settings
+            // nếu chưa có setting thì dùng giá trị mặc định là 3 giờ
             var timeValidation = await ValidateBookingTimeAsync(dto.StartTime, dto.EndTime);
             if (!timeValidation.IsValid)
             {
@@ -118,10 +126,15 @@ namespace BLL.Classes
                 return ApiResponse<BookingResponseDto>.Fail(409, "Facility đã được đặt trong khoảng thời gian này. Vui lòng chọn thời gian khác hoặc facility khác.");
             }
 
+            // tạo bookingid tự động và map dữ liệu
+            // generatebookingidasync tạo id theo format b00001, b00002, ...
             var bookingId = await GenerateBookingIdAsync();
             
+            // map từ dto sang entity bằng automapper
             var booking = _mapper.Map<Booking>(dto);
             booking.BookingId = bookingId;
+            // booking mặc định là pending_approval (đã bỏ draft status)
+            // khi tạo xong booking sẽ tự động ở trạng thái chờ admin duyệt
             booking.Status = BookingStatus.Pending_Approval;
             booking.CreatedAt = DateTimeHelper.VietnamNow;
             booking.UpdatedAt = DateTimeHelper.VietnamNow;
@@ -322,23 +335,29 @@ namespace BLL.Classes
 
         public async Task<ApiResponse> CancelAsync(string bookingId, string userId, string? reason = null)
         {
+            // tìm booking cần hủy
             var booking = await _unitOfWork.BookingRepo.GetByIdAsync(bookingId);
             if (booking == null)
             {
                 return ApiResponse.Fail(404, "Không tìm thấy booking.");
             }
 
+            // kiểm tra quyền - chỉ chủ booking mới có thể hủy
             if (booking.UserId != userId)
             {
                 return ApiResponse.Fail(403, "Bạn không có quyền hủy booking này.");
             }
 
+            // kiểm tra status - chỉ có thể hủy booking đang chờ duyệt hoặc đã được duyệt
+            // không thể hủy booking đã bị từ chối, đã hủy, hoặc đã hoàn tất
             if (booking.Status != BookingStatus.Pending_Approval && booking.Status != BookingStatus.Approved)
             {
                 return ApiResponse.Fail(400, "Chỉ có thể hủy booking ở trạng thái Pending_Approval hoặc Approved.");
             }
 
-            // chỉ cho phép hủy trước 2 giờ từ StartTime
+            // kiểm tra ràng buộc thời gian - chỉ cho phép hủy trước 2 giờ từ starttime
+            // ví dụ: booking bắt đầu lúc 10h thì phải hủy trước 8h
+            // mục đích: tránh hủy quá gần giờ bắt đầu, gây lãng phí tài nguyên
             var now = DateTimeHelper.VietnamNow;
             var minCancelTime = booking.StartTime.AddHours(-2);
             if (now > minCancelTime)
@@ -346,6 +365,7 @@ namespace BLL.Classes
                 return ApiResponse.Fail(400, $"Chỉ có thể hủy booking trước 2 giờ từ thời gian bắt đầu. Thời gian hủy tối đa: {minCancelTime:dd/MM/yyyy HH:mm:ss}.");
             }
 
+            // cập nhật booking sang trạng thái cancelled
             booking.Status = BookingStatus.Cancelled;
             booking.CancelledAt = now;
             booking.CancellationReason = string.IsNullOrEmpty(reason) ? "Hủy bởi người dùng" : reason;
@@ -354,7 +374,9 @@ namespace BLL.Classes
             await _unitOfWork.BookingRepo.UpdateAsync(booking);
             await _unitOfWork.SaveChangesAsync();
 
-            // thông báo cho admin khi user hủy booking
+            // tạo thông báo cho tất cả admin khi user hủy booking
+            // admin sẽ nhận notification để biết có slot trống và có thể xử lý
+            // notification được gửi cho tất cả admin (roleid = rl0003) có status active
             await _notificationService.CreateBookingCancelledByUserNotificationAsync(bookingId);
 
             return ApiResponse.Ok();
@@ -540,25 +562,26 @@ namespace BLL.Classes
 
         public async Task<ApiResponse<BookingResponseDto>> CheckInAsync(string bookingId, string userId, CheckInDto? dto = null, DateTime? nowOverride = null)
         {
+            // tìm booking cần check-in
             var booking = await _unitOfWork.BookingRepo.GetByIdAsync(bookingId);
             if (booking == null)
             {
                 return ApiResponse<BookingResponseDto>.Fail(404, "Không tìm thấy booking.");
             }
 
-            // validate booking thuộc về user
+            // validate booking thuộc về user - chỉ chủ booking mới có thể check-in
             if (booking.UserId != userId)
             {
                 return ApiResponse<BookingResponseDto>.Fail(403, "Bạn không có quyền check-in booking này.");
             }
 
-            // validate status phải là Approved
+            // validate status phải là approved - chỉ booking đã được duyệt mới có thể check-in
             if (booking.Status != BookingStatus.Approved)
             {
                 return ApiResponse<BookingResponseDto>.Fail(400, $"Chỉ có thể check-in booking ở trạng thái Approved. Trạng thái hiện tại: {booking.Status}.");
             }
 
-            // validate chưa check-in
+            // validate chưa check-in - mỗi booking chỉ check-in một lần
             if (booking.CheckInTime.HasValue)
             {
                 return ApiResponse<BookingResponseDto>.Fail(400, "Booking đã được check-in trước đó.");
@@ -569,27 +592,33 @@ namespace BLL.Classes
             var checkInMinutesBefore = await _systemSettingsService.GetCheckInMinutesBeforeStartAsync();
             var checkInMinutesAfter = await _systemSettingsService.GetCheckInMinutesAfterStartAsync();
             
+            // tính khoảng thời gian cho phép check-in
             var allowedCheckInStart = booking.StartTime.AddMinutes(-checkInMinutesBefore);
             var allowedCheckInEnd = booking.StartTime.AddMinutes(checkInMinutesAfter);
             
+            // kiểm tra nếu check-in quá sớm
             if (now < allowedCheckInStart)
             {
                 return ApiResponse<BookingResponseDto>.Fail(400, $"Chỉ có thể check-in từ {checkInMinutesBefore} phút trước thời gian bắt đầu ({allowedCheckInStart:dd/MM/yyyy HH:mm:ss}).");
             }
 
+            // kiểm tra nếu check-in quá muộn (sau thời gian cho phép)
+            // nếu quá muộn, booking sẽ bị hủy tự động bởi background service
             if (now > allowedCheckInEnd)
             {
                 return ApiResponse<BookingResponseDto>.Fail(400, $"Đã quá thời gian check-in. Thời gian check-in cho phép: từ {allowedCheckInStart:dd/MM/yyyy HH:mm:ss} đến {allowedCheckInEnd:dd/MM/yyyy HH:mm:ss}.");
             }
 
             // set check-in time, note, and images
-            booking.CheckInTime = now;
+            booking.CheckInTime = now; // ghi nhận thời gian check-in (vietnam time)
             booking.UpdatedAt = now;
             
+            // lưu ghi chú và ảnh nếu có
             if (dto != null)
             {
-                booking.CheckInNote = dto.Note;
-                // Convert image URLs list to JSON string
+                booking.CheckInNote = dto.Note; // ghi chú khi check-in (ví dụ: số lượng bàn, ghế)
+                // convert image urls list to json string để lưu vào database
+                // frontend cần upload ảnh trước (qua cloudinary) và gửi urls trong request
                 if (dto.ImageUrls != null && dto.ImageUrls.Any())
                 {
                     booking.CheckInImages = System.Text.Json.JsonSerializer.Serialize(dto.ImageUrls);
@@ -605,25 +634,26 @@ namespace BLL.Classes
 
         public async Task<ApiResponse<BookingResponseDto>> CheckOutAsync(string bookingId, string userId, CheckOutDto? dto = null, DateTime? nowOverride = null)
         {
+            // tìm booking cần check-out
             var booking = await _unitOfWork.BookingRepo.GetByIdAsync(bookingId);
             if (booking == null)
             {
                 return ApiResponse<BookingResponseDto>.Fail(404, "Không tìm thấy booking.");
             }
 
-            // validate booking thuộc về user
+            // validate booking thuộc về user - chỉ chủ booking mới có thể check-out
             if (booking.UserId != userId)
             {
                 return ApiResponse<BookingResponseDto>.Fail(403, "Bạn không có quyền check-out booking này.");
             }
 
-            // validate đã check-in
+            // validate đã check-in - phải check-in trước khi check-out
             if (!booking.CheckInTime.HasValue)
             {
                 return ApiResponse<BookingResponseDto>.Fail(400, "Phải check-in trước khi check-out.");
             }
 
-            // validate chưa check-out
+            // validate chưa check-out - mỗi booking chỉ check-out một lần
             if (booking.CheckOutTime.HasValue)
             {
                 return ApiResponse<BookingResponseDto>.Fail(400, "Booking đã được check-out trước đó.");
@@ -631,41 +661,46 @@ namespace BLL.Classes
 
             var now = nowOverride ?? DateTimeHelper.VietnamNow;
 
-            // validate thời gian check-out: chỉ cho phép sau khi đã qua X% thời lượng booking
-            // mặc định X = 2/3, admin có thể custom 
-            var checkoutRatio = await _systemSettingsService.GetCheckoutMinRatioAsync();
-            if (checkoutRatio < 0) checkoutRatio = 0;
-            if (checkoutRatio > 1) checkoutRatio = 1;
+            // validate thời gian check-out - chỉ cho phép sau khi đã qua x phút từ lúc check-in
+            // ràng buộc: user phải đợi ít nhất x phút sau khi check-in mới được phép check-out
+            // mặc định x = 0 (có thể check-out ngay sau khi check-in), admin có thể custom qua system settings
+            // ví dụ: nếu set = 30 phút, user check-in lúc 9h thì phải đợi đến 9h30 mới được checkout
+            // mục đích: đảm bảo user sử dụng đủ thời gian tối thiểu, tránh lãng phí tài nguyên
+            var checkoutMinMinutes = await _systemSettingsService.GetCheckoutMinMinutesAfterCheckInAsync();
+            // đảm bảo số phút >= 0
+            if (checkoutMinMinutes < 0) checkoutMinMinutes = 0;
 
-            var totalDuration = booking.EndTime - booking.StartTime;
-            var minElapsed = TimeSpan.FromTicks((long)(totalDuration.Ticks * checkoutRatio));
-            var minCheckoutTime = booking.StartTime.Add(minElapsed);
+            // tính thời gian sớm nhất có thể check-out (check-in time + số phút tối thiểu)
+            var minCheckoutTime = booking.CheckInTime.Value.AddMinutes(checkoutMinMinutes);
 
+            // kiểm tra nếu check-out quá sớm
             if (now < minCheckoutTime)
             {
-                var percent = Math.Round(checkoutRatio * 100);
                 return ApiResponse<BookingResponseDto>.Fail(
                     400,
-                    $"Chỉ có thể check-out sau khi đã sử dụng ít nhất {percent}% thời lượng booking. " +
+                    $"Chỉ có thể check-out sau khi đã check-in ít nhất {checkoutMinMinutes} phút. " +
                     $"Thời gian sớm nhất có thể check-out: {minCheckoutTime:dd/MM/yyyy HH:mm:ss}."
                 );
             }
 
             // set check-out time, note, and images
-            booking.CheckOutTime = now;
+            booking.CheckOutTime = now; // ghi nhận thời gian check-out (vietnam time)
             booking.UpdatedAt = now;
 
+            // lưu ghi chú và ảnh nếu có
             if (dto != null)
             {
-                booking.CheckOutNote = dto.Note;
-                // Convert image URLs list to JSON string
+                booking.CheckOutNote = dto.Note; // ghi chú khi check-out (ví dụ: tình trạng phòng sau khi sử dụng)
+                // convert image urls list to json string để lưu vào database
+                // frontend cần upload ảnh trước (qua cloudinary) và gửi urls trong request
                 if (dto.ImageUrls != null && dto.ImageUrls.Any())
                 {
                     booking.CheckOutImages = System.Text.Json.JsonSerializer.Serialize(dto.ImageUrls);
                 }
             }
 
-            // Khi check-out thì booking hoàn tất, set status = Completed
+            // khi check-out thì booking hoàn tất, tự động set status = completed
+            // booking đã được sử dụng xong, không cần thao tác gì thêm
             booking.Status = BookingStatus.Completed;
 
             await _unitOfWork.BookingRepo.UpdateAsync(booking);
@@ -728,32 +763,39 @@ namespace BLL.Classes
         }
 
         /// <summary>
-        /// Validate thời gian booking hợp lý (async version với settings)
+        /// validate thời gian booking hợp lý (async version với settings)
+        /// hàm này kiểm tra tất cả các ràng buộc về thời gian khi tạo/cập nhật booking
         /// </summary>
         private async Task<(bool IsValid, string ErrorMessage)> ValidateBookingTimeAsync(DateTime startTime, DateTime endTime)
         {
             var now = DateTimeHelper.VietnamNow;
 
-            // 1. EndTime phải sau StartTime
+            // ràng buộc 1: endtime phải sau starttime
+            // đảm bảo thời gian kết thúc luôn sau thời gian bắt đầu
             if (endTime <= startTime)
             {
                 return (false, "Thời gian kết thúc phải sau thời gian bắt đầu.");
             }
 
-            // 2. Thời gian tối thiểu: 1 giờ
+            // ràng buộc 2: thời gian tối thiểu: 1 giờ
+            // mỗi booking phải có thời lượng tối thiểu 1 giờ
             var duration = endTime - startTime;
             if (duration.TotalHours < 1)
             {
                 return (false, "Thời gian booking phải tối thiểu 1 giờ.");
             }
 
-            // 3. Thời gian tối đa: 3 giờ
+            // ràng buộc 3: thời gian tối đa: 3 giờ
+            // mỗi booking không được vượt quá 3 giờ để đảm bảo công bằng cho tất cả user
             if (duration.TotalHours > 3)
             {
                 return (false, "Thời gian booking không được vượt quá 3 giờ.");
             }
 
-            // 4. StartTime phải trước ít nhất X giờ (lấy từ settings, mặc định 3 giờ)
+            // ràng buộc 4: starttime phải trước ít nhất x giờ (lấy từ system settings, mặc định 3 giờ)
+            // ví dụ: nếu setting = 3 giờ, booking bắt đầu lúc 10h thì phải đặt trước 7h
+            // mục đích: cho admin có thời gian xử lý và duyệt booking
+            // giá trị này có thể được admin thay đổi qua system settings api
             var minBookingHours = await _systemSettingsService.GetMinimumBookingHoursBeforeStartAsync();
             var minStartTime = now.AddHours(minBookingHours);
             if (startTime < minStartTime)
@@ -761,14 +803,16 @@ namespace BLL.Classes
                 return (false, $"Không thể đặt booking. Thời gian bắt đầu phải trước ít nhất {minBookingHours} giờ từ bây giờ.");
             }
 
-            // 5. Không được đặt quá xa trong tương lai: 3 tháng
+            // ràng buộc 5: không được đặt quá xa trong tương lai: 3 tháng
+            // giới hạn booking trong 3 tháng để quản lý dễ dàng hơn
             var maxStartTime = now.AddMonths(3);
             if (startTime > maxStartTime)
             {
                 return (false, "Không thể đặt booking quá 3 tháng trong tương lai.");
             }
 
-            // 6. EndTime không được quá xa trong tương lai
+            // ràng buộc 6: endtime không được quá xa trong tương lai
+            // đảm bảo cả thời gian kết thúc cũng không vượt quá 3 tháng
             var maxEndTime = now.AddMonths(3).AddDays(1);
             if (endTime > maxEndTime)
             {
@@ -778,12 +822,22 @@ namespace BLL.Classes
             return (true, string.Empty);
         }
 
+        /// <summary>
+        /// tự động hủy các booking quá thời gian check-in
+        /// hàm này được gọi bởi background service mỗi 5 phút để kiểm tra và hủy các booking không check-in đúng giờ
+        /// </summary>
         public async Task ProcessLateCheckInBookingsAsync()
         {
             var now = DateTimeHelper.VietnamNow;
+            // lấy số phút cho phép check-in sau starttime từ system settings (mặc định 15 phút)
+            // ví dụ: nếu setting = 15 phút, booking 9h thì phải check-in trước 9h15
             var checkInMinutesAfter = await _systemSettingsService.GetCheckInMinutesAfterStartAsync();
 
-            // Get bookings that should be cancelled (quá thời gian check-in - sau X phút từ StartTime)
+            // query tất cả bookings và filter các booking cần hủy
+            // điều kiện:
+            // - status = approved (đã được duyệt)
+            // - checkintime = null (chưa check-in)
+            // - starttime + checkinminutesafter < now (đã quá thời gian cho phép check-in)
             var bookings = await _unitOfWork.BookingRepo.GetAllAsync();
             var lateCheckInBookings = bookings
                 .Where(b => b.Status == BookingStatus.Approved
@@ -791,21 +845,23 @@ namespace BLL.Classes
                     && b.StartTime.AddMinutes(checkInMinutesAfter) < now)
                 .ToList();
 
+            // với mỗi booking quá thời gian, hủy booking và tạo thông báo cho user
             foreach (var booking in lateCheckInBookings)
             {
+                // cập nhật booking sang trạng thái cancelled
                 booking.Status = BookingStatus.Cancelled;
                 booking.CancelledAt = DateTimeHelper.VietnamNow;
-                booking.CancellationReason = "Quá thời gian check-in";
+                booking.CancellationReason = "Quá thời gian check-in"; // lý do hủy tự động
                 booking.UpdatedAt = DateTimeHelper.VietnamNow;
                 await _unitOfWork.BookingRepo.UpdateAsync(booking);
 
-                // Create notification for user
+                // tạo thông báo cho user để thông báo booking đã bị hủy
                 var facility = await _unitOfWork.FacilityRepo.GetByIdAsync(booking.FacilityId);
                 var notificationId = await GenerateNotificationIdAsync();
                 var notification = new Notification
                 {
                     NotificationId = notificationId,
-                    UserId = booking.UserId,
+                    UserId = booking.UserId, // gửi thông báo cho chủ booking
                     Type = NotificationType.Booking_Cancelled,
                     Title = "Booking đã bị hủy do quá thời gian check-in",
                     Message = $"Booking {booking.BookingId} cho facility {facility?.Name ?? "N/A"} đã bị hủy do quá thời gian check-in ({checkInMinutesAfter} phút sau giờ bắt đầu).",
@@ -816,6 +872,8 @@ namespace BLL.Classes
                 await _unitOfWork.NotificationRepo.CreateAsync(notification);
             }
 
+            // lưu tất cả thay đổi vào database (transaction)
+            // chỉ lưu nếu có booking nào bị hủy
             if (lateCheckInBookings.Any())
             {
                 await _unitOfWork.SaveChangesAsync();

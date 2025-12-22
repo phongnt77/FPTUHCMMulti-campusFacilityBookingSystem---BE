@@ -14,10 +14,10 @@ namespace BLL.Interfaces
         Task<int> GetCheckInMinutesAfterStartAsync();
 
         /// <summary>
-        /// Lấy tỉ lệ thời gian tối thiểu phải qua để được phép check-out (0-1).
-        /// Mặc định: 2/3 (0.6666...).
+        /// lấy số phút tối thiểu sau khi check-in để được phép check-out
+        /// mặc định: 0 (có thể check-out ngay sau khi check-in)
         /// </summary>
-        Task<double> GetCheckoutMinRatioAsync();
+        Task<int> GetCheckoutMinMinutesAfterCheckInAsync();
     }
 }
 
