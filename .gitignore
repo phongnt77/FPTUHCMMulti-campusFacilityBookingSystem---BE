@@ -47,3 +47,6 @@ coverage.json
 *.cobertura.xml
 *.md
 Controller/appsettings.json
+/node_modules
+.github/workflows/playwright.yml
+playwright.config.ts
