@@ -103,7 +103,7 @@ namespace DAL.Dbcontext
                 entity.HasData(
                     new Campus
                     {
-                        CampusId = "C0001",
+                        CampusId = "C00001",
                         Name = "FPTU HCM Campus",
                         Address = "Lô E2a-7, Đường D1, Khu Công nghệ cao, P.Long Thạnh Mỹ, Tp. Thủ Đức, TP.HCM",
                         PhoneNumber = "028 7300 5588",
@@ -114,7 +114,7 @@ namespace DAL.Dbcontext
                     },
                     new Campus
                     {
-                        CampusId = "C0002",
+                        CampusId = "C00002",
                         Name = "Nhà Văn Hóa Sinh Viên",
                         Address = "Số 1 Lưu Hữu Phước, Đông Hoà, Dĩ An, TP.HCM",
                         PhoneNumber = "028 7300 5589",
@@ -366,27 +366,27 @@ namespace DAL.Dbcontext
                 // HCM Campus - 10 facilities (phòng học, lab, sân thể thao)
                 facilities.AddRange(new[]
                 {
-                    new Facility { FacilityId = "F00001", Name = "Phòng A101", Description = "Phòng học lý thuyết", Capacity = 40, RoomNumber = "A101", FloorNumber = "1", CampusId = "C0001", TypeId = "FT0001", Status = FacilityStatus.Available, MaxConcurrentBookings = 1, CreatedAt = DateTime.UtcNow, UpdatedAt = DateTime.UtcNow },
-                    new Facility { FacilityId = "F00002", Name = "Phòng A102", Description = "Phòng học lý thuyết", Capacity = 40, RoomNumber = "A102", FloorNumber = "1", CampusId = "C0001", TypeId = "FT0001", Status = FacilityStatus.Available, MaxConcurrentBookings = 1, CreatedAt = DateTime.UtcNow, UpdatedAt = DateTime.UtcNow },
-                    new Facility { FacilityId = "F00003", Name = "Phòng họp B201", Description = "Phòng họp nhỏ", Capacity = 15, RoomNumber = "B201", FloorNumber = "2", CampusId = "C0001", TypeId = "FT0002", Status = FacilityStatus.Available, MaxConcurrentBookings = 1, CreatedAt = DateTime.UtcNow, UpdatedAt = DateTime.UtcNow },
-                    new Facility { FacilityId = "F00004", Name = "Phòng họp B202", Description = "Phòng họp vừa", Capacity = 25, RoomNumber = "B202", FloorNumber = "2", CampusId = "C0001", TypeId = "FT0002", Status = FacilityStatus.Available, MaxConcurrentBookings = 1, CreatedAt = DateTime.UtcNow, UpdatedAt = DateTime.UtcNow },
-                    new Facility { FacilityId = "F00005", Name = "Lab máy tính C301", Description = "Phòng máy 50 máy", Capacity = 50, RoomNumber = "C301", FloorNumber = "3", CampusId = "C0001", TypeId = "FT0003", Status = FacilityStatus.Available, MaxConcurrentBookings = 1, CreatedAt = DateTime.UtcNow, UpdatedAt = DateTime.UtcNow },
-                    new Facility { FacilityId = "F00006", Name = "Lab máy tính C302", Description = "Phòng máy 50 máy", Capacity = 50, RoomNumber = "C302", FloorNumber = "3", CampusId = "C0001", TypeId = "FT0003", Status = FacilityStatus.Available, MaxConcurrentBookings = 1, CreatedAt = DateTime.UtcNow, UpdatedAt = DateTime.UtcNow },
-                    new Facility { FacilityId = "F00007", Name = "Sân bóng rổ", Description = "Sân bóng rổ ngoài trời", Capacity = 100, RoomNumber = "Court1", FloorNumber = "0", CampusId = "C0001", TypeId = "FT0004", Status = FacilityStatus.Available, MaxConcurrentBookings = 2, CreatedAt = DateTime.UtcNow, UpdatedAt = DateTime.UtcNow },
-                    new Facility { FacilityId = "F00008", Name = "Sân cầu lông", Description = "4 sân cầu lông", Capacity = 80, RoomNumber = "Court2", FloorNumber = "0", CampusId = "C0001", TypeId = "FT0004", Status = FacilityStatus.Available, MaxConcurrentBookings = 4, CreatedAt = DateTime.UtcNow, UpdatedAt = DateTime.UtcNow },
+                    new Facility { FacilityId = "F00001", Name = "Phòng A101", Description = "Phòng học lý thuyết", Capacity = 40, RoomNumber = "A101", FloorNumber = "1", CampusId = "C00001", TypeId = "FT0001", Status = FacilityStatus.Available, MaxConcurrentBookings = 1, CreatedAt = DateTime.UtcNow, UpdatedAt = DateTime.UtcNow },
+                    new Facility { FacilityId = "F00002", Name = "Phòng A102", Description = "Phòng học lý thuyết", Capacity = 40, RoomNumber = "A102", FloorNumber = "1", CampusId = "C00001", TypeId = "FT0001", Status = FacilityStatus.Available, MaxConcurrentBookings = 1, CreatedAt = DateTime.UtcNow, UpdatedAt = DateTime.UtcNow },
+                    new Facility { FacilityId = "F00003", Name = "Phòng họp B201", Description = "Phòng họp nhỏ", Capacity = 15, RoomNumber = "B201", FloorNumber = "2", CampusId = "C00001", TypeId = "FT0002", Status = FacilityStatus.Available, MaxConcurrentBookings = 1, CreatedAt = DateTime.UtcNow, UpdatedAt = DateTime.UtcNow },
+                    new Facility { FacilityId = "F00004", Name = "Phòng họp B202", Description = "Phòng họp vừa", Capacity = 25, RoomNumber = "B202", FloorNumber = "2", CampusId = "C00001", TypeId = "FT0002", Status = FacilityStatus.Available, MaxConcurrentBookings = 1, CreatedAt = DateTime.UtcNow, UpdatedAt = DateTime.UtcNow },
+                    new Facility { FacilityId = "F00005", Name = "Lab máy tính C301", Description = "Phòng máy 50 máy", Capacity = 50, RoomNumber = "C301", FloorNumber = "3", CampusId = "C00001", TypeId = "FT0003", Status = FacilityStatus.Available, MaxConcurrentBookings = 1, CreatedAt = DateTime.UtcNow, UpdatedAt = DateTime.UtcNow },
+                    new Facility { FacilityId = "F00006", Name = "Lab máy tính C302", Description = "Phòng máy 50 máy", Capacity = 50, RoomNumber = "C302", FloorNumber = "3", CampusId = "C00001", TypeId = "FT0003", Status = FacilityStatus.Available, MaxConcurrentBookings = 1, CreatedAt = DateTime.UtcNow, UpdatedAt = DateTime.UtcNow },
+                    new Facility { FacilityId = "F00007", Name = "Sân bóng rổ", Description = "Sân bóng rổ ngoài trời", Capacity = 100, RoomNumber = "Court1", FloorNumber = "0", CampusId = "C00001", TypeId = "FT0004", Status = FacilityStatus.Available, MaxConcurrentBookings = 2, CreatedAt = DateTime.UtcNow, UpdatedAt = DateTime.UtcNow },
+                    new Facility { FacilityId = "F00008", Name = "Sân cầu lông", Description = "4 sân cầu lông", Capacity = 80, RoomNumber = "Court2", FloorNumber = "0", CampusId = "C00001", TypeId = "FT0004", Status = FacilityStatus.Available, MaxConcurrentBookings = 4, CreatedAt = DateTime.UtcNow, UpdatedAt = DateTime.UtcNow },
                 });
 
                 // NVHSV (Nhà Văn Hóa Sinh Viên) - 10 facilities
                 facilities.AddRange(new[]
                 {
-                    new Facility { FacilityId = "F00011", Name = "Phòng N101", Description = "Phòng sinh hoạt câu lạc bộ", Capacity = 30, RoomNumber = "N101", FloorNumber = "1", CampusId = "C0002", TypeId = "FT0001", Status = FacilityStatus.Available, MaxConcurrentBookings = 1, CreatedAt = DateTime.UtcNow, UpdatedAt = DateTime.UtcNow },
-                    new Facility { FacilityId = "F00012", Name = "Phòng N102", Description = "Phòng sinh hoạt câu lạc bộ", Capacity = 30, RoomNumber = "N102", FloorNumber = "1", CampusId = "C0002", TypeId = "FT0001", Status = FacilityStatus.Available, MaxConcurrentBookings = 1, CreatedAt = DateTime.UtcNow, UpdatedAt = DateTime.UtcNow },
-                    new Facility { FacilityId = "F00013", Name = "Phòng họp NVHSV 201", Description = "Phòng họp Ban chủ nhiệm", Capacity = 15, RoomNumber = "N201", FloorNumber = "2", CampusId = "C0002", TypeId = "FT0002", Status = FacilityStatus.Available, MaxConcurrentBookings = 1, CreatedAt = DateTime.UtcNow, UpdatedAt = DateTime.UtcNow },
-                    new Facility { FacilityId = "F00014", Name = "Phòng họp NVHSV 202", Description = "Phòng họp CLB", Capacity = 25, RoomNumber = "N202", FloorNumber = "2", CampusId = "C0002", TypeId = "FT0002", Status = FacilityStatus.Available, MaxConcurrentBookings = 1, CreatedAt = DateTime.UtcNow, UpdatedAt = DateTime.UtcNow },
-                    new Facility { FacilityId = "F00015", Name = "Phòng Media NVHSV", Description = "Phòng sản xuất nội dung", Capacity = 20, RoomNumber = "N301", FloorNumber = "3", CampusId = "C0002", TypeId = "FT0003", Status = FacilityStatus.Available, MaxConcurrentBookings = 1, CreatedAt = DateTime.UtcNow, UpdatedAt = DateTime.UtcNow },
-                    new Facility { FacilityId = "F00016", Name = "Phòng Âm nhạc", Description = "Phòng tập nhạc, ca hát", Capacity = 25, RoomNumber = "N302", FloorNumber = "3", CampusId = "C0002", TypeId = "FT0003", Status = FacilityStatus.Available, MaxConcurrentBookings = 1, CreatedAt = DateTime.UtcNow, UpdatedAt = DateTime.UtcNow },
-                    new Facility { FacilityId = "F00017", Name = "Sân khấu ngoài trời", Description = "Sân khấu tổ chức sự kiện", Capacity = 200, RoomNumber = "Stage1", FloorNumber = "0", CampusId = "C0002", TypeId = "FT0004", Status = FacilityStatus.Available, MaxConcurrentBookings = 1, CreatedAt = DateTime.UtcNow, UpdatedAt = DateTime.UtcNow },
-                    new Facility { FacilityId = "F00018", Name = "Khu vực BBQ", Description = "Khu vực nướng ngoài trời", Capacity = 50, RoomNumber = "BBQ1", FloorNumber = "0", CampusId = "C0002", TypeId = "FT0004", Status = FacilityStatus.Available, MaxConcurrentBookings = 2, CreatedAt = DateTime.UtcNow, UpdatedAt = DateTime.UtcNow },
+                    new Facility { FacilityId = "F00011", Name = "Phòng N101", Description = "Phòng sinh hoạt câu lạc bộ", Capacity = 30, RoomNumber = "N101", FloorNumber = "1", CampusId = "C00002", TypeId = "FT0001", Status = FacilityStatus.Available, MaxConcurrentBookings = 1, CreatedAt = DateTime.UtcNow, UpdatedAt = DateTime.UtcNow },
+                    new Facility { FacilityId = "F00012", Name = "Phòng N102", Description = "Phòng sinh hoạt câu lạc bộ", Capacity = 30, RoomNumber = "N102", FloorNumber = "1", CampusId = "C00002", TypeId = "FT0001", Status = FacilityStatus.Available, MaxConcurrentBookings = 1, CreatedAt = DateTime.UtcNow, UpdatedAt = DateTime.UtcNow },
+                    new Facility { FacilityId = "F00013", Name = "Phòng họp NVHSV 201", Description = "Phòng họp Ban chủ nhiệm", Capacity = 15, RoomNumber = "N201", FloorNumber = "2", CampusId = "C00002", TypeId = "FT0002", Status = FacilityStatus.Available, MaxConcurrentBookings = 1, CreatedAt = DateTime.UtcNow, UpdatedAt = DateTime.UtcNow },
+                    new Facility { FacilityId = "F00014", Name = "Phòng họp NVHSV 202", Description = "Phòng họp CLB", Capacity = 25, RoomNumber = "N202", FloorNumber = "2", CampusId = "C00002", TypeId = "FT0002", Status = FacilityStatus.Available, MaxConcurrentBookings = 1, CreatedAt = DateTime.UtcNow, UpdatedAt = DateTime.UtcNow },
+                    new Facility { FacilityId = "F00015", Name = "Phòng Media NVHSV", Description = "Phòng sản xuất nội dung", Capacity = 20, RoomNumber = "N301", FloorNumber = "3", CampusId = "C00002", TypeId = "FT0003", Status = FacilityStatus.Available, MaxConcurrentBookings = 1, CreatedAt = DateTime.UtcNow, UpdatedAt = DateTime.UtcNow },
+                    new Facility { FacilityId = "F00016", Name = "Phòng Âm nhạc", Description = "Phòng tập nhạc, ca hát", Capacity = 25, RoomNumber = "N302", FloorNumber = "3", CampusId = "C00002", TypeId = "FT0003", Status = FacilityStatus.Available, MaxConcurrentBookings = 1, CreatedAt = DateTime.UtcNow, UpdatedAt = DateTime.UtcNow },
+                    new Facility { FacilityId = "F00017", Name = "Sân khấu ngoài trời", Description = "Sân khấu tổ chức sự kiện", Capacity = 200, RoomNumber = "Stage1", FloorNumber = "0", CampusId = "C00002", TypeId = "FT0004", Status = FacilityStatus.Available, MaxConcurrentBookings = 1, CreatedAt = DateTime.UtcNow, UpdatedAt = DateTime.UtcNow },
+                    new Facility { FacilityId = "F00018", Name = "Khu vực BBQ", Description = "Khu vực nướng ngoài trời", Capacity = 50, RoomNumber = "BBQ1", FloorNumber = "0", CampusId = "C00002", TypeId = "FT0004", Status = FacilityStatus.Available, MaxConcurrentBookings = 2, CreatedAt = DateTime.UtcNow, UpdatedAt = DateTime.UtcNow },
                 });
 
                 entity.HasData(facilities);
