@@ -78,10 +78,14 @@ namespace BLL.Classes
 
             if (!string.IsNullOrEmpty(dto.Name))
                 campus.Name = dto.Name;
+            if (dto.ImageUrl != null)
+                campus.ImageUrl = dto.ImageUrl;
             if (dto.Address != null)
                 campus.Address = dto.Address;
             if (dto.PhoneNumber != null)
                 campus.PhoneNumber = dto.PhoneNumber;
+            if (dto.Email != null)
+                campus.Email = dto.Email;
             if (dto.Status.HasValue)
                 campus.Status = dto.Status.Value;
 
