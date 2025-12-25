@@ -281,6 +281,72 @@ namespace Controller.Controllers
         }
 
         /// <summary>
+        /// Cập nhật thông tin campus kèm upload ảnh lên Cloudinary
+        /// </summary>
+        /// <param name="id">Campus ID</param>
+        /// <param name="dto">Thông tin cập nhật (form-data)</param>
+        /// <param name="image">File ảnh campus (form-data field: image)</param>
+        /// <param name="status">Trạng thái campus (query param, optional)</param>
+        /// <returns>Campus đã cập nhật</returns>
+        /// <response code="200">Cập nhật thành công</response>
+        /// <response code="400">Dữ liệu hoặc file không hợp lệ</response>
+        /// <response code="404">Không tìm thấy campus</response>
+        /// <remarks>
+        /// **Roles:** Chỉ Facility_Admin (RL0003)
+        /// 
+        /// **Content-Type:** multipart/form-data
+        /// 
+        /// **Form fields (optional):**
+        /// - name, address, phoneNumber, email, imageUrl, status
+        /// - image (file)
+        /// 
+        /// Nếu có `image` thì sẽ upload lên Cloudinary và ưu tiên dùng URL trả về.
+        /// </remarks>
+        [HttpPut("{id}/with-image")]
+        [Authorize(Roles = "RL0003")]
+        [Consumes("multipart/form-data")]
+        [ProducesResponseType(typeof(ApiResponse<CampusResponseDto>), 200)]
+        [ProducesResponseType(typeof(ApiResponse), 400)]
+        [ProducesResponseType(typeof(ApiResponse), 404)]
+        public async Task<IActionResult> UpdateWithImage(string id, [FromForm] UpdateCampusDto dto, IFormFile? image, [FromQuery] CampusStatus? status)
+        {
+            try
+            {
+                if (status.HasValue)
+                {
+                    dto.Status = status.Value;
+                }
+
+                if (image != null && image.Length > 0)
+                {
+                    var url = await _cloudinaryService.UploadImageAsync(image, "campuses");
+                    if (string.IsNullOrWhiteSpace(url))
+                    {
+                        return BadRequest(ApiResponse.Fail(400, "Upload ảnh campus thất bại."));
+                    }
+
+                    dto.ImageUrl = url;
+                }
+
+                var result = await _campusService.UpdateAsync(id, dto);
+                if (!result.Success)
+                {
+                    return NotFound(result);
+                }
+
+                return Ok(result);
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(ApiResponse.Fail(400, ex.Message));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ApiResponse.Fail(500, ex.Message));
+            }
+        }
+
+        /// <summary>
         /// Vô hiệu hóa campus (soft delete - set status = Inactive)
         /// </summary>
         /// <param name="id">Campus ID</param>
