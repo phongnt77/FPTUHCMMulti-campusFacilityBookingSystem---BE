@@ -307,10 +307,11 @@ namespace Controller.Controllers
         /// **Content-Type:** multipart/form-data
         /// 
         /// **Form fields (optional):**
-        /// - name, address, phoneNumber, email, imageUrl, status
-        /// - image (file)
+        /// - name, address, phoneNumber, email, status
+        /// - image (file, optional)
         /// 
-        /// Nếu có `image` thì sẽ upload lên Cloudinary và ưu tiên dùng URL trả về.
+        /// Nếu có `image` thì sẽ upload lên Cloudinary và cập nhật `ImageUrl`.
+        /// Nếu không có `image` thì giữ nguyên ảnh cũ.
         /// </remarks>
         [HttpPut("{id}/with-image")]
         [Authorize(Roles = "RL0003")]
@@ -318,19 +319,18 @@ namespace Controller.Controllers
         [ProducesResponseType(typeof(ApiResponse<CampusResponseDto>), 200)]
         [ProducesResponseType(typeof(ApiResponse), 400)]
         [ProducesResponseType(typeof(ApiResponse), 404)]
-        public async Task<IActionResult> UpdateWithImage(string id, [FromForm] UpdateCampusWithImageFormDto dto, IFormFile image, [FromQuery] CampusStatus? status)
+        public async Task<IActionResult> UpdateWithImage(string id, [FromForm] UpdateCampusWithImageFormDto dto, IFormFile? image, [FromQuery] CampusStatus? status)
         {
             try
             {
-                if (image == null || image.Length == 0)
+                string? url = null;
+                if (image != null && image.Length > 0)
                 {
-                    return BadRequest(ApiResponse.Fail(400, "Vui lòng chọn ảnh campus để upload."));
-                }
-
-                var url = await _cloudinaryService.UploadImageAsync(image, "campuses");
-                if (string.IsNullOrWhiteSpace(url))
-                {
-                    return BadRequest(ApiResponse.Fail(400, "Upload ảnh campus thất bại."));
+                    url = await _cloudinaryService.UploadImageAsync(image, "campuses");
+                    if (string.IsNullOrWhiteSpace(url))
+                    {
+                        return BadRequest(ApiResponse.Fail(400, "Upload ảnh campus thất bại."));
+                    }
                 }
 
                 var updateDto = new UpdateCampusDto
