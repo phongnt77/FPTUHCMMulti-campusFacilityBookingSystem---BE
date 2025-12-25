@@ -209,7 +209,7 @@ namespace Controller.Controllers
         [Consumes("multipart/form-data")]
         [ProducesResponseType(typeof(ApiResponse<CampusResponseDto>), 200)]
         [ProducesResponseType(typeof(ApiResponse), 400)]
-        public async Task<IActionResult> CreateWithImage([FromForm] CreateCampusDto dto, IFormFile? image)
+        public async Task<IActionResult> CreateWithImage([FromForm] CreateCampusWithImageFormDto dto, IFormFile image)
         {
             if (!ModelState.IsValid)
             {
@@ -218,18 +218,28 @@ namespace Controller.Controllers
 
             try
             {
-                if (image != null && image.Length > 0)
+                if (image == null || image.Length == 0)
                 {
-                    var url = await _cloudinaryService.UploadImageAsync(image, "campuses");
-                    if (string.IsNullOrWhiteSpace(url))
-                    {
-                        return BadRequest(ApiResponse.Fail(400, "Upload ảnh campus thất bại."));
-                    }
-
-                    dto.ImageUrl = url;
+                    return BadRequest(ApiResponse.Fail(400, "Vui lòng chọn ảnh campus để upload."));
                 }
 
-                var result = await _campusService.CreateAsync(dto);
+                var url = await _cloudinaryService.UploadImageAsync(image, "campuses");
+                if (string.IsNullOrWhiteSpace(url))
+                {
+                    return BadRequest(ApiResponse.Fail(400, "Upload ảnh campus thất bại."));
+                }
+
+                var createDto = new CreateCampusDto
+                {
+                    Name = dto.Name,
+                    Address = dto.Address,
+                    PhoneNumber = dto.PhoneNumber,
+                    Email = dto.Email,
+                    Status = dto.Status ?? CampusStatus.Active,
+                    ImageUrl = url
+                };
+
+                var result = await _campusService.CreateAsync(createDto);
                 return Ok(result);
             }
             catch (ArgumentException ex)
@@ -308,27 +318,32 @@ namespace Controller.Controllers
         [ProducesResponseType(typeof(ApiResponse<CampusResponseDto>), 200)]
         [ProducesResponseType(typeof(ApiResponse), 400)]
         [ProducesResponseType(typeof(ApiResponse), 404)]
-        public async Task<IActionResult> UpdateWithImage(string id, [FromForm] UpdateCampusDto dto, IFormFile? image, [FromQuery] CampusStatus? status)
+        public async Task<IActionResult> UpdateWithImage(string id, [FromForm] UpdateCampusWithImageFormDto dto, IFormFile image, [FromQuery] CampusStatus? status)
         {
             try
             {
-                if (status.HasValue)
+                if (image == null || image.Length == 0)
                 {
-                    dto.Status = status.Value;
+                    return BadRequest(ApiResponse.Fail(400, "Vui lòng chọn ảnh campus để upload."));
                 }
 
-                if (image != null && image.Length > 0)
+                var url = await _cloudinaryService.UploadImageAsync(image, "campuses");
+                if (string.IsNullOrWhiteSpace(url))
                 {
-                    var url = await _cloudinaryService.UploadImageAsync(image, "campuses");
-                    if (string.IsNullOrWhiteSpace(url))
-                    {
-                        return BadRequest(ApiResponse.Fail(400, "Upload ảnh campus thất bại."));
-                    }
-
-                    dto.ImageUrl = url;
+                    return BadRequest(ApiResponse.Fail(400, "Upload ảnh campus thất bại."));
                 }
 
-                var result = await _campusService.UpdateAsync(id, dto);
+                var updateDto = new UpdateCampusDto
+                {
+                    Name = dto.Name,
+                    Address = dto.Address,
+                    PhoneNumber = dto.PhoneNumber,
+                    Email = dto.Email,
+                    Status = status ?? dto.Status,
+                    ImageUrl = url
+                };
+
+                var result = await _campusService.UpdateAsync(id, updateDto);
                 if (!result.Success)
                 {
                     return NotFound(result);
